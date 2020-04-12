@@ -1,3 +1,5 @@
+import os
+
 import numpy
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QEvent, QModelIndex
@@ -24,6 +26,7 @@ class MainWindow(QMainWindow):
         self.ui = uic.loadUi(MultiOsUtil.path_for_file_in_program_directory("MainWindow.ui"))
         self._field_validity: {object, bool} = {}
         self._table_model: FitsFileTableModel
+        self._precalibration_file_full_path: str = ""
 
         # Load algorithm from preferences
 
@@ -51,6 +54,21 @@ class MainWindow(QMainWindow):
             self.ui.dispositionNothingRB.setChecked(True)
         self.ui.subFolderName.setText(preferences.get_disposition_subfolder_name())
 
+        # Pre-calibration options
+
+        precalibration_option = preferences.get_precalibration_type()
+        if precalibration_option == Constants.CALIBRATION_PROMPT:
+            self.ui.promptPreCalFileRB.setChecked(True)
+        elif precalibration_option == Constants.CALIBRATION_FIXED_FILE:
+            self.ui.fixedPreCalFileRB.setChecked(True)
+        elif precalibration_option == Constants.CALIBRATION_NONE:
+            self.ui.noPreClalibrationRB.setChecked(True)
+        else:
+            assert precalibration_option == Constants.CALIBRATION_PEDESTAL
+            self.ui.fixedPedestalRB.setChecked(True)
+        self.ui.fixedPedestalAmount.setText(str(preferences.get_precalibration_pedestal()))
+        self.set_fixed_precal_file_name_display(preferences.get_precalibration_fixed_path())
+
         # Set up the file table
         self._table_model = FitsFileTableModel(self.ui.ignoreFileType.isChecked())
         self.ui.filesTable.setModel(self._table_model)
@@ -66,6 +84,11 @@ class MainWindow(QMainWindow):
 
         self.enable_fields()
         self.enable_buttons()
+
+    def set_fixed_precal_file_name_display(self, full_path: str):
+        self._precalibration_file_full_path = full_path
+        name_only = os.path.basename(full_path)
+        self.ui.precalibrationPathDisplay.setText(name_only)
 
     # Connect UI controls to methods here for response
     def connect_responders(self):
@@ -110,6 +133,14 @@ class MainWindow(QMainWindow):
         # Main "combine" button
         self.ui.combineSelectedButton.clicked.connect(self.combine_selected_clicked)
 
+        # Buttons and fields in precalibration area
+        self.ui.noPreClalibrationRB.clicked.connect(self.precalibration_radio_group_clicked)
+        self.ui.fixedPedestalRB.clicked.connect(self.precalibration_radio_group_clicked)
+        self.ui.promptPreCalFileRB.clicked.connect(self.precalibration_radio_group_clicked)
+        self.ui.fixedPreCalFileRB.clicked.connect(self.precalibration_radio_group_clicked)
+        self.ui.selectPreCalFile.clicked.connect(self.select_precalibration_file_clicked)
+        self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
+
     # Certain initialization must be done after "__init__" is finished.
     def set_up_ui(self):
         """Perform initialization that requires class init to be finished"""
@@ -152,6 +183,16 @@ class MainWindow(QMainWindow):
         self.enable_fields()
         self.enable_buttons()
 
+    def pedestal_amount_changed(self):
+        """the field giving the fixed calibration pedestal amount has been changed.
+        Validate it (integer > 0) and store if valid"""
+        proposed_new_number: str = self.ui.fixedPedestalAmount.text()
+        new_number = Validators.valid_int_in_range(proposed_new_number, 0, 32767)
+        valid = new_number is not None
+        SharedUtils.background_validity_color(self.ui.fixedPedestalAmount, valid)
+        self._field_validity[self.ui.fixedPedestalAmount] = valid
+        self.enable_buttons()
+
     def min_max_drop_changed(self):
         """the field giving the number of minimum and maximum values to drop has been changed.
         Validate it (integer > 0) and store if valid"""
@@ -185,6 +226,8 @@ class MainWindow(QMainWindow):
     def enable_fields(self):
         """Enable text fields depending on state of various radio buttons"""
 
+        self.ui.fixedPedestalAmount.setEnabled(self.ui.fixedPedestalRB.isChecked())
+
         # Enable Algorithm fields depending on which algorithm is selected
         self.ui.minMaxNumDropped.setEnabled(self.ui.combineMinMaxRB.isChecked())
         self.ui.sigmaThreshold.setEnabled(self.ui.combineSigmaRB.isChecked())
@@ -213,9 +256,24 @@ class MainWindow(QMainWindow):
         """Rows selected in the file table have changed; check for button enablement"""
         self.enable_buttons()
 
+    def precalibration_radio_group_clicked(self):
+        self.enable_buttons()
+        self.enable_fields()
+
+    def select_precalibration_file_clicked(self):
+        (file_name, _) = QFileDialog.getOpenFileName(parent=self, caption="Select dark or bias file",
+                                                     filter="FITS files(*.fit *.fits)",
+                                                     options=QFileDialog.ReadOnly)
+        if len(file_name) > 0:
+            self.set_fixed_precal_file_name_display(file_name)
+        self.enable_fields()
+        self.enable_buttons()
+
     def enable_buttons(self):
         """Enable buttons on the main window depending on validity and settings
         of other controls"""
+
+        self.ui.selectPreCalFile.setEnabled(self.ui.fixedPreCalFileRB.isChecked())
 
         # "combineSelectedButton" is enabled only if
         #   - No text fields are in error state
@@ -226,10 +284,18 @@ class MainWindow(QMainWindow):
 
         combine_enabled = self.all_text_fields_valid()
         selected = self.ui.filesTable.selectionModel().selectedRows()
+        calibration_path_ok = True
+        dimensions_ok = True
         sigma_clip_enough_files = (not self.ui.combineSigmaRB.isChecked()) or len(selected) >= 3
+        if self.ui.fixedPreCalFileRB.isChecked():
+            calibration_path_ok = os.path.isfile(self._precalibration_file_full_path)
+        if calibration_path_ok:
+            dimensions_ok = self.validate_file_dimensions()
         self.ui.combineSelectedButton.setEnabled(combine_enabled and len(selected) > 0
                                                  and self.min_max_enough_files(len(selected))
-                                                 and sigma_clip_enough_files)
+                                                 and sigma_clip_enough_files
+                                                 and dimensions_ok
+                                                 and calibration_path_ok)
 
         # Enable select all and none only if rows in table
         any_rows = self._table_model.rowCount(QModelIndex()) > 0
@@ -325,6 +391,8 @@ class MainWindow(QMainWindow):
         pre_calibrate: bool
         pedestal_value: int
         calibration_image: numpy.ndarray
+        assert len(input_files) > 0
+        binning: int = input_files[0].get_binning()
         (pre_calibrate, pedestal_value, calibration_image) = (Constants.CALIBRATION_NONE, 0, None)
         method = self.get_combine_method()
         if method == Constants.COMBINE_MEAN:
@@ -332,14 +400,18 @@ class MainWindow(QMainWindow):
             if mean_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
-                                                     mean_exposure, mean_temperature, filter_name,
+                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEAN combined")
         elif method == Constants.COMBINE_MEDIAN:
             median_data = RmFitsUtil.combine_median(file_names, pre_calibrate, pedestal_value, calibration_image)
             if median_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
-                                                     mean_exposure, mean_temperature, filter_name,
+                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEDIAN combined")
         elif method == Constants.COMBINE_MINMAX:
             number_dropped_points = int(self.ui.minMaxNumDropped.text())
@@ -348,7 +420,9 @@ class MainWindow(QMainWindow):
             if min_max_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
-                                                     mean_exposure, mean_temperature, filter_name,
+                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
                                                      f"Master Dark Min/Max Clipped "
                                                      f"(drop {number_dropped_points}) Mean combined")
         else:
@@ -359,7 +433,9 @@ class MainWindow(QMainWindow):
             if sigma_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
-                                                     mean_exposure, mean_temperature, filter_name,
+                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
                                                      f"Master Dark Sigma Clipped "
                                                      f"(threshold {sigma_threshold}) Mean combined")
 
@@ -396,4 +472,39 @@ class MainWindow(QMainWindow):
             return True
         else:
             return num_selected > (2 * int(self.ui.minMaxNumDropped.text()))
+
+    # Determine if all the dimensions are OK to proceed.
+    #   All selected files must be the same size and the same binning
+    #   Include the precalibration bias file in this test if that method is selected
+
+    def validate_file_dimensions(self) -> bool:
+        print("validate_file_dimensions")
+        # todo validate_file_dimensions
+        # Get list of paths of selected files
+        descriptors: [FileDescriptor] = self.get_selected_file_descriptors()
+        if len(descriptors) > 0:
+
+            # If precalibration file is in use, add that name to the list
+            if self.ui.fixedPreCalFileRB.isChecked():
+                calibration_descriptor = RmFitsUtil.make_file_descriptor(self._precalibration_file_full_path)
+                descriptors.append(calibration_descriptor)
+
+            # Get binning and dimension of first to use as a reference
+            assert len(descriptors) > 0
+            reference_file: FileDescriptor = descriptors[0]
+            reference_binning = reference_file.get_binning()
+            reference_x_size = reference_file.get_x_dimension()
+            reference_y_size = reference_file.get_y_dimension()
+
+            # Check all files in the list against these specifications
+            descriptor: FileDescriptor
+            for descriptor in descriptors:
+                if descriptor.get_binning() != reference_binning:
+                    return False
+                if descriptor.get_x_dimension() != reference_x_size:
+                    return False
+                if descriptor.get_y_dimension() != reference_y_size:
+                    return False
+
+        return True
 

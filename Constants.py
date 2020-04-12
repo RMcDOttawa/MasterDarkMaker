@@ -20,6 +20,8 @@ class Constants:
     CALIBRATION_FIXED_FILE = -9713  # Precalibration file path is permanently stored
     CALIBRATION_PROMPT = -9711  # Prompt user for precalibration file
 
+    DEFAULT_CALIBRATION_PEDESTAL = 100
+
 
     @classmethod
     def combine_method_string(cls, method: int) -> str:

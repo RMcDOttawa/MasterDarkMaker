@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>452</width>
-    <height>494</height>
+    <height>498</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -115,6 +115,12 @@
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="QFrame" name="frame_3">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>161</height>
+      </size>
+     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -137,6 +143,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QRadioButton" name="noPreClalibrationRB">
+        <property name="toolTip">
+         <string>No precalibration</string>
+        </property>
         <property name="text">
          <string>No pre-calibration</string>
         </property>
@@ -147,6 +156,9 @@
       </item>
       <item row="2" column="0">
        <widget class="QRadioButton" name="fixedPedestalRB">
+        <property name="toolTip">
+         <string>Precalibrate by subtracting given constant pedestal value from every pixel</string>
+        </property>
         <property name="text">
          <string>Subtract fixed pedestal amount:</string>
         </property>
@@ -156,7 +168,11 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="fixedPedestalAmount"/>
+       <widget class="QLineEdit" name="fixedPedestalAmount">
+        <property name="toolTip">
+         <string>Pedestal value to subtract</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="2" rowspan="2">
        <spacer name="horizontalSpacer_2">
@@ -173,6 +189,9 @@
       </item>
       <item row="3" column="0">
        <widget class="QRadioButton" name="promptPreCalFileRB">
+        <property name="toolTip">
+         <string>Prompt user for a bias file for precalibration</string>
+        </property>
         <property name="text">
          <string>Prompt User</string>
         </property>
@@ -183,6 +202,9 @@
       </item>
       <item row="4" column="0">
        <widget class="QRadioButton" name="FixedPreCalFileRB">
+        <property name="toolTip">
+         <string>Use fixed bias file specified here for precalibration</string>
+        </property>
         <property name="text">
          <string>Fixed Bias File:</string>
         </property>
@@ -213,8 +235,20 @@
       </item>
       <item row="5" column="0" colspan="3">
        <widget class="QLabel" name="precalibrationPathDisplay">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>34</height>
+         </size>
+        </property>
         <property name="text">
-         <string>File name is echoed here</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;File name is echoed here&lt;br/&gt;second line&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -307,8 +341,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="dispositionGroup"/>
   <buttongroup name="combineMethodGroup"/>
+  <buttongroup name="dispositionGroup"/>
   <buttongroup name="precalibrationGroup"/>
  </buttongroups>
 </ui>
