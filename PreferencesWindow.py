@@ -67,8 +67,8 @@ class PreferencesWindow(QDialog):
         self.ui.groupByExposureCB.setChecked(preferences.get_group_by_exposure())
         self.ui.groupByTemperatureCB.setChecked(preferences.get_group_by_temperature())
 
-        self.ui.exposureGroupTolerance.setText(str(100 * preferences.get_exposure_group_tolerance()))
-        self.ui.temperatureGroupTolerance.setText(str(100 * preferences.get_temperature_group_tolerance()))
+        self.ui.exposureGroupTolerance.setText(f"{100 * preferences.get_exposure_group_tolerance():.0f}")
+        self.ui.temperatureGroupTolerance.setText(f"{100 * preferences.get_temperature_group_tolerance():.0f}")
 
         # Set up responders for buttons and fields
         self.ui.combineMeanRB.clicked.connect(self.combine_mean_button_clicked)

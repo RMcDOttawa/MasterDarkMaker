@@ -6,22 +6,28 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
-    <height>584</height>
+    <width>945</width>
+    <height>811</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>915</width>
-    <height>584</height>
+    <width>945</width>
+    <height>811</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Master Dark Frame Maker</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
+   <layout class="QGridLayout" name="gridLayout_5">
+    <item row="0" column="0" rowspan="4">
      <widget class="QTableView" name="filesTable">
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
@@ -53,40 +59,34 @@
      </widget>
     </item>
     <item row="0" column="1" colspan="2">
-     <widget class="QFrame" name="frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+     <widget class="QFrame" name="frame_2">
       <property name="minimumSize">
        <size>
-        <width>271</width>
-        <height>431</height>
+        <width>311</width>
+        <height>198</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>900</width>
-        <height>500</height>
+        <width>311</width>
+        <height>198</height>
        </size>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Box</enum>
+       <enum>QFrame::StyledPanel</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0" colspan="5">
+       <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Pre-Combine Bias File Calibration&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="1" column="0">
         <widget class="QRadioButton" name="noPreClalibrationRB">
          <property name="toolTip">
           <string>No precalibration</string>
@@ -106,7 +106,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="2" colspan="3">
+       <item row="2" column="1">
         <widget class="QLineEdit" name="fixedPedestalAmount"/>
        </item>
        <item row="3" column="0">
@@ -129,14 +129,14 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="3" colspan="2">
+       <item row="4" column="1" rowspan="2">
         <widget class="QPushButton" name="selectPreCalFile">
          <property name="text">
           <string>Select File</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="5">
+       <item row="5" column="0">
         <widget class="QLabel" name="precalibrationPathDisplay">
          <property name="minimumSize">
           <size>
@@ -155,14 +155,38 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="0" colspan="3">
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="1" colspan="2">
+     <widget class="QFrame" name="frame_3">
+      <property name="minimumSize">
+       <size>
+        <width>311</width>
+        <height>177</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>311</width>
+        <height>177</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label">
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Combination Algorithm&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="1" column="0">
         <widget class="QRadioButton" name="combineMeanRB">
          <property name="toolTip">
           <string>Simple mean. Best signal-to-noise, but outliers (satellites etc) will show up.</string>
@@ -170,19 +194,16 @@
          <property name="text">
           <string>Mean</string>
          </property>
-         <attribute name="buttonGroup">
-          <string notr="true">algorithmGroup</string>
-         </attribute>
         </widget>
        </item>
-       <item row="7" column="2">
+       <item row="1" column="1">
         <widget class="QLabel" name="message">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="2" column="0">
         <widget class="QRadioButton" name="combineMedianRB">
          <property name="toolTip">
           <string>Simple median. Rejects outliers, but signal-to-noise not as good as with Mean.</string>
@@ -190,12 +211,9 @@
          <property name="text">
           <string>Median</string>
          </property>
-         <attribute name="buttonGroup">
-          <string notr="true">algorithmGroup</string>
-         </attribute>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="3" column="0">
         <widget class="QRadioButton" name="combineMinMaxRB">
          <property name="toolTip">
           <string>Drop min and max values, then Mean. Works well when outliers are hot or black pixels.</string>
@@ -203,26 +221,23 @@
          <property name="text">
           <string>Min/Max Clip</string>
          </property>
-         <attribute name="buttonGroup">
-          <string notr="true">algorithmGroup</string>
-         </attribute>
         </widget>
        </item>
-       <item row="9" column="1" colspan="2">
+       <item row="3" column="1">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Drop</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="4">
+       <item row="3" column="2">
         <widget class="QLineEdit" name="minMaxNumDropped">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How many min and max values are dropped?  (1 = drop all instances of the max and all instances of the min; 2 = all instances of max and next-to-max and all instances of 2 min values, etc.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="4" column="0">
         <widget class="QRadioButton" name="combineSigmaRB">
          <property name="toolTip">
           <string>Drop pixels more than a given sigma ratio from the mean, then mean the rest. Good rejection of anomalous data.</string>
@@ -230,40 +245,162 @@
          <property name="text">
           <string>Sigma Clip</string>
          </property>
-         <attribute name="buttonGroup">
-          <string notr="true">algorithmGroup</string>
-         </attribute>
         </widget>
        </item>
-       <item row="10" column="1" colspan="2">
+       <item row="4" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Z Limit</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="4">
+       <item row="4" column="2">
         <widget class="QLineEdit" name="sigmaThreshold">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sigma ratio (how many standard deviations the value is from the mean) beyond which data are dropped.  Try 2.0 then experiment.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="0" colspan="5">
+       <item row="5" column="0" colspan="3">
         <widget class="QCheckBox" name="ignoreFileType">
          <property name="text">
           <string>Ignore FITS file type, allow combine</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="0" colspan="4">
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="1" colspan="2">
+     <widget class="QFrame" name="frame_4">
+      <property name="minimumSize">
+       <size>
+        <width>311</width>
+        <height>125</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>311</width>
+        <height>125</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" colspan="3">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Process Multiple Files at Once, Grouped&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="groupBySizeCB">
+         <property name="toolTip">
+          <string>Process sets of files having different dimensions or binnings</string>
+         </property>
+         <property name="text">
+          <string>Group by size (dimensions and binning)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="groupByExposureCB">
+         <property name="toolTip">
+          <string>Process sets of files having different exposure times</string>
+         </property>
+         <property name="text">
+          <string>Group by Exposure, within:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="exposureGroupTolerance">
+         <property name="maximumSize">
+          <size>
+           <width>31</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Consider exposure times to be the same if the are within this percentage of each other.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>%</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="groupByTemperatureCB">
+         <property name="toolTip">
+          <string>Process sets of files having different CCD temperatures</string>
+         </property>
+         <property name="text">
+          <string>Group by Temperature, within:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="temperatureGroupTolerance">
+         <property name="maximumSize">
+          <size>
+           <width>31</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Consider temperatures to be the same if the are within this percentage of each other.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>%</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="1" colspan="2">
+     <widget class="QFrame" name="frame_5">
+      <property name="minimumSize">
+       <size>
+        <width>311</width>
+        <height>101</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>311</width>
+        <height>101</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_5">
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Disposition of Input Files &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
+       <item row="1" column="0" colspan="2">
         <widget class="QRadioButton" name="dispositionNothingRB">
          <property name="toolTip">
           <string>Leave the input files alone.</string>
@@ -276,7 +413,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="2" column="0">
         <widget class="QRadioButton" name="dispositionSubFolderRB">
          <property name="toolTip">
           <string>Move the input files to a sub-folder (in the same directory as the input files) with the given name</string>
@@ -289,7 +426,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="14" column="1" colspan="4">
+       <item row="2" column="1">
         <widget class="QLineEdit" name="subFolderName">
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name for the folder to move the processed files. Optionally this name can contain %d, %t, or %f, which will be replaced by the date, time, and filter name, respectively.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -299,7 +436,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0" colspan="2">
+    <item row="4" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QPushButton" name="selectNoneButton">
@@ -337,7 +474,7 @@
       </item>
      </layout>
     </item>
-    <item row="2" column="0" colspan="2">
+    <item row="5" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QPushButton" name="pickFilesButton">
@@ -361,7 +498,7 @@
       </item>
      </layout>
     </item>
-    <item row="2" column="2">
+    <item row="5" column="2">
      <widget class="QPushButton" name="combineSelectedButton">
       <property name="text">
        <string>Combine Selected</string>
@@ -381,7 +518,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>915</width>
+     <width>945</width>
      <height>22</height>
     </rect>
    </property>
@@ -459,6 +596,5 @@
  <connections/>
  <buttongroups>
   <buttongroup name="dispositionGroup"/>
-  <buttongroup name="algorithmGroup"/>
  </buttongroups>
 </ui>

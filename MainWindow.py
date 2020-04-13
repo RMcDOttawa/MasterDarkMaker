@@ -69,6 +69,16 @@ class MainWindow(QMainWindow):
         self.ui.fixedPedestalAmount.setText(str(preferences.get_precalibration_pedestal()))
         self.set_fixed_precal_file_name_display(preferences.get_precalibration_fixed_path())
 
+        # Grouping boxes and parameters
+
+        self.ui.groupBySizeCB.setChecked(preferences.get_group_by_size())
+        self.ui.groupByExposureCB.setChecked(preferences.get_group_by_exposure())
+        self.ui.groupByTemperatureCB.setChecked(preferences.get_group_by_temperature())
+
+        self.ui.exposureGroupTolerance.setText(f"{100 * preferences.get_exposure_group_tolerance():.0f}")
+        self.ui.temperatureGroupTolerance.setText(f"{100 * preferences.get_temperature_group_tolerance():.0f}")
+
+
         # Set up the file table
         self._table_model = FitsFileTableModel(self.ui.ignoreFileType.isChecked())
         self.ui.filesTable.setModel(self._table_model)
@@ -141,6 +151,14 @@ class MainWindow(QMainWindow):
         self.ui.selectPreCalFile.clicked.connect(self.select_precalibration_file_clicked)
         self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
 
+        # Grouping controls
+        self.ui.groupBySizeCB.clicked.connect(self.group_by_size_clicked)
+        self.ui.groupByExposureCB.clicked.connect(self.group_by_exposure_clicked)
+        self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
+        self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
+        self.ui.temperatureGroupTolerance.editingFinished.connect(self.temperature_group_tolerance_changed)
+
+
     # Certain initialization must be done after "__init__" is finished.
     def set_up_ui(self):
         """Perform initialization that requires class init to be finished"""
@@ -179,6 +197,18 @@ class MainWindow(QMainWindow):
 
     def algorithm_button_clicked(self):
         """ One of the algorithm buttons is clicked.  Change what fields are enabled"""
+        self.enable_fields()
+        self.enable_buttons()
+
+    def group_by_size_clicked(self):
+        self.enable_fields()
+        self.enable_buttons()
+
+    def group_by_exposure_clicked(self):
+        self.enable_fields()
+        self.enable_buttons()
+
+    def group_by_temperature_clicked(self):
         self.enable_fields()
         self.enable_buttons()
 
@@ -227,6 +257,20 @@ class MainWindow(QMainWindow):
         self._field_validity[self.ui.subFolderName] = valid
         self.enable_buttons()
 
+    def exposure_group_tolerance_changed(self):
+        """User has entered value in exposure group tolerance field.  Validate and save"""
+        proposed_new_number: str = self.ui.exposureGroupTolerance.text()
+        new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
+        valid = new_number is not None
+        SharedUtils.background_validity_color(self.ui.exposureGroupTolerance, valid)
+
+    def temperature_group_tolerance_changed(self):
+        """User has entered value in temperature group tolerance field.  Validate and save"""
+        proposed_new_number: str = self.ui.temperatureGroupTolerance.text()
+        new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
+        valid = new_number is not None
+        SharedUtils.background_validity_color(self.ui.temperatureGroupTolerance, valid)
+
     def enable_fields(self):
         """Enable text fields depending on state of various radio buttons"""
 
@@ -238,6 +282,10 @@ class MainWindow(QMainWindow):
 
         # Enable Disposition fields depending on which disposition is selected
         self.ui.subFolderName.setEnabled(self.ui.dispositionSubFolderRB.isChecked())
+
+        # Grouping parameters go with their corresponding checkbox
+        self.ui.exposureGroupTolerance.setEnabled(self.ui.groupByExposureCB.isChecked())
+        self.ui.temperatureGroupTolerance.setEnabled(self.ui.groupByTemperatureCB.isChecked())
 
     # Open a file dialog to pick files to be processed
 
@@ -351,6 +399,16 @@ class MainWindow(QMainWindow):
         # Get the list of selected files
         selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
         assert len(selected_files) > 0  # Or else the button would have been disabled
+        if self.ui.groupByExposureCB.isChecked() or self.ui.groupBySizeCB.isChecked() or self.ui.groupByTemperatureCB.isChecked():
+            self.process_groups(selected_files)
+        else:
+            self.original_non_grouped_processing(selected_files)
+
+    def process_groups(self, selected_files: [FileDescriptor]):
+        print("process_groups")
+        # todo process_groups
+
+    def original_non_grouped_processing(self, selected_files: [FileDescriptor]):
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if RmFitsUtil.all_compatible_sizes(selected_files):
             if self.ui.ignoreFileType.isChecked() \
@@ -376,8 +434,8 @@ class MainWindow(QMainWindow):
                 not_dark_error = QMessageBox()
                 not_dark_error.setText("The selected files are not all Dark Frames")
                 not_dark_error.setInformativeText("If you know the files are dark frames, they may not have proper FITS"
-                                                   + " data internally. Check the \"Ignore FITS file type\" box"
-                                                   + " to proceed anyway.")
+                                                  + " data internally. Check the \"Ignore FITS file type\" box"
+                                                  + " to proceed anyway.")
                 not_dark_error.setStandardButtons(QMessageBox.Ok)
                 not_dark_error.setDefaultButton(QMessageBox.Ok)
                 _ = not_dark_error.exec_()
