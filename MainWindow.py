@@ -336,7 +336,7 @@ class MainWindow(QMainWindow):
         #   - If Min/Max algorithm selected with count "n", > 2n files selected
         #   - If sigma-clip algorithm selected, >= 3 files selected
         #   - If fixed precalibration file option selected, path must exist
-        #   - All files must be same dimensions and binning
+        #   - All files must be same dimensions and binning (unless grouping by size)
 
         # We'll say why it's disabled in the tool tip
 
@@ -358,10 +358,10 @@ class MainWindow(QMainWindow):
             if not calibration_path_ok:
                 tool_tip_text = "Disabled because specified calibration file does not exist"
         if calibration_path_ok:
-            dimensions_ok = self.validate_file_dimensions()
+            dimensions_ok = self.ui.groupBySizeCB.isChecked() or self.validate_file_dimensions()
             if not dimensions_ok:
                 tool_tip_text = "Disabled because all files (including bias file if selected)" \
-                                " do not have the same dimensions and binning"
+                                " do not have the same dimensions and binning and Group by Size not selected"
         self.ui.combineSelectedButton.setEnabled(text_fields_valid
                                                  and len(selected) > 0
                                                  and self.min_max_enough_files(len(selected))
