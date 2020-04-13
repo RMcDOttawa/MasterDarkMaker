@@ -258,6 +258,8 @@ class MainWindow(QMainWindow):
 
     def table_selection_changed(self):
         """Rows selected in the file table have changed; check for button enablement"""
+        selected = self.ui.filesTable.selectionModel().selectedRows()
+        self.ui.selectedLabel.setText(f"{len(selected)} rows selected")
         self.enable_buttons()
         self.enable_fields()
 
@@ -487,6 +489,7 @@ class MainWindow(QMainWindow):
             SharedUtils.dispose_files_to_sub_folder(descriptors, self.ui.subFolderName.text())
             # Remove the files from the table since those paths are no longer valid
             self._table_model.remove_files(descriptors)
+            self.ui.filesTable.scrollToTop()
 
     # Determine if there are enough files selected for the Min-Max algorithm
     # If that algorithm isn't selected, then return True

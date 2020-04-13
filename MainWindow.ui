@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1040</width>
-    <height>554</height>
+    <height>530</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -312,6 +312,13 @@
        <widget class="QPushButton" name="selectAllButton">
         <property name="text">
          <string>Select All</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="selectedLabel">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

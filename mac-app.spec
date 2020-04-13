@@ -7,7 +7,7 @@ block_cipher = None
 
 
 a = Analysis(['MasterBiasMaker.py'],
-             pathex=['/Users/richard/DropBox/dropbox/EWHO/Application Development/MasterBiasMaker'],
+             pathex=['/Users/richard/DropBox/dropbox/EWHO/Application Development/MasterDarkMaker'],
              binaries=[],
              datas=[('MainWindow.ui', '.'),
              ('PreferencesWindow.ui', '.')],
@@ -25,7 +25,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='MasterBiasMaker',
+          name='MasterDarkMaker',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -38,8 +38,8 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='MasterBiasMaker')
+               name='MasterDarkMaker')
 app = BUNDLE(coll,
-             name='MasterBiasMaker.app',
+             name='MasterDarkMaker.app',
              icon=None,
              bundle_identifier=None)

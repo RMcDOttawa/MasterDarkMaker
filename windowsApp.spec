@@ -5,8 +5,8 @@
 block_cipher = None
 
 
-a = Analysis(['MasterBiasMaker.py'],
-             pathex=['\\\\Mac\\Dropbox\\Dropbox\\EWHO\\Application Development\\MasterBiasMaker'],
+a = Analysis(['MasterDarkMaker.py'],
+             pathex=['\\\\Mac\\Dropbox\\Dropbox\\EWHO\\Application Development\\MasterDarkMaker'],
              binaries=[],
              datas=[('MainWindow.ui', '.'), ('PreferencesWindow.ui','.')],
              hiddenimports=[],
@@ -25,7 +25,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='MasterBiasMaker',
+          name='MasterDarkMaker',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
