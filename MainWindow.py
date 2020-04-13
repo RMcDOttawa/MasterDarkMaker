@@ -166,12 +166,16 @@ class MainWindow(QMainWindow):
     def select_all_clicked(self):
         """Select all the rows in the files table"""
         self.ui.filesTable.selectAll()
+        self.enable_buttons()
+        self.enable_fields()
 
     # Select-None button has been clicked
 
     def select_none_clicked(self):
         """Clear the table selection, leaving no rows selected"""
         self.ui.filesTable.clearSelection()
+        self.enable_buttons()
+        self.enable_fields()
 
     def algorithm_button_clicked(self):
         """ One of the algorithm buttons is clicked.  Change what fields are enabled"""
@@ -255,6 +259,7 @@ class MainWindow(QMainWindow):
     def table_selection_changed(self):
         """Rows selected in the file table have changed; check for button enablement"""
         self.enable_buttons()
+        self.enable_fields()
 
     def precalibration_radio_group_clicked(self):
         self.enable_buttons()
@@ -281,21 +286,39 @@ class MainWindow(QMainWindow):
         #   - If Min/Max algorithm selected with count "n", > 2n files selected
         #   - If sigma-clip algorithm selected, >= 3 files selected
         #   - If fixed precalibration file option selected, path must exist
+        #   - All files must be same dimensions and binning
 
-        combine_enabled = self.all_text_fields_valid()
+        # We'll say why it's disabled in the tool tip
+
+        tool_tip_text: str = "Combined the selected files into a master bias"
+
+        text_fields_valid = self.all_text_fields_valid()
+        if not text_fields_valid:
+            tool_tip_text = "Disabled because of invalid text fields (shown in red)"
         selected = self.ui.filesTable.selectionModel().selectedRows()
+        if len(selected) == 0:
+            tool_tip_text = "Disabled because no files are selected"
         calibration_path_ok = True
         dimensions_ok = True
         sigma_clip_enough_files = (not self.ui.combineSigmaRB.isChecked()) or len(selected) >= 3
+        if not sigma_clip_enough_files:
+            tool_tip_text = "Disabled because not enough files selected for sigma-clip method"
         if self.ui.fixedPreCalFileRB.isChecked():
             calibration_path_ok = os.path.isfile(self._precalibration_file_full_path)
+            if not calibration_path_ok:
+                tool_tip_text = "Disabled because specified calibration file does not exist"
         if calibration_path_ok:
             dimensions_ok = self.validate_file_dimensions()
-        self.ui.combineSelectedButton.setEnabled(combine_enabled and len(selected) > 0
+            if not dimensions_ok:
+                tool_tip_text = "Disabled because all files (including bias file if selected)" \
+                                " do not have the same dimensions and binning"
+        self.ui.combineSelectedButton.setEnabled(text_fields_valid
+                                                 and len(selected) > 0
                                                  and self.min_max_enough_files(len(selected))
                                                  and sigma_clip_enough_files
                                                  and dimensions_ok
                                                  and calibration_path_ok)
+        self.ui.combineSelectedButton.setToolTip(tool_tip_text)
 
         # Enable select all and none only if rows in table
         any_rows = self._table_model.rowCount(QModelIndex()) > 0
