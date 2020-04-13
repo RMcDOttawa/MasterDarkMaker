@@ -37,6 +37,17 @@ class Preferences(QSettings):
     # File path if bias/dark file is to be subtracted
     PRE_CALIBRATION_FILE = "pre_calibration_file"
 
+    # Are we processing multiple file sets at once using grouping?
+    GROUP_BY_SIZE = "group_by_size"
+    GROUP_BY_EXPOSURE = "group_by_exposure"
+    GROUP_BY_TEMPERATURE = "group_by_temperature"
+
+    # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
+    EXPOSURE_GROUP_TOLERANCE = "exposure_group_tolerance"
+
+    # How much, as a percentage, can temperatures vary before being considered a different group?
+    TEMPERATURE_GROUP_TOLERANCE = "temperature_group_tolerance"
+
     def __init__(self):
         QSettings.__init__(self, "EarwigHavenObservatory.com", "MasterDarkMaker_b")
         # print(f"Preferences file path: {self.fileName()}")
@@ -143,3 +154,45 @@ class Preferences(QSettings):
 
     def set_precalibration_fixed_path(self, path: str):
         self.setValue(self.PRE_CALIBRATION_FILE, path)
+
+    # Are we processing multiple file sets at once using grouping?
+
+    def get_group_by_size(self) -> bool:
+        return bool(self.value(self.GROUP_BY_SIZE, defaultValue=False))
+
+    def set_group_by_size(self, isGrouped: bool):
+        self.setValue(self.GROUP_BY_SIZE, isGrouped)
+
+    def get_group_by_exposure(self) -> bool:
+        return bool(self.value(self.GROUP_BY_EXPOSURE, defaultValue=False))
+
+    def set_group_by_exposure(self, isGrouped: bool):
+        self.setValue(self.GROUP_BY_EXPOSURE, isGrouped)
+
+    def get_group_by_temperature(self) -> bool:
+        return bool(self.value(self.GROUP_BY_TEMPERATURE, defaultValue=False))
+
+    def set_group_by_temperature(self, isGrouped: bool):
+        self.setValue(self.GROUP_BY_TEMPERATURE, isGrouped)
+
+    # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
+
+    def get_exposure_group_tolerance(self) -> float:
+        percentage: float = float(self.value(self.EXPOSURE_GROUP_TOLERANCE, defaultValue=0.05))
+        assert 0.0 <= percentage < 1.0
+        return percentage
+
+    def set_exposure_group_tolerance(self, percentage: float):
+        assert 0.0 <= percentage < 1.0
+        self.setValue(self.EXPOSURE_GROUP_TOLERANCE, percentage)
+
+    # How much, as a percentage, can temperatures vary before being considered a different group?
+
+    def get_temperature_group_tolerance(self) -> float:
+        percentage: float = float(self.value(self.TEMPERATURE_GROUP_TOLERANCE, defaultValue=0.10))
+        assert 0 <= percentage < 1
+        return percentage
+
+    def set_temperature_group_tolerance(self, percentage: float):
+        assert 0 <= percentage < 1
+        self.setValue(self.TEMPERATURE_GROUP_TOLERANCE, percentage)

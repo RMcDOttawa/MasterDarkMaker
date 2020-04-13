@@ -62,6 +62,14 @@ class PreferencesWindow(QDialog):
         self.ui.fixedPedestalAmount.setText(str(preferences.get_precalibration_pedestal()))
         self.ui.precalibrationPathDisplay.setText(preferences.get_precalibration_fixed_path())
 
+        # Grouping information
+        self.ui.groupBySizeCB.setChecked(preferences.get_group_by_size())
+        self.ui.groupByExposureCB.setChecked(preferences.get_group_by_exposure())
+        self.ui.groupByTemperatureCB.setChecked(preferences.get_group_by_temperature())
+
+        self.ui.exposureGroupTolerance.setText(str(100 * preferences.get_exposure_group_tolerance()))
+        self.ui.temperatureGroupTolerance.setText(str(100 * preferences.get_temperature_group_tolerance()))
+
         # Set up responders for buttons and fields
         self.ui.combineMeanRB.clicked.connect(self.combine_mean_button_clicked)
         self.ui.combineMedianRB.clicked.connect(self.combine_median_button_clicked)
@@ -78,6 +86,10 @@ class PreferencesWindow(QDialog):
 
         self.ui.selectPreCalFile.clicked.connect(self.select_precalibration_file_clicked)
 
+        self.ui.groupBySizeCB.clicked.connect(self.group_by_size_clicked)
+        self.ui.groupByExposureCB.clicked.connect(self.group_by_exposure_clicked)
+        self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
+
         self.ui.closeButton.clicked.connect(self.close_button_clicked)
 
         # Input fields
@@ -85,7 +97,22 @@ class PreferencesWindow(QDialog):
         self.ui.sigmaThreshold.editingFinished.connect(self.sigma_threshold_changed)
         self.ui.subFolderName.editingFinished.connect(self.sub_folder_name_changed)
         self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
+        self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
+        self.ui.temperatureGroupTolerance.editingFinished.connect(self.temperature_group_tolerance_changed
+                                                                  )
 
+        self.enableFields()
+
+    def group_by_size_clicked(self):
+        self._preferences.set_group_by_size(self.ui.groupBySizeCB.isChecked())
+        self.enableFields()
+
+    def group_by_exposure_clicked(self):
+        self._preferences.set_group_by_exposure(self.ui.groupByExposureCB.isChecked())
+        self.enableFields()
+
+    def group_by_temperature_clicked(self):
+        self._preferences.set_group_by_temperature(self.ui.groupByTemperatureCB.isChecked())
         self.enableFields()
 
     def combine_mean_button_clicked(self):
@@ -156,6 +183,24 @@ class PreferencesWindow(QDialog):
             self._preferences.set_precalibration_pedestal(new_number)
         SharedUtils.background_validity_color(self.ui.fixedPedestalAmount, valid)
 
+    def exposure_group_tolerance_changed(self):
+        """User has entered value in exposure group tolerance field.  Validate and save"""
+        proposed_new_number: str = self.ui.exposureGroupTolerance.text()
+        new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
+        valid = new_number is not None
+        if valid:
+            self._preferences.set_exposure_group_tolerance(new_number / 100.0)
+        SharedUtils.background_validity_color(self.ui.exposureGroupTolerance, valid)
+
+    def temperature_group_tolerance_changed(self):
+        """User has entered value in temperature group tolerance field.  Validate and save"""
+        proposed_new_number: str = self.ui.temperatureGroupTolerance.text()
+        new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
+        valid = new_number is not None
+        if valid:
+            self._preferences.set_temperature_group_tolerance(new_number / 100.0)
+        SharedUtils.background_validity_color(self.ui.temperatureGroupTolerance, valid)
+
     def min_max_drop_changed(self):
         """the field giving the number of minimum and maximum values to drop has been changed.
         Validate it (integer > 0) and store if valid"""
@@ -196,6 +241,11 @@ class PreferencesWindow(QDialog):
             self._preferences.get_precalibration_type() == Constants.CALIBRATION_PEDESTAL)
         self.ui.selectPreCalFile.setEnabled(
             self._preferences.get_precalibration_type() == Constants.CALIBRATION_FIXED_FILE)
+        self.ui.exposureGroupTolerance.setEnabled(
+            self._preferences.get_group_by_exposure())
+        self.ui.temperatureGroupTolerance.setEnabled(
+            self._preferences.get_group_by_temperature())
+
 
     def close_button_clicked(self):
         """Close button has been clicked - close the preferences window"""
