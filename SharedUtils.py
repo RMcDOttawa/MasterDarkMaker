@@ -79,7 +79,6 @@ class SharedUtils:
         maximum_key = max(filter_counts, key=filter_counts.get)
         return maximum_key if maximum_key is not None else ""
 
-
     # Move the processed input files to a sub-folder with the given name (after substituting
     # special markers in the folder name).  If the folder exists, just use it.  If it doesn't
     # exist, create it.

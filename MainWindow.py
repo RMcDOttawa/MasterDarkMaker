@@ -359,11 +359,13 @@ class MainWindow(QMainWindow):
                 output_file = self.get_output_file(suggested_output_path)
                 if output_file is not None:
                     # Get (most common) filter name in the set
+                    # Since these are darks, the filter is meaningless, but we need the value
+                    # for the shared "create file" routine
                     filter_name = SharedUtils.most_common_filter_name(selected_files)
                     # Do the combination
                     self.combine_files(selected_files, filter_name, output_file)
                     # Optionally do something with the original input files
-                    self.handle_input_files_disposition(selected_files, filter_name)
+                    self.handle_input_files_disposition(selected_files)
                     self.ui.message.setText("Combine completed")
                 else:
                     # User cancelled from the file dialog
@@ -423,7 +425,7 @@ class MainWindow(QMainWindow):
             if mean_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
-                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     FileDescriptor.FILE_TYPE_DARK,
                                                      "Dark Frame",
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEAN combined")
@@ -432,7 +434,7 @@ class MainWindow(QMainWindow):
             if median_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
-                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     FileDescriptor.FILE_TYPE_DARK,
                                                      "Dark Frame",
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEDIAN combined")
@@ -443,7 +445,7 @@ class MainWindow(QMainWindow):
             if min_max_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
-                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     FileDescriptor.FILE_TYPE_DARK,
                                                      "Dark Frame",
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      f"Master Dark Min/Max Clipped "
@@ -456,7 +458,7 @@ class MainWindow(QMainWindow):
             if sigma_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
-                                                     FileDescriptor.FILE_TYPE_Dark,
+                                                     FileDescriptor.FILE_TYPE_DARK,
                                                      "Dark Frame",
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      f"Master Dark Sigma Clipped "
@@ -475,14 +477,14 @@ class MainWindow(QMainWindow):
             return Constants.COMBINE_SIGMA_CLIP
 
     # We're done combining files.  The user may want us to do something with the original input files
-    def handle_input_files_disposition(self, descriptors: [FileDescriptor], filter_name: str):
+    def handle_input_files_disposition(self, descriptors: [FileDescriptor]):
         if self.ui.dispositionNothingRB.isChecked():
             # User doesn't want us to do anything with the input files
             pass
         else:
             assert (self.ui.dispositionSubFolderRB.isChecked())
             # User wants us to move the input files into a sub-folder
-            SharedUtils.dispose_files_to_sub_folder(descriptors, self.ui.subFolderName.text(), filter_name)
+            SharedUtils.dispose_files_to_sub_folder(descriptors, self.ui.subFolderName.text())
             # Remove the files from the table since those paths are no longer valid
             self._table_model.remove_files(descriptors)
 
@@ -501,8 +503,6 @@ class MainWindow(QMainWindow):
     #   Include the precalibration bias file in this test if that method is selected
 
     def validate_file_dimensions(self) -> bool:
-        print("validate_file_dimensions")
-        # todo validate_file_dimensions
         # Get list of paths of selected files
         descriptors: [FileDescriptor] = self.get_selected_file_descriptors()
         if len(descriptors) > 0:
@@ -530,4 +530,3 @@ class MainWindow(QMainWindow):
                     return False
 
         return True
-

@@ -76,7 +76,7 @@ class Preferences(QSettings):
     # are rejected, the the remaining points are mean-combined.  Floating point number > 0.
 
     def get_sigma_clip_threshold(self) -> float:
-        result = float(self.value(self.SIGMA_CLIP_THRESHOLD, defaultValue=3.0))
+        result = float(self.value(self.SIGMA_CLIP_THRESHOLD, defaultValue=2.0))
         assert result > 0.0
         return result
 

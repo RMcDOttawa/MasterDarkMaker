@@ -3,9 +3,6 @@
 # with the various native bundle packaging utilities that I can't get working
 import os
 
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QLabel, QCheckBox, QRadioButton, QLineEdit, QPushButton, QDateEdit, QTimeEdit
-
 
 class MultiOsUtil:
 

@@ -339,8 +339,7 @@ class RmFitsUtil:
     def combine_min_max_clip(cls, file_names: [str], number_dropped_values: int,
                              pre_calibrate: bool,
                              pedestal_value: int,
-                             calibration_image: ndarray,
-                             progress_dots: bool = True) -> ndarray:
+                             calibration_image: ndarray) -> ndarray:
         """Combine FITS files in given list using min/max-clipped mean.
         Return an ndarray containing the combined data."""
         success: bool
@@ -874,7 +873,9 @@ class RmFitsUtil:
             x_coordinates = masked_coordinates[0]
             y_coordinates = masked_coordinates[1]
             assert len(x_coordinates) == len(y_coordinates)
+            print(f"{len(x_coordinates)} columns need repair.")
             for index in range(len(x_coordinates)):
+                print(".",end="\n" if (index > 0) and (index % 50 == 0) else "")
                 column_x = x_coordinates[index]
                 column_y = y_coordinates[index]
                 column = file_data[:, column_x, column_y]
@@ -887,7 +888,7 @@ class RmFitsUtil:
     # Combine given files using "sigma clip"
     #
     # In the following explanation, "column" means all of the points at a given image (x,y) coordinate,
-    # across all the provided files.  Imagine that 20 images are given - then one "columm" would be the 20 values
+    # across all the provided files.  Imagine that 20 images are given - then one "column" would be the 20 values
     # at the (0,0) coordinate in all 20 images, the next column would be the 20 values from the images' (0,1)
     # coordinates, and so on.  So for n x m sized images, there are n*m columns of 20 values each.
     #
@@ -909,7 +910,7 @@ class RmFitsUtil:
     #   For each column:
     #       Calculate mean and population standard deviation (stdev) of all data in column
     #       Calculate Z-score of each datum in column.
-    #           Z-score = abs(dataum - mean)/stddev
+    #           Z-score = abs(datum - mean)/stddev
     #       Reject (mask) any data where Z-Score > given threshold
     #       Calculate mean of remaining data
     #
@@ -947,6 +948,13 @@ class RmFitsUtil:
 
         print("  Eliminated data outside threshold")
         exceeds_threshold = z_scores > sigma_threshold
+        # Calculate and display how much data we are ignoring
+        dimensions = exceeds_threshold.shape
+        total_pixels = dimensions[0] * dimensions[1] * dimensions[2]
+        number_masked = numpy.count_nonzero(exceeds_threshold)
+        percentage_masked = 100.0 * number_masked / total_pixels
+        print(f"Discarded {number_masked:,} pixels of {total_pixels:,} ({percentage_masked:.3f}% of data)")
+
         masked_array = ma.masked_array(file_data, exceeds_threshold)
         print("  Calculating adjusted means")
         masked_means = ma.mean(masked_array, axis=0)

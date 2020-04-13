@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/3.8/bin/python3
+#!/Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8
 import sys
 from argparse import ArgumentParser
 

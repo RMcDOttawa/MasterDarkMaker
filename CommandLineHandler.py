@@ -58,6 +58,38 @@ class CommandLineHandler:
             print("No file names given")
             valid = False
 
+        # Pre-calibration method and related info
+
+        precalibration_type: int
+        if args.noprecal:
+            precalibration_type = Constants.CALIBRATION_NONE
+        elif args.pedestal is not None:
+            precalibration_type = Constants.CALIBRATION_PEDESTAL
+            if args.pedestal > 0:
+                parameters.set_pedestal(args.pedestal)
+            else:
+                print(f"Pedestal value must be greater than zero, not {args.pedestal}")
+                valid = False
+        elif args.bias is not None:
+            precalibration_type = Constants.CALIBRATION_FIXED_FILE
+            if os.path.isfile(args.bias):
+                parameters.set_fixed_calibration_file(args.bias)
+            else:
+                print(f"Calibration file does not exist: {args.bias}")
+                valid = False
+        else:
+            # Nothing in the command line, use preferences.
+            precalibration_type = self._preferences.get_precalibration_type()
+            parameters.set_pedestal(self._preferences.get_precalibration_pedestal())
+            parameters.set_fixed_calibration_file(self._preferences.get_precalibration_fixed_path())
+            if precalibration_type == Constants.CALIBRATION_PROMPT:
+                print("No precalibration method specified.  Preferences says \"prompt user\""
+                      " but that method is not allowed unless running the GUI")
+                valid = False
+            else:
+                print("Using precalibration setting from preferences: " + Constants.calibration_string(precalibration_type))
+        parameters.set_pre_calibration_type(precalibration_type)
+
         # Master frame combination algorithm and parameters
         combination_type: int
         if args.mean:
@@ -80,8 +112,8 @@ class CommandLineHandler:
                 valid = False
         else:
             # Nothing in the command line, get combination method from preferences
-            print("Using combine method from preferences")
             combination_type = self._preferences.get_master_combine_method()
+            print("Using combine method from preferences: " + Constants.combine_method_string(combination_type))
             parameters.set_min_max_drop(self._preferences.get_min_max_number_clipped_per_end())
             parameters.set_sigma_threshold(self._preferences.get_sigma_clip_threshold())
         parameters.set_combine_method(combination_type)
@@ -156,7 +188,7 @@ class CommandLineHandler:
         return SharedUtils.most_common_filter_name(file_descriptors)
 
     #
-    #   Create a combined master dark file usign the given algorithm and write it to the output file
+    #   Create a combined master dark file using the given algorithm and write it to the output file
     #
     def write_combined_files(self,
                              parameters: CommandLineParameters,
@@ -168,42 +200,61 @@ class CommandLineHandler:
         calibration_image: numpy.ndarray
         combination_method = parameters.get_combine_method()
         file_names = parameters.get_file_names()
+        assert len(file_names) > 0
+        sample_file_descriptor = RmFitsUtil.make_file_descriptor(file_names[0])
+        binning = sample_file_descriptor.get_binning()
         (pre_calibrate, pedestal_value, calibration_image) = self.get_precalibration_info(parameters)
 
         if combination_method == Constants.COMBINE_MEAN:
+            print("Combining by simple mean.")
             mean_data = RmFitsUtil.combine_mean(file_names, pre_calibrate, pedestal_value, calibration_image)
             if mean_data is not None:
                 (mean_exposure, mean_temperature) = \
                     RmFitsUtil.mean_exposure_and_temperature(parameters.get_file_names())
                 RmFitsUtil.create_combined_fits_file(output_file_path, mean_data,
-                                                     mean_exposure, mean_temperature, output_filter_name,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature,
+                                                     output_filter_name, binning,
                                                      "Master Dark MEAN combined")
         elif combination_method == Constants.COMBINE_MEDIAN:
+            print("Combining by simple median.")
             median_data = RmFitsUtil.combine_median(file_names, pre_calibrate, pedestal_value, calibration_image)
             if median_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(output_file_path, median_data,
-                                                     mean_exposure, mean_temperature, output_filter_name,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature,
+                                                     output_filter_name, binning,
                                                      "Master Dark MEDIAN combined")
         elif combination_method == Constants.COMBINE_MINMAX:
             number_dropped_points = parameters.get_min_max_drop()
+            print(f"Combining by min/max drop of {number_dropped_points} values.")
             min_max_clipped_mean = RmFitsUtil.combine_min_max_clip(file_names, number_dropped_points,
                                                                    pre_calibrate, pedestal_value, calibration_image)
             if min_max_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(output_file_path, min_max_clipped_mean,
-                                                     mean_exposure, mean_temperature, output_filter_name,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature,
+                                                     output_filter_name, binning,
                                                      f"Master Dark Min/Max Clipped "
                                                      f"(drop {number_dropped_points}) Mean combined")
         else:
             assert combination_method == Constants.COMBINE_SIGMA_CLIP
             sigma_threshold = parameters.get_sigma_threshold()
+            print(f"Combining by sigma clip with threshold z={sigma_threshold}.")
             sigma_clipped_mean = RmFitsUtil.combine_sigma_clip(file_names, sigma_threshold,
                                                                pre_calibrate, pedestal_value, calibration_image)
             if sigma_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(output_file_path, sigma_clipped_mean,
-                                                     mean_exposure, mean_temperature, output_filter_name,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature,
+                                                     output_filter_name, binning,
                                                      f"Master Dark Sigma Clipped "
                                                      f"(threshold {sigma_threshold}) Mean combined")
 
@@ -229,7 +280,7 @@ class CommandLineHandler:
         return pre_calibration, pedestal_value, image_data
 
     # Create a file name for the output file
-    #   of the form Dark-Mean-yyyy-mm-dd-hh-mm-temp-x-y-bin.fit
+    #   of the form Dark-Mean-yyyymmddhhmm-temp-x-y-bin.fit
     @classmethod
     def create_output_path(cls, sample_input_file: FileDescriptor, combine_method: int):
         """Create an output file name in the case where one wasn't specified"""
@@ -238,7 +289,7 @@ class CommandLineHandler:
 
         # Get other components of name
         now = datetime.now()
-        date_time_string = now.strftime("%Y-%m-%d-%H-%M")
+        date_time_string = now.strftime("%Y%m%d-%H%M")
         temperature = f"{sample_input_file.get_temperature():.1f}"
         dimensions = f"{sample_input_file.get_x_dimension()}x{sample_input_file.get_y_dimension()}"
         binning = f"{sample_input_file.get_binning()}x{sample_input_file.get_binning()}"

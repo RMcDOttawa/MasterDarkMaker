@@ -22,7 +22,6 @@ class Constants:
 
     DEFAULT_CALIBRATION_PEDESTAL = 100
 
-
     @classmethod
     def combine_method_string(cls, method: int) -> str:
         if method == cls.COMBINE_MEAN:
@@ -45,3 +44,14 @@ class Constants:
             assert value == cls.INPUT_DISPOSITION_SUBFOLDER
             return "SubFolder"
 
+    @classmethod
+    def calibration_string(cls, value: int) -> str:
+        if value == cls.CALIBRATION_PROMPT:
+            return "Prompt User"
+        elif value == cls.CALIBRATION_FIXED_FILE:
+            return "Fixed File"
+        elif value == cls.CALIBRATION_NONE:
+            return "None"
+        else:
+            assert value == cls.CALIBRATION_PEDESTAL
+            return "Pedestal"
