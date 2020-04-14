@@ -286,20 +286,23 @@ class CommandLineHandler:
         """Create an output file name in the case where one wasn't specified"""
         # Get directory of sample input file
         directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
+        file_name = cls.get_file_name_portion(combine_method, sample_input_file)
+        file_path = f"{directory_prefix}/{file_name}"
+        return file_path
 
+    @classmethod
+    def get_file_name_portion(cls, combine_method, sample_input_file):
         # Get other components of name
         now = datetime.now()
         date_time_string = now.strftime("%Y%m%d-%H%M")
         temperature = f"{sample_input_file.get_temperature():.1f}"
+        exposure = f"{sample_input_file.get_exposure():.3f}"
         dimensions = f"{sample_input_file.get_x_dimension()}x{sample_input_file.get_y_dimension()}"
         binning = f"{sample_input_file.get_binning()}x{sample_input_file.get_binning()}"
         method = Constants.combine_method_string(combine_method)
+        file_name = f"DARK-{method}-{date_time_string}-{exposure}s-{temperature}C-{dimensions}-{binning}.fit"
 
-        # Make name
-        file_path = f"{directory_prefix}/DARK-{method}-{date_time_string}-{temperature}-{dimensions}" \
-                    f"-{binning}.fit"
-        return file_path
-
+        return file_name
 
     # Create a suggested directory for the output files from group processing
     #   of the form Dark-Mean-Groups-yyyymmddhhmm

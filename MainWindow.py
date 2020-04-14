@@ -409,6 +409,16 @@ class MainWindow(QMainWindow):
         suggested_output_directory = CommandLineHandler.create_output_directory(selected_files[0],
                                                                                 self.get_combine_method())
         output_directory = self.get_group_output_directory(suggested_output_directory)
+        if not SharedUtils.ensure_directory_exists(output_directory):
+            no_directory = QMessageBox()
+            no_directory.setText("Unable to create output directory.")
+            no_directory.setInformativeText("The output directory you specified does not exist and we are"
+                                            " unable to create it because of file system permissions or a "
+                                            "conflicting file name.")
+            no_directory.setStandardButtons(QMessageBox.Ok)
+            no_directory.setDefaultButton(QMessageBox.Ok)
+            _ = no_directory.exec_()
+
         exposure_tolerance = float(self.ui.exposureGroupTolerance.text()) / 100.0
         temperature_tolerance = float(self.ui.temperatureGroupTolerance.text()) / 100.0
         if output_directory is not None:
@@ -443,14 +453,14 @@ class MainWindow(QMainWindow):
         (file_name, _) = dialog.getSaveFileName(parent=None, caption="Output Directory", directory=suggested_directory)
         return None if len(file_name.strip()) == 0 else file_name
 
+    # Process one set of files.  Output to the given path, if provided.  If not provided, prompt the user for it.
+
     def original_non_grouped_processing(self, selected_files: [FileDescriptor]):
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if RmFitsUtil.all_compatible_sizes(selected_files):
             if self.ui.ignoreFileType.isChecked() \
                     or RmFitsUtil.all_of_type(selected_files, FileDescriptor.FILE_TYPE_DARK):
                 # Get output file location
-                suggested_output_path = CommandLineHandler.create_output_path(selected_files[0],
-                                                                              self.get_combine_method())
                 output_file = self.get_output_file(suggested_output_path)
                 if output_file is not None:
                     # Get (most common) filter name in the set
@@ -627,7 +637,11 @@ class MainWindow(QMainWindow):
 
         return True
 
+    # Process one group of files, output to the given directory
+
     def process_one_group(self, descriptor_list: [FileDescriptor], output_directory: str, combine_method: int):
+        # todo process_one_group
+        # Descriptive message to the console
         assert len(descriptor_list) > 0
         sample_file: FileDescriptor = descriptor_list[0]
         binning = sample_file.get_binning()
@@ -635,6 +649,40 @@ class MainWindow(QMainWindow):
         temperature = sample_file.get_temperature()
         print(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
               f"{exposure} seconds at {temperature} degrees.")
-        for descriptor in descriptor_list:
-            print("  ", descriptor)
-        # todo process_one_group
+
+        # Make up a file name for this group's output, into the given directory
+        file_name = CommandLineHandler.get_file_name_portion(combine_method, sample_file)
+        output_file = f"{output_directory}/{file_name}"
+
+        # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
+        if RmFitsUtil.all_compatible_sizes(descriptor_list):
+            if self.ui.ignoreFileType.isChecked() \
+                    or RmFitsUtil.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
+                # Get (most common) filter name in the set
+                # Since these are darks, the filter is meaningless, but we need the value
+                # for the shared "create file" routine
+                filter_name = SharedUtils.most_common_filter_name(descriptor_list)
+
+                # Do the combination
+                self.combine_files(descriptor_list, filter_name, output_file)
+
+                # Optionally do something with the original input files
+                self.handle_input_files_disposition(descriptor_list)
+                self.ui.message.setText("Combine completed")
+            else:
+                not_dark_error = QMessageBox()
+                not_dark_error.setText("The selected files are not all Dark Frames")
+                not_dark_error.setInformativeText("If you know the files are dark frames, they may not have proper FITS"
+                                                  + " data internally. Check the \"Ignore FITS file type\" box"
+                                                  + " to proceed anyway.")
+                not_dark_error.setStandardButtons(QMessageBox.Ok)
+                not_dark_error.setDefaultButton(QMessageBox.Ok)
+                _ = not_dark_error.exec_()
+        else:
+            not_compatible = QMessageBox()
+            not_compatible.setText("The selected files can't be combined.")
+            not_compatible.setInformativeText("To be combined into a master file, the files must have identical"
+                                              + " X and Y dimensions, and identical Binning values.")
+            not_compatible.setStandardButtons(QMessageBox.Ok)
+            not_compatible.setDefaultButton(QMessageBox.Ok)
+            _ = not_compatible.exec_()
