@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 from datetime import datetime
+from itertools import groupby
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
@@ -152,3 +153,83 @@ class SharedUtils:
             destination_path = directory_path + "/" + str(unique_counter) + "-" + file_name
 
         return destination_path
+
+    # Given list of file descriptors, return a list of lists, where each outer list is all the
+    # file descriptors with the same size (dimensions and binning)
+
+    @classmethod
+    def get_groups_by_size(cls, selected_files: [FileDescriptor], is_grouped: bool) -> [[FileDescriptor]]:
+        if is_grouped:
+            descriptors_sorted = sorted(selected_files, key=FileDescriptor.get_size_key)
+            descriptors_grouped = groupby(descriptors_sorted, FileDescriptor.get_size_key)
+            result: [[FileDescriptor]] = []
+            for key, sub_group in descriptors_grouped:
+                sub_list = list(sub_group)
+                result.append(sub_list)
+            return result
+        else:
+            return [selected_files]   # One group with all the files
+
+    # Given list of file descriptors, return a list of lists, where each outer list is all the
+    # file descriptors with the same exposure within a given tolerance.
+    # Note that, because of the "tolerance" comparison, we need to process the list manually,
+    # not with the "groupby" function.
+
+    @classmethod
+    def get_groups_by_exposure(cls, selected_files: [FileDescriptor], is_grouped: bool, tolerance: float) -> [[FileDescriptor]]:
+        if is_grouped:
+            result: [[FileDescriptor]] = []
+            files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_exposure)
+            current_exposure: float = files_sorted[0].get_exposure()
+            current_list: [FileDescriptor] = []
+            for next_file in files_sorted:
+                this_exposure = next_file.get_exposure()
+                if cls.values_same_within_tolerance(current_exposure, this_exposure, tolerance):
+                    current_list.append(next_file)
+                else:
+                    result.append(current_list)
+                    current_list = [next_file]
+                    current_exposure = this_exposure
+            result.append(current_list)
+            return result
+        else:
+            return [selected_files]   # One group with all the files
+
+    # Given list of file descriptors, return a list of lists, where each outer list is all the
+    # file descriptors with the same temperature within a given tolerance
+    # Note that, because of the "tolerance" comparison, we need to process the list manually,
+    # not with the "groupby" function.
+
+    @classmethod
+    def get_groups_by_temperature(cls, selected_files: [FileDescriptor], is_grouped: bool, tolerance: float) -> [[FileDescriptor]]:
+        if is_grouped:
+            result: [[FileDescriptor]] = []
+            files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_temperature)
+            current_temperature: float = files_sorted[0].get_temperature()
+            current_list: [FileDescriptor] = []
+            for next_file in files_sorted:
+                this_temperature = next_file.get_temperature()
+                if cls.values_same_within_tolerance(current_temperature, this_temperature, tolerance):
+                    current_list.append(next_file)
+                else:
+                    result.append(current_list)
+                    current_list = [next_file]
+                    current_temperature = this_temperature
+            result.append(current_list)
+            return result
+        else:
+            return [selected_files]   # One group with all the files
+
+    # Determine if two values are the same within a given tolerance.
+    # Careful - either value might be zero, so divide only after checking
+    @classmethod
+    def values_same_within_tolerance(cls, first_value: float, second_value: float, tolerance: float):
+        difference = abs(first_value - second_value)
+        if first_value == 0.0:
+            if second_value == 0.0:
+                return True
+            else:
+                percent_difference = difference / second_value
+        else:
+            percent_difference = difference / first_value
+        return percent_difference <= tolerance

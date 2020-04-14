@@ -78,7 +78,6 @@ class MainWindow(QMainWindow):
         self.ui.exposureGroupTolerance.setText(f"{100 * preferences.get_exposure_group_tolerance():.0f}")
         self.ui.temperatureGroupTolerance.setText(f"{100 * preferences.get_temperature_group_tolerance():.0f}")
 
-
         # Set up the file table
         self._table_model = FitsFileTableModel(self.ui.ignoreFileType.isChecked())
         self.ui.filesTable.setModel(self._table_model)
@@ -157,7 +156,6 @@ class MainWindow(QMainWindow):
         self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
         self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
         self.ui.temperatureGroupTolerance.editingFinished.connect(self.temperature_group_tolerance_changed)
-
 
     # Certain initialization must be done after "__init__" is finished.
     def set_up_ui(self):
@@ -407,6 +405,43 @@ class MainWindow(QMainWindow):
     def process_groups(self, selected_files: [FileDescriptor]):
         print("process_groups")
         # todo process_groups
+        # todo Get directory where output master darks will go (one directory, file names will distinguish them)
+        suggested_output_directory = CommandLineHandler.create_output_directory(selected_files[0],
+                                                                                self.get_combine_method())
+        output_directory = self.get_group_output_directory(suggested_output_directory)
+        exposure_tolerance = float(self.ui.exposureGroupTolerance.text()) / 100.0
+        temperature_tolerance = float(self.ui.temperatureGroupTolerance.text()) / 100.0
+        if output_directory is not None:
+            print("Process groups into output directory: " + output_directory)
+
+        #  Process size groups, or all sizes if not grouping
+        groups_by_size = SharedUtils.get_groups_by_size(selected_files, self.ui.groupBySizeCB.isChecked())
+        for size_group in groups_by_size:
+            # print(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+            # Within this size group, process exposure groups, or all exposures if not grouping
+            groups_by_exposure = SharedUtils.get_groups_by_exposure(size_group,
+                                                                    self.ui.groupByExposureCB.isChecked(),
+                                                                    exposure_tolerance)
+            for exposure_group in groups_by_exposure:
+                # print(f"Processing one exposure group: {len(exposure_group)} files exposed {size_group[0].get_exposure()}")
+                # Within this exposure group, process temperature groups, or all temperatures if not grouping
+                groups_by_temperature = SharedUtils.get_groups_by_temperature(exposure_group,
+                                                                              self.ui.groupByTemperatureCB.isChecked(),
+                                                                              temperature_tolerance)
+                for temperature_group in groups_by_temperature:
+                    # print(f"Processing one temperature group: "
+                    #       f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
+                    # Now we have a list of descriptors, grouped as appropriate, to process
+                    self.process_one_group(temperature_group, output_directory, self.get_combine_method())
+
+        self.ui.message.setText("Combination complete")
+
+    def get_group_output_directory(self, suggested_directory: str) -> str:
+        dialog = QFileDialog()
+        testdialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.DirectoryOnly)
+        (file_name, _) = dialog.getSaveFileName(parent=None, caption="Output Directory", directory=suggested_directory)
+        return None if len(file_name.strip()) == 0 else file_name
 
     def original_non_grouped_processing(self, selected_files: [FileDescriptor]):
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
@@ -591,3 +626,15 @@ class MainWindow(QMainWindow):
                     return False
 
         return True
+
+    def process_one_group(self, descriptor_list: [FileDescriptor], output_directory: str, combine_method: int):
+        assert len(descriptor_list) > 0
+        sample_file: FileDescriptor = descriptor_list[0]
+        binning = sample_file.get_binning()
+        exposure = sample_file.get_exposure()
+        temperature = sample_file.get_temperature()
+        print(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
+              f"{exposure} seconds at {temperature} degrees.")
+        for descriptor in descriptor_list:
+            print("  ", descriptor)
+        # todo process_one_group

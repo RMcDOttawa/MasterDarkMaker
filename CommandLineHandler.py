@@ -300,6 +300,24 @@ class CommandLineHandler:
                     f"-{binning}.fit"
         return file_path
 
+
+    # Create a suggested directory for the output files from group processing
+    #   of the form Dark-Mean-Groups-yyyymmddhhmm
+    @classmethod
+    def create_output_directory(cls, sample_input_file: FileDescriptor, combine_method: int):
+        """Create an output directory name for the files from group processing"""
+        # Get directory of sample input file
+        directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
+
+        # Get other components of name
+        now = datetime.now()
+        date_time_string = now.strftime("%Y%m%d-%H%M")
+        method = Constants.combine_method_string(combine_method)
+
+        # Make name
+        file_path = f"{directory_prefix}/DARK-{method}-Groups-{date_time_string}"
+        return file_path
+
     # Check if the user wanted us to move the input files after combining them.
     # If so, move them to the named subdirectory
 
