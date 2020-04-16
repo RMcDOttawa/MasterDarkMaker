@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from PyQt5 import QtWidgets
 
 from CommandLineHandler import CommandLineHandler
+from DataModel import DataModel
 from MainWindow import MainWindow
 # First phase in development of automated calibration frame combination.
 # This program combines Dark Frames into a master dark.  If run without parameters, a GUI
@@ -47,15 +48,16 @@ arg_parser.add_argument("filenames", nargs="*")
 args = arg_parser.parse_args()
 
 preferences: Preferences = Preferences()
+data_model: DataModel = DataModel(preferences)
 
 # If no arguments were given, or if the --gui argument was given, open the GUI window
 if len(sys.argv) == 1 or args.gui:
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow(preferences)
+    window = MainWindow(preferences, data_model)
     window.set_up_ui()
     window.ui.show()
     app.exec_()
 else:
     # We're operating in pure command-line mode
-    command_line_handler = CommandLineHandler(args, preferences)
+    command_line_handler = CommandLineHandler(args, data_model)
     command_line_handler.execute()

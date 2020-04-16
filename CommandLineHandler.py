@@ -8,6 +8,7 @@ from datetime import datetime
 import numpy
 from CommandLineParameters import CommandLineParameters
 from Constants import Constants
+from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from Preferences import Preferences
 from RmFitsUtil import RmFitsUtil
@@ -16,9 +17,9 @@ from SharedUtils import SharedUtils
 
 class CommandLineHandler:
 
-    def __init__(self, args, preferences: Preferences):
+    def __init__(self, args, data_model: DataModel):
         self._args = args
-        self._preferences: Preferences = preferences
+        self._data_model: DataModel = data_model
 
     def execute(self):
         """Execute the program with the options specified on the command line, no GUI"""

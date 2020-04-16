@@ -1,3 +1,8 @@
+#
+#   Window controller for the main window
+#   Manages the UI and initiates a combination action if all is well
+#
+
 import os
 from typing import Optional
 
@@ -8,6 +13,7 @@ from PyQt5.QtWidgets import QMainWindow, QDialog, QHeaderView, QFileDialog, QMes
 
 from CommandLineHandler import CommandLineHandler
 from Constants import Constants
+from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from FitsFileTableModel import FitsFileTableModel
 from MultiOsUtil import MultiOsUtil
@@ -20,19 +26,18 @@ from Validators import Validators
 
 class MainWindow(QMainWindow):
 
-    def __init__(self, preferences: Preferences):
+    def __init__(self, preferences: Preferences, data_model: DataModel):
         """Initialize MainWindow class"""
         self._preferences = preferences
+        self._data_model = data_model
         QMainWindow.__init__(self)
         self.ui = uic.loadUi(MultiOsUtil.path_for_file_in_program_directory("MainWindow.ui"))
         self._field_validity: {object, bool} = {}
         self._table_model: FitsFileTableModel
-        self._precalibration_file_full_path: str = ""
-        self._precalibration_auto_directory: str = ""
 
         # Load algorithm from preferences
 
-        algorithm = preferences.get_master_combine_method()
+        algorithm = data_model.get_master_combine_method()
         if algorithm == Constants.COMBINE_MEAN:
             self.ui.combineMeanRB.setChecked(True)
         elif algorithm == Constants.COMBINE_MEDIAN:
@@ -43,22 +48,22 @@ class MainWindow(QMainWindow):
             assert (algorithm == Constants.COMBINE_SIGMA_CLIP)
             self.ui.combineSigmaRB.setChecked(True)
 
-        self.ui.minMaxNumDropped.setText(str(preferences.get_min_max_number_clipped_per_end()))
-        self.ui.sigmaThreshold.setText(str(preferences.get_sigma_clip_threshold()))
+        self.ui.minMaxNumDropped.setText(str(data_model.get_min_max_number_clipped_per_end()))
+        self.ui.sigmaThreshold.setText(str(data_model.get_sigma_clip_threshold()))
 
         # Load disposition from preferences
 
-        disposition = preferences.get_input_file_disposition()
+        disposition = data_model.get_input_file_disposition()
         if disposition == Constants.INPUT_DISPOSITION_SUBFOLDER:
             self.ui.dispositionSubFolderRB.setChecked(True)
         else:
             assert (disposition == Constants.INPUT_DISPOSITION_NOTHING)
             self.ui.dispositionNothingRB.setChecked(True)
-        self.ui.subFolderName.setText(preferences.get_disposition_subfolder_name())
+        self.ui.subFolderName.setText(data_model.get_disposition_subfolder_name())
 
         # Pre-calibration options
 
-        precalibration_option = preferences.get_precalibration_type()
+        precalibration_option = data_model.get_precalibration_type()
         if  precalibration_option == Constants.CALIBRATION_FIXED_FILE:
             self.ui.fixedPreCalFileRB.setChecked(True)
         elif precalibration_option == Constants.CALIBRATION_NONE:
@@ -71,22 +76,21 @@ class MainWindow(QMainWindow):
         else:
             assert precalibration_option == Constants.CALIBRATION_PEDESTAL
             self.ui.fixedPedestalRB.setChecked(True)
-        self.ui.fixedPedestalAmount.setText(str(preferences.get_precalibration_pedestal()))
-        self.set_fixed_precal_file_name_display(preferences.get_precalibration_fixed_path())
-        self._precalibration_auto_directory = preferences.get_precalibration_auto_directory()
-        self.ui.autoDirectoryName.setText(os.path.basename(self._precalibration_auto_directory))
+        self.ui.fixedPedestalAmount.setText(str(data_model.get_precalibration_pedestal()))
+        self.ui.precalibrationPathDisplay.setText(os.path.basename(data_model.get_precalibration_fixed_path()))
+        self.ui.autoDirectoryName.setText(os.path.basename(data_model.get_precalibration_auto_directory()))
 
         # Grouping boxes and parameters
 
-        self.ui.groupBySizeCB.setChecked(preferences.get_group_by_size())
-        self.ui.groupByExposureCB.setChecked(preferences.get_group_by_exposure())
-        self.ui.groupByTemperatureCB.setChecked(preferences.get_group_by_temperature())
+        self.ui.groupBySizeCB.setChecked(data_model.get_group_by_size())
+        self.ui.groupByExposureCB.setChecked(data_model.get_group_by_exposure())
+        self.ui.groupByTemperatureCB.setChecked(data_model.get_group_by_temperature())
 
-        self.ui.exposureGroupTolerance.setText(f"{100 * preferences.get_exposure_group_tolerance():.0f}")
-        self.ui.temperatureGroupTolerance.setText(f"{100 * preferences.get_temperature_group_tolerance():.0f}")
+        self.ui.exposureGroupTolerance.setText(f"{100 * data_model.get_exposure_group_tolerance():.0f}")
+        self.ui.temperatureGroupTolerance.setText(f"{100 * data_model.get_temperature_group_tolerance():.0f}")
 
         # Set up the file table
-        self._table_model = FitsFileTableModel(self.ui.ignoreFileType.isChecked())
+        self._table_model = FitsFileTableModel(data_model.get_ignore_file_type())
         self.ui.filesTable.setModel(self._table_model)
         # Columns should resize to best fit their contents
         self.ui.filesTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -100,11 +104,6 @@ class MainWindow(QMainWindow):
 
         self.enable_fields()
         self.enable_buttons()
-
-    def set_fixed_precal_file_name_display(self, full_path: str):
-        self._precalibration_file_full_path = full_path
-        name_only = os.path.basename(full_path)
-        self.ui.precalibrationPathDisplay.setText(name_only)
 
     # Connect UI controls to methods here for response
     def connect_responders(self):
@@ -189,7 +188,8 @@ class MainWindow(QMainWindow):
     # "Ignore file type" button clicked.  Tell the data model the new value.
     def ignore_file_type_clicked(self):
         """Respond to clicking 'ignore file type' button"""
-        self._table_model.set_ignore_file_type(self.ui.ignoreFileType.isChecked())
+        self._data_model.set_ignore_file_type(self.ui.ignoreFileType.isChecked())
+        self._table_model.set_ignore_file_type(self._data_model.get_ignore_file_type())
 
     # Select-all button has been clicked
 
@@ -209,23 +209,44 @@ class MainWindow(QMainWindow):
 
     def algorithm_button_clicked(self):
         """ One of the algorithm buttons is clicked.  Change what fields are enabled"""
+        algorithm: int
+        if self.ui.combineMeanRB.isChecked():
+            algorithm = Constants.COMBINE_MEAN
+        elif self.ui.combineMedianRB.isChecked():
+            algorithm = Constants.COMBINE_MEDIAN
+        elif self.ui.combineMinMaxRB.isChecked():
+            algorithm = Constants.COMBINE_MINMAX
+        else:
+            assert self.ui.combineSigmaRB.isChecked()
+            algorithm = Constants.COMBINE_SIGMA_CLIP
+        self._data_model.set_master_combine_method(algorithm)
         self.enable_fields()
         self.enable_buttons()
 
     def group_by_size_clicked(self):
+        self._data_model.set_group_by_size(self.ui.groupBySizeCB.isChecked())
         self.enable_fields()
         self.enable_buttons()
 
     def group_by_exposure_clicked(self):
+        self._data_model.set_group_by_exposure(self.ui.groupByExposureCB.isChecked())
         self.enable_fields()
         self.enable_buttons()
 
     def group_by_temperature_clicked(self):
+        self._data_model.set_group_by_temperature(self.ui.groupByTemperatureCB.isChecked())
         self.enable_fields()
         self.enable_buttons()
 
     def disposition_button_clicked(self):
         """ One of the disposition buttons is clicked.  Change what fields are enabled"""
+        disposition: int
+        if self.ui.dispositionNothingRB.isChecked():
+            disposition = Constants.INPUT_DISPOSITION_NOTHING
+        else:
+            assert(self.ui.dispositionSubFolderRB.isChecked())
+            disposition = Constants.INPUT_DISPOSITION_SUBFOLDER
+        self._data_model.set_input_file_disposition(disposition)
         self.enable_fields()
         self.enable_buttons()
 
@@ -235,6 +256,8 @@ class MainWindow(QMainWindow):
         proposed_new_number: str = self.ui.fixedPedestalAmount.text()
         new_number = Validators.valid_int_in_range(proposed_new_number, 0, 32767)
         valid = new_number is not None
+        if valid:
+            self._data_model.set_precalibration_pedestal(new_number)
         SharedUtils.background_validity_color(self.ui.fixedPedestalAmount, valid)
         self._field_validity[self.ui.fixedPedestalAmount] = valid
         self.enable_buttons()
@@ -245,6 +268,8 @@ class MainWindow(QMainWindow):
         proposed_new_number: str = self.ui.minMaxNumDropped.text()
         new_number = Validators.valid_int_in_range(proposed_new_number, 0, 256)
         valid = new_number is not None
+        if valid:
+            self._data_model.set_min_max_number_clipped_per_end(new_number)
         SharedUtils.background_validity_color(self.ui.minMaxNumDropped, valid)
         self._field_validity[self.ui.minMaxNumDropped] = valid
         self.enable_buttons()
@@ -255,6 +280,8 @@ class MainWindow(QMainWindow):
         proposed_new_number: str = self.ui.sigmaThreshold.text()
         new_number = Validators.valid_float_in_range(proposed_new_number, 0.01, 100.0)
         valid = new_number is not None
+        if valid:
+            self._data_model.set_sigma_clip_threshold(new_number)
         SharedUtils.background_validity_color(self.ui.sigmaThreshold, valid)
         self._field_validity[self.ui.sigmaThreshold] = valid
         self.enable_buttons()
@@ -265,6 +292,8 @@ class MainWindow(QMainWindow):
         proposed_new_name: str = self.ui.subFolderName.text()
         # valid = Validators.valid_file_name(proposed_new_name, 1, 31)
         valid = SharedUtils.validate_folder_name(proposed_new_name)
+        if valid:
+            self._data_model.set_disposition_subfolder_name(proposed_new_name)
         SharedUtils.background_validity_color(self.ui.subFolderName, valid)
         self._field_validity[self.ui.subFolderName] = valid
         self.enable_buttons()
@@ -274,30 +303,39 @@ class MainWindow(QMainWindow):
         proposed_new_number: str = self.ui.exposureGroupTolerance.text()
         new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
         valid = new_number is not None
+        if valid:
+            self._data_model.set_exposure_group_tolerance(new_number)
         SharedUtils.background_validity_color(self.ui.exposureGroupTolerance, valid)
+        self._field_validity[self.ui.exposureGroupTolerance] = valid
 
     def temperature_group_tolerance_changed(self):
         """User has entered value in temperature group tolerance field.  Validate and save"""
         proposed_new_number: str = self.ui.temperatureGroupTolerance.text()
         new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
         valid = new_number is not None
+        if valid:
+            self._data_model.set_temperature_group_tolerance(new_number)
         SharedUtils.background_validity_color(self.ui.temperatureGroupTolerance, valid)
+        self._field_validity[self.ui.temperatureGroupTolerance] = valid
 
     def enable_fields(self):
         """Enable text fields depending on state of various radio buttons"""
 
-        self.ui.fixedPedestalAmount.setEnabled(self.ui.fixedPedestalRB.isChecked())
+        precalibration_type = self._data_model.get_precalibration_type()
+        self.ui.fixedPedestalAmount.setEnabled(precalibration_type == Constants.CALIBRATION_PEDESTAL)
 
         # Enable Algorithm fields depending on which algorithm is selected
-        self.ui.minMaxNumDropped.setEnabled(self.ui.combineMinMaxRB.isChecked())
-        self.ui.sigmaThreshold.setEnabled(self.ui.combineSigmaRB.isChecked())
+        combination_type = self._data_model.get_master_combine_method()
+        self.ui.minMaxNumDropped.setEnabled(combination_type == Constants.COMBINE_MINMAX)
+        self.ui.sigmaThreshold.setEnabled(combination_type == Constants.COMBINE_SIGMA_CLIP)
 
         # Enable Disposition fields depending on which disposition is selected
-        self.ui.subFolderName.setEnabled(self.ui.dispositionSubFolderRB.isChecked())
+        self.ui.subFolderName.setEnabled(self._data_model.get_input_file_disposition()
+                                         == Constants.INPUT_DISPOSITION_SUBFOLDER)
 
         # Grouping parameters go with their corresponding checkbox
-        self.ui.exposureGroupTolerance.setEnabled(self.ui.groupByExposureCB.isChecked())
-        self.ui.temperatureGroupTolerance.setEnabled(self.ui.groupByTemperatureCB.isChecked())
+        self.ui.exposureGroupTolerance.setEnabled(self._data_model.get_group_by_exposure())
+        self.ui.temperatureGroupTolerance.setEnabled(self._data_model.get_group_by_temperature())
 
     # Open a file dialog to pick files to be processed
 
@@ -313,7 +351,8 @@ class MainWindow(QMainWindow):
             pass
         else:
             file_descriptions = self.make_file_descriptions(file_names)
-            self._table_model.set_file_descriptors(file_descriptions)
+            self._data_model.set_file_descriptors(file_descriptions)
+            self._table_model.set_file_descriptors(self._data_model.get_file_descriptors())
         self.enable_buttons()
 
     def table_selection_changed(self):
@@ -324,6 +363,17 @@ class MainWindow(QMainWindow):
         self.enable_fields()
 
     def precalibration_radio_group_clicked(self):
+        calibration_type: int
+        if self.ui.noPreClalibrationRB.isChecked():
+            calibration_type = Constants.CALIBRATION_NONE
+        elif self.ui.fixedPreCalFileRB.isChecked():
+            calibration_type = Constants.CALIBRATION_FIXED_FILE
+        elif self.ui.autoPreCalibrationRB.isChecked():
+            calibration_type = Constants.CALIBRATION_AUTO_DIRECTORY
+        else:
+            assert self.ui.fixedPedestalRB.isChecked()
+            calibration_type = Constants.CALIBRATION_PEDESTAL
+        self._data_model.set_precalibration_type(calibration_type)
         self.enable_buttons()
         self.enable_fields()
 
@@ -332,25 +382,26 @@ class MainWindow(QMainWindow):
                                                      filter="FITS files(*.fit *.fits)",
                                                      options=QFileDialog.ReadOnly)
         if len(file_name) > 0:
-            self.set_fixed_precal_file_name_display(file_name)
+            self._data_model.set_precalibration_file_full_path(file_name)
+            self.ui.precalibrationPathDisplay.setText(os.path.basename(file_name))
         self.enable_fields()
         self.enable_buttons()
 
     def select_auto_calibration_directory_clicked(self):
         file_name = QFileDialog.getExistingDirectory(parent=None, caption="Calibration File Directory")
         if len(file_name) > 0:
-            self._precalibration_auto_directory = file_name
+            self._data_model.set_precalibration_auto_directory(file_name)
             self.ui.autoDirectoryName.setText(os.path.basename(file_name))
         self.enable_fields()
         self.enable_buttons()
-
 
     def enable_buttons(self):
         """Enable buttons on the main window depending on validity and settings
         of other controls"""
 
-        self.ui.selectPreCalFile.setEnabled(self.ui.fixedPreCalFileRB.isChecked())
-        self.ui.setAutoDirectory.setEnabled(self.ui.autoPreCalibrationRB.isChecked())
+        calibration_type = self._data_model.get_precalibration_type()
+        self.ui.selectPreCalFile.setEnabled(calibration_type == Constants.CALIBRATION_FIXED_FILE)
+        self.ui.setAutoDirectory.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
 
         # "combineSelectedButton" is enabled only if
         #   - No text fields are in error state
@@ -365,35 +416,45 @@ class MainWindow(QMainWindow):
 
         tool_tip_text: str = "Combined the selected files into a master bias"
 
-        text_fields_valid = self.all_text_fields_valid()
-        if not text_fields_valid:
-            tool_tip_text = "Disabled because of invalid text fields (shown in red)"
-        selected = self.ui.filesTable.selectionModel().selectedRows()
-        if len(selected) == 0:
-            tool_tip_text = "Disabled because no files are selected"
+        combination_type = self._data_model.get_master_combine_method()
+        calibration_type = self._data_model.get_precalibration_type()
+
         calibration_path_ok = True
         calibration_directory_ok = True
         dimensions_ok = True
-        sigma_clip_enough_files = (not self.ui.combineSigmaRB.isChecked()) or len(selected) >= 3
+
+        text_fields_valid = self.all_text_fields_valid()
+        if not text_fields_valid:
+            tool_tip_text = "Disabled because of invalid text fields (shown in red)"
+
+        selected_row_indices = self.ui.filesTable.selectionModel().selectedRows()
+        if len(selected_row_indices) == 0:
+            tool_tip_text = "Disabled because no files are selected"
+
+        sigma_clip_enough_files = (combination_type != Constants.COMBINE_SIGMA_CLIP) or len(selected_row_indices) >= 3
         if not sigma_clip_enough_files:
             tool_tip_text = "Disabled because not enough files selected for sigma-clip method"
-        if self.ui.fixedPreCalFileRB.isChecked():
-            calibration_path_ok = os.path.isfile(self._precalibration_file_full_path)
+
+        if calibration_type == Constants.CALIBRATION_FIXED_FILE:
+            calibration_path_ok = os.path.isfile(self._data_model.get_precalibration_fixed_path())
             if not calibration_path_ok:
                 tool_tip_text = "Disabled because specified calibration file does not exist"
+
         if calibration_path_ok:
-            dimensions_ok = self.ui.groupBySizeCB.isChecked() or self.validate_file_dimensions()
+            dimensions_ok = self._data_model.get_group_by_size() or self.validate_file_dimensions()
             if not dimensions_ok:
                 tool_tip_text = "Disabled because all files (including bias file if selected)" \
                                 " do not have the same dimensions and binning and Group by Size not selected"
-        if self.ui.autoPreCalibrationRB.isChecked():
-            calibration_directory_ok = os.path.isdir(self._precalibration_auto_directory)
+
+        if calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY:
+            calibration_directory_ok = os.path.isdir(self._data_model.get_precalibration_auto_directory())
             if not calibration_directory_ok:
                 tool_tip_text = f"Auto-precalibration directory {os.path.basename(self._precalibration_auto_directory)}" \
                                 f" does not exist."
+
         self.ui.combineSelectedButton.setEnabled(text_fields_valid
-                                                 and len(selected) > 0
-                                                 and self.min_max_enough_files(len(selected))
+                                                 and len(selected_row_indices) > 0
+                                                 and self.min_max_enough_files(len(selected_row_indices))
                                                  and sigma_clip_enough_files
                                                  and dimensions_ok
                                                  and calibration_directory_ok
@@ -415,7 +476,7 @@ class MainWindow(QMainWindow):
         """Return whether all text fields are valid.  (In fact, returns that
         no text fields are invalid - not necessarily the same, since it is possible that
         a text field has not been tested.)"""
-        all_fields_good = all(val for val in self._field_validity.values())
+        all_fields_good = all(valid for valid in self._field_validity.values())
         return all_fields_good
 
     def make_file_descriptions(self, file_names: [str]) -> [FileDescriptor]:
@@ -429,7 +490,9 @@ class MainWindow(QMainWindow):
         # Get the list of selected files
         selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
         assert len(selected_files) > 0  # Or else the button would have been disabled
-        if self.ui.groupByExposureCB.isChecked() or self.ui.groupBySizeCB.isChecked() or self.ui.groupByTemperatureCB.isChecked():
+        if self._data_model.get_group_by_exposure() \
+                or self._data_model.get_group_by_size() \
+                or self._data_model.get_group_by_temperature():
             self.process_groups(selected_files)
         else:
             self.original_non_grouped_processing(selected_files)
@@ -443,20 +506,17 @@ class MainWindow(QMainWindow):
                                                                        Optional[int],  # precal type
                                                                        Optional[int],  # pedestal
                                                                        Optional[numpy.ndarray]):  # Image
-        precalibration_code: int
+        precalibration_code: int = self._data_model.get_precalibration_type()
         pedestal_value = None
         image_data = None
         success = True
-        if self.ui.fixedPedestalRB.isChecked():
-            precalibration_code = Constants.CALIBRATION_PEDESTAL
-            pedestal_value = int(self.ui.fixedPedestalAmount.text())
-        elif self.ui.fixedPreCalFileRB.isChecked():
-            precalibration_code = Constants.CALIBRATION_FIXED_FILE
-            image_data = RmFitsUtil.fits_data_from_path(self._precalibration_file_full_path)
-        elif self.ui.autoPreCalibrationRB.isChecked():
+        if precalibration_code == Constants.CALIBRATION_PEDESTAL:
+            pedestal_value = self._data_model.get_precalibration_pedestal()
+        elif precalibration_code == Constants.CALIBRATION_FIXED_FILE:
+            image_data = RmFitsUtil.fits_data_from_path(self._data_model.get_precalibration_fixed_path())
+        elif precalibration_code == Constants.CALIBRATION_AUTO_DIRECTORY:
             # Get the best matched precalibration file from the directory.  Fail if none
-            precalibration_code = Constants.CALIBRATION_AUTO_DIRECTORY
-            image_data = self.get_best_calibration_file(self._precalibration_auto_directory, sample_file)
+            image_data = self.get_best_calibration_file(self._data_model.get_precalibration_auto_directory(), sample_file)
             success = image_data is not None
             if not success:
                 no_directory = QMessageBox()
@@ -467,8 +527,7 @@ class MainWindow(QMainWindow):
                 no_directory.setDefaultButton(QMessageBox.Ok)
                 _ = no_directory.exec_()
         else:
-            assert (self.ui.noPreClalibrationRB.isChecked())
-            precalibration_code = Constants.CALIBRATION_NONE
+            assert precalibration_code == Constants.CALIBRATION_NONE
         return success, precalibration_code, pedestal_value, image_data
 
     # Get the best matched calibration file in the auto directory
@@ -485,8 +544,8 @@ class MainWindow(QMainWindow):
                                                                                 self.get_combine_method())
         output_directory = self.get_group_output_directory(suggested_output_directory)
 
-        exposure_tolerance = float(self.ui.exposureGroupTolerance.text()) / 100.0
-        temperature_tolerance = float(self.ui.temperatureGroupTolerance.text()) / 100.0
+        exposure_tolerance = self._data_model.get_exposure_group_tolerance()
+        temperature_tolerance = self._data_model.get_temperature_group_tolerance()
         if output_directory is not None:
             print("Process groups into output directory: " + output_directory)
             if not SharedUtils.ensure_directory_exists(output_directory):
@@ -500,24 +559,25 @@ class MainWindow(QMainWindow):
                 _ = no_directory.exec_()
 
         #  Process size groups, or all sizes if not grouping
-        groups_by_size = SharedUtils.get_groups_by_size(selected_files, self.ui.groupBySizeCB.isChecked())
+        groups_by_size = SharedUtils.get_groups_by_size(selected_files, self._data_model.get_group_by_size())
         for size_group in groups_by_size:
-            # print(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+            print(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
             # Within this size group, process exposure groups, or all exposures if not grouping
             groups_by_exposure = SharedUtils.get_groups_by_exposure(size_group,
-                                                                    self.ui.groupByExposureCB.isChecked(),
+                                                                    self._data_model.get_group_by_exposure(),
                                                                     exposure_tolerance)
             for exposure_group in groups_by_exposure:
-                # print(f"Processing one exposure group: {len(exposure_group)} files exposed {size_group[0].get_exposure()}")
+                print(f"Processing one exposure group: {len(exposure_group)} files exposed {size_group[0].get_exposure()}")
                 # Within this exposure group, process temperature groups, or all temperatures if not grouping
                 groups_by_temperature = SharedUtils.get_groups_by_temperature(exposure_group,
-                                                                              self.ui.groupByTemperatureCB.isChecked(),
+                                                                              self._data_model.get_group_by_temperature(),
                                                                               temperature_tolerance)
                 for temperature_group in groups_by_temperature:
                     # print(f"Processing one temperature group: "
                     #       f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
                     # Now we have a list of descriptors, grouped as appropriate, to process
-                    self.process_one_group(temperature_group, output_directory, self.get_combine_method())
+                    self.process_one_group(temperature_group, output_directory,
+                                           self._data_model.get_master_combine_method())
 
         self.ui.message.setText("Combination complete")
 
@@ -536,7 +596,7 @@ class MainWindow(QMainWindow):
         sample_file = selected_files[0]
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if RmFitsUtil.all_compatible_sizes(selected_files):
-            if self.ui.ignoreFileType.isChecked() \
+            if self._data_model.get_ignore_file_type() \
                     or RmFitsUtil.all_of_type(selected_files, FileDescriptor.FILE_TYPE_DARK):
                 # Get calibration info including, if needed, suitable calibration file
                 (calibration_info_success, precalibration_code, pedestal_value, calibration_image) \
@@ -605,8 +665,8 @@ class MainWindow(QMainWindow):
         # If precalibration wanted, uses image file unless it's None, then use pedestal
         assert len(input_files) > 0
         binning: int = input_files[0].get_binning()
-        method = self.get_combine_method()
-        if method == Constants.COMBINE_MEAN:
+        combine_method = self.get_combine_method()
+        if combine_method == Constants.COMBINE_MEAN:
             mean_data = RmFitsUtil.combine_mean(file_names, precalibration_code, pedestal_value, calibration_image)
             if mean_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
@@ -615,7 +675,7 @@ class MainWindow(QMainWindow):
                                                      "Dark Frame",
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEAN combined")
-        elif method == Constants.COMBINE_MEDIAN:
+        elif combine_method == Constants.COMBINE_MEDIAN:
             median_data = RmFitsUtil.combine_median(file_names, precalibration_code, pedestal_value, calibration_image)
             if median_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
@@ -624,8 +684,8 @@ class MainWindow(QMainWindow):
                                                      "Dark Frame",
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEDIAN combined")
-        elif method == Constants.COMBINE_MINMAX:
-            number_dropped_points = int(self.ui.minMaxNumDropped.text())
+        elif combine_method == Constants.COMBINE_MINMAX:
+            number_dropped_points = self._data_model._min_max_number_clipped_per_end()
             min_max_clipped_mean = RmFitsUtil.combine_min_max_clip(file_names, number_dropped_points,
                                                                    precalibration_code, pedestal_value, calibration_image)
             if min_max_clipped_mean is not None:
@@ -637,8 +697,8 @@ class MainWindow(QMainWindow):
                                                      f"Master Dark Min/Max Clipped "
                                                      f"(drop {number_dropped_points}) Mean combined")
         else:
-            assert method == Constants.COMBINE_SIGMA_CLIP
-            sigma_threshold = float(self.ui.sigmaThreshold.text())
+            assert combine_method == Constants.COMBINE_SIGMA_CLIP
+            sigma_threshold = self._data_model.get_sigma_clip_threshold()
             sigma_clipped_mean = RmFitsUtil.combine_sigma_clip(file_names, sigma_threshold,
                                                                precalibration_code, pedestal_value, calibration_image)
             if sigma_clipped_mean is not None:
@@ -650,27 +710,16 @@ class MainWindow(QMainWindow):
                                                      f"Master Dark Sigma Clipped "
                                                      f"(threshold {sigma_threshold}) Mean combined")
 
-    # Determine which combination method is selected in the UI
-    def get_combine_method(self) -> int:
-        if self.ui.combineMeanRB.isChecked():
-            return Constants.COMBINE_MEAN
-        elif self.ui.combineMedianRB.isChecked():
-            return Constants.COMBINE_MEDIAN
-        elif self.ui.combineMinMaxRB.isChecked():
-            return Constants.COMBINE_MINMAX
-        else:
-            assert self.ui.combineSigmaRB.isChecked()
-            return Constants.COMBINE_SIGMA_CLIP
-
     # We're done combining files.  The user may want us to do something with the original input files
     def handle_input_files_disposition(self, descriptors: [FileDescriptor]):
-        if self.ui.dispositionNothingRB.isChecked():
+        disposition_type = self._data_model.get_input_file_disposition()
+        if disposition_type == Constants.INPUT_DISPOSITION_NOTHING:
             # User doesn't want us to do anything with the input files
             pass
         else:
-            assert (self.ui.dispositionSubFolderRB.isChecked())
+            assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
             # User wants us to move the input files into a sub-folder
-            SharedUtils.dispose_files_to_sub_folder(descriptors, self.ui.subFolderName.text())
+            SharedUtils.dispose_files_to_sub_folder(descriptors, self._data_model.get_disposition_subfolder_name())
             # Remove the files from the table since those paths are no longer valid
             self._table_model.remove_files(descriptors)
             self.ui.filesTable.scrollToTop()
@@ -680,10 +729,8 @@ class MainWindow(QMainWindow):
     # Otherwise there should be more files selected than 2*n, where n is the
     # min-max clipping value
     def min_max_enough_files(self, num_selected: int) -> bool:
-        if not self.ui.combineMinMaxRB.isChecked():
-            return True
-        else:
-            return num_selected > (2 * int(self.ui.minMaxNumDropped.text()))
+        return True if self._data_model.get_master_combine_method() != Constants.COMBINE_MINMAX \
+            else num_selected > (2 * self._data_model.get_min_max_number_clipped_per_end())
 
     # Determine if all the dimensions are OK to proceed.
     #   All selected files must be the same size and the same binning
@@ -695,8 +742,8 @@ class MainWindow(QMainWindow):
         if len(descriptors) > 0:
 
             # If precalibration file is in use, add that name to the list
-            if self.ui.fixedPreCalFileRB.isChecked():
-                calibration_descriptor = RmFitsUtil.make_file_descriptor(self._precalibration_file_full_path)
+            if self._data_model.get_precalibration_type() == Constants.CALIBRATION_FIXED_FILE:
+                calibration_descriptor = RmFitsUtil.make_file_descriptor(self._data_model.get_precalibration_fixed_path())
                 descriptors.append(calibration_descriptor)
 
             # Get binning and dimension of first to use as a reference
@@ -742,7 +789,7 @@ class MainWindow(QMainWindow):
 
             # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
             if RmFitsUtil.all_compatible_sizes(descriptor_list):
-                if self.ui.ignoreFileType.isChecked() \
+                if self._data_model.get_ignore_file_type() \
                         or RmFitsUtil.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
                     # Get (most common) filter name in the set
                     # Since these are darks, the filter is meaningless, but we need the value
@@ -750,7 +797,8 @@ class MainWindow(QMainWindow):
                     filter_name = SharedUtils.most_common_filter_name(descriptor_list)
 
                     # Do the combination
-                    self.combine_files(descriptor_list, filter_name, output_file, precalibration_code, pedestal_value, calibration_image)
+                    self.combine_files(descriptor_list, filter_name, output_file,
+                                       precalibration_code, pedestal_value, calibration_image)
 
                     # Optionally do something with the original input files
                     self.handle_input_files_disposition(descriptor_list)
@@ -758,7 +806,8 @@ class MainWindow(QMainWindow):
                 else:
                     not_dark_error = QMessageBox()
                     not_dark_error.setText("The selected files are not all Dark Frames")
-                    not_dark_error.setInformativeText("If you know the files are dark frames, they may not have proper FITS"
+                    not_dark_error.setInformativeText("If you know the files are dark frames, "
+                                                      "they may not have proper FITS"
                                                       + " data internally. Check the \"Ignore FITS file type\" box"
                                                       + " to proceed anyway.")
                     not_dark_error.setStandardButtons(QMessageBox.Ok)
@@ -772,3 +821,4 @@ class MainWindow(QMainWindow):
                 not_compatible.setStandardButtons(QMessageBox.Ok)
                 not_compatible.setDefaultButton(QMessageBox.Ok)
                 _ = not_compatible.exec_()
+
