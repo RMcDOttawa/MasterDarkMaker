@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import numpy
 from PyQt5 import uic
@@ -27,6 +28,7 @@ class MainWindow(QMainWindow):
         self._field_validity: {object, bool} = {}
         self._table_model: FitsFileTableModel
         self._precalibration_file_full_path: str = ""
+        self._precalibration_auto_directory: str = ""
 
         # Load algorithm from preferences
 
@@ -57,17 +59,22 @@ class MainWindow(QMainWindow):
         # Pre-calibration options
 
         precalibration_option = preferences.get_precalibration_type()
-        if precalibration_option == Constants.CALIBRATION_PROMPT:
-            self.ui.promptPreCalFileRB.setChecked(True)
-        elif precalibration_option == Constants.CALIBRATION_FIXED_FILE:
+        if  precalibration_option == Constants.CALIBRATION_FIXED_FILE:
             self.ui.fixedPreCalFileRB.setChecked(True)
         elif precalibration_option == Constants.CALIBRATION_NONE:
             self.ui.noPreClalibrationRB.setChecked(True)
+        elif precalibration_option == Constants.CALIBRATION_AUTO_DIRECTORY:
+            self.ui.autoPreCalibrationRB.setChecked(True)
+        elif precalibration_option == Constants.CALIBRATION_AUTO_DIRECTORY:
+            print("Auto precalibration STUB")
+            # todo Auto precalibration
         else:
             assert precalibration_option == Constants.CALIBRATION_PEDESTAL
             self.ui.fixedPedestalRB.setChecked(True)
         self.ui.fixedPedestalAmount.setText(str(preferences.get_precalibration_pedestal()))
         self.set_fixed_precal_file_name_display(preferences.get_precalibration_fixed_path())
+        self._precalibration_auto_directory = preferences.get_precalibration_auto_directory()
+        self.ui.autoDirectoryName.setText(os.path.basename(self._precalibration_auto_directory))
 
         # Grouping boxes and parameters
 
@@ -145,9 +152,10 @@ class MainWindow(QMainWindow):
         # Buttons and fields in precalibration area
         self.ui.noPreClalibrationRB.clicked.connect(self.precalibration_radio_group_clicked)
         self.ui.fixedPedestalRB.clicked.connect(self.precalibration_radio_group_clicked)
-        self.ui.promptPreCalFileRB.clicked.connect(self.precalibration_radio_group_clicked)
+        self.ui.autoPreCalibrationRB.clicked.connect(self.precalibration_radio_group_clicked)
         self.ui.fixedPreCalFileRB.clicked.connect(self.precalibration_radio_group_clicked)
         self.ui.selectPreCalFile.clicked.connect(self.select_precalibration_file_clicked)
+        self.ui.setAutoDirectory.clicked.connect(self.select_auto_calibration_directory_clicked)
         self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
 
         # Grouping controls
@@ -156,6 +164,12 @@ class MainWindow(QMainWindow):
         self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
         self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
         self.ui.temperatureGroupTolerance.editingFinished.connect(self.temperature_group_tolerance_changed)
+
+        # Tiny fonts in path display fields
+        tiny_font = self.ui.precalibrationPathDisplay.font()
+        tiny_font.setPointSize(10)
+        self.ui.precalibrationPathDisplay.setFont(tiny_font)
+        self.ui.autoDirectoryName.setFont(tiny_font)
 
     # Certain initialization must be done after "__init__" is finished.
     def set_up_ui(self):
@@ -322,11 +336,21 @@ class MainWindow(QMainWindow):
         self.enable_fields()
         self.enable_buttons()
 
+    def select_auto_calibration_directory_clicked(self):
+        file_name = QFileDialog.getExistingDirectory(parent=None, caption="Calibration File Directory")
+        if len(file_name) > 0:
+            self._precalibration_auto_directory = file_name
+            self.ui.autoDirectoryName.setText(os.path.basename(file_name))
+        self.enable_fields()
+        self.enable_buttons()
+
+
     def enable_buttons(self):
         """Enable buttons on the main window depending on validity and settings
         of other controls"""
 
         self.ui.selectPreCalFile.setEnabled(self.ui.fixedPreCalFileRB.isChecked())
+        self.ui.setAutoDirectory.setEnabled(self.ui.autoPreCalibrationRB.isChecked())
 
         # "combineSelectedButton" is enabled only if
         #   - No text fields are in error state
@@ -334,6 +358,7 @@ class MainWindow(QMainWindow):
         #   - If Min/Max algorithm selected with count "n", > 2n files selected
         #   - If sigma-clip algorithm selected, >= 3 files selected
         #   - If fixed precalibration file option selected, path must exist
+        #   - If precalibration auto-directory is selected, directory must exist
         #   - All files must be same dimensions and binning (unless grouping by size)
 
         # We'll say why it's disabled in the tool tip
@@ -347,6 +372,7 @@ class MainWindow(QMainWindow):
         if len(selected) == 0:
             tool_tip_text = "Disabled because no files are selected"
         calibration_path_ok = True
+        calibration_directory_ok = True
         dimensions_ok = True
         sigma_clip_enough_files = (not self.ui.combineSigmaRB.isChecked()) or len(selected) >= 3
         if not sigma_clip_enough_files:
@@ -360,11 +386,17 @@ class MainWindow(QMainWindow):
             if not dimensions_ok:
                 tool_tip_text = "Disabled because all files (including bias file if selected)" \
                                 " do not have the same dimensions and binning and Group by Size not selected"
+        if self.ui.autoPreCalibrationRB.isChecked():
+            calibration_directory_ok = os.path.isdir(self._precalibration_auto_directory)
+            if not calibration_directory_ok:
+                tool_tip_text = f"Auto-precalibration directory {os.path.basename(self._precalibration_auto_directory)}" \
+                                f" does not exist."
         self.ui.combineSelectedButton.setEnabled(text_fields_valid
                                                  and len(selected) > 0
                                                  and self.min_max_enough_files(len(selected))
                                                  and sigma_clip_enough_files
                                                  and dimensions_ok
+                                                 and calibration_directory_ok
                                                  and calibration_path_ok)
         self.ui.combineSelectedButton.setToolTip(tool_tip_text)
 
@@ -402,6 +434,49 @@ class MainWindow(QMainWindow):
         else:
             self.original_non_grouped_processing(selected_files)
 
+    # Get description of any precalibration to be done
+    # Return flag if any precalibration, pedestal value, and image array if image file used.
+    # Image file might be read from pre-defined path, or might be read after prompting user
+    # Return success, precalibration type code, pedestal, fixed calibration array (or None)
+
+    def get_precalibration_info(self, sample_file: FileDescriptor) -> (bool,  # success
+                                                                       Optional[int],  # precal type
+                                                                       Optional[int],  # pedestal
+                                                                       Optional[numpy.ndarray]):  # Image
+        precalibration_code: int
+        pedestal_value = None
+        image_data = None
+        success = True
+        if self.ui.fixedPedestalRB.isChecked():
+            precalibration_code = Constants.CALIBRATION_PEDESTAL
+            pedestal_value = int(self.ui.fixedPedestalAmount.text())
+        elif self.ui.fixedPreCalFileRB.isChecked():
+            precalibration_code = Constants.CALIBRATION_FIXED_FILE
+            image_data = RmFitsUtil.fits_data_from_path(self._precalibration_file_full_path)
+        elif self.ui.autoPreCalibrationRB.isChecked():
+            # Get the best matched precalibration file from the directory.  Fail if none
+            precalibration_code = Constants.CALIBRATION_AUTO_DIRECTORY
+            image_data = self.get_best_calibration_file(self._precalibration_auto_directory, sample_file)
+            success = image_data is not None
+            if not success:
+                no_directory = QMessageBox()
+                no_directory.setText("Unable to find a suitable calibration file.")
+                no_directory.setInformativeText("The output directory you specified does not contain any "
+                                                "Bias files that are a match (size and binning) to the images needing calibration.")
+                no_directory.setStandardButtons(QMessageBox.Ok)
+                no_directory.setDefaultButton(QMessageBox.Ok)
+                _ = no_directory.exec_()
+        else:
+            assert (self.ui.noPreClalibrationRB.isChecked())
+            precalibration_code = Constants.CALIBRATION_NONE
+        return success, precalibration_code, pedestal_value, image_data
+
+    # Get the best matched calibration file in the auto directory
+    def get_best_calibration_file(self, directory_path: str, sample_file: FileDescriptor) -> Optional[numpy.ndarray]:
+        print("get_best_calibration_file")
+        # todo get_best_calibration_file
+        return None
+
     def process_groups(self, selected_files: [FileDescriptor]):
         print("process_groups")
         # todo process_groups
@@ -409,20 +484,20 @@ class MainWindow(QMainWindow):
         suggested_output_directory = CommandLineHandler.create_output_directory(selected_files[0],
                                                                                 self.get_combine_method())
         output_directory = self.get_group_output_directory(suggested_output_directory)
-        if not SharedUtils.ensure_directory_exists(output_directory):
-            no_directory = QMessageBox()
-            no_directory.setText("Unable to create output directory.")
-            no_directory.setInformativeText("The output directory you specified does not exist and we are"
-                                            " unable to create it because of file system permissions or a "
-                                            "conflicting file name.")
-            no_directory.setStandardButtons(QMessageBox.Ok)
-            no_directory.setDefaultButton(QMessageBox.Ok)
-            _ = no_directory.exec_()
 
         exposure_tolerance = float(self.ui.exposureGroupTolerance.text()) / 100.0
         temperature_tolerance = float(self.ui.temperatureGroupTolerance.text()) / 100.0
         if output_directory is not None:
             print("Process groups into output directory: " + output_directory)
+            if not SharedUtils.ensure_directory_exists(output_directory):
+                no_directory = QMessageBox()
+                no_directory.setText("Unable to create output directory.")
+                no_directory.setInformativeText("The output directory you specified does not exist and we are"
+                                                " unable to create it because of file system permissions or a "
+                                                "conflicting file name.")
+                no_directory.setStandardButtons(QMessageBox.Ok)
+                no_directory.setDefaultButton(QMessageBox.Ok)
+                _ = no_directory.exec_()
 
         #  Process size groups, or all sizes if not grouping
         groups_by_size = SharedUtils.get_groups_by_size(selected_files, self.ui.groupBySizeCB.isChecked())
@@ -456,25 +531,34 @@ class MainWindow(QMainWindow):
     # Process one set of files.  Output to the given path, if provided.  If not provided, prompt the user for it.
 
     def original_non_grouped_processing(self, selected_files: [FileDescriptor]):
+        # We'll use the first file in the list as a sample for things like image size
+        assert len(selected_files) > 0
+        sample_file = selected_files[0]
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if RmFitsUtil.all_compatible_sizes(selected_files):
             if self.ui.ignoreFileType.isChecked() \
                     or RmFitsUtil.all_of_type(selected_files, FileDescriptor.FILE_TYPE_DARK):
-                # Get output file location
-                output_file = self.get_output_file(suggested_output_path)
-                if output_file is not None:
-                    # Get (most common) filter name in the set
-                    # Since these are darks, the filter is meaningless, but we need the value
-                    # for the shared "create file" routine
-                    filter_name = SharedUtils.most_common_filter_name(selected_files)
-                    # Do the combination
-                    self.combine_files(selected_files, filter_name, output_file)
-                    # Optionally do something with the original input files
-                    self.handle_input_files_disposition(selected_files)
-                    self.ui.message.setText("Combine completed")
-                else:
-                    # User cancelled from the file dialog
-                    pass
+                # Get calibration info including, if needed, suitable calibration file
+                (calibration_info_success, precalibration_code, pedestal_value, calibration_image) \
+                    = self.get_precalibration_info(sample_file)
+                if calibration_info_success:
+                    # Get output file location
+                    suggested_output_path = CommandLineHandler.create_output_path(selected_files[0],
+                                                                                  self.get_combine_method())
+                    output_file = self.get_output_file(suggested_output_path)
+                    if output_file is not None:
+                        # Get (most common) filter name in the set
+                        # Since these are darks, the filter is meaningless, but we need the value
+                        # for the shared "create file" routine
+                        filter_name = SharedUtils.most_common_filter_name(selected_files)
+                        # Do the combination
+                        self.combine_files(selected_files, filter_name, output_file, precalibration_code, pedestal_value, calibration_image)
+                        # Optionally do something with the original input files
+                        self.handle_input_files_disposition(selected_files)
+                        self.ui.message.setText("Combine completed")
+                    else:
+                        # User cancelled from the file dialog
+                        pass
             else:
                 not_dark_error = QMessageBox()
                 not_dark_error.setText("The selected files are not all Dark Frames")
@@ -513,20 +597,17 @@ class MainWindow(QMainWindow):
 
     # Combine the given files, output to the given output file
     # Use the combination algorithm given by the radio buttons on the main window
-    def combine_files(self, input_files: [FileDescriptor], filter_name: str, output_path: str):
+    def combine_files(self, input_files: [FileDescriptor], filter_name: str, output_path: str,
+                      precalibration_code: int, pedestal_value: int, calibration_image: numpy.ndarray):
         substituted_file_name = SharedUtils.substitute_date_time_filter_in_string(output_path)
         file_names = [d.get_absolute_path() for d in input_files]
         # Get info about any precalibration that is to be done
         # If precalibration wanted, uses image file unless it's None, then use pedestal
-        pre_calibrate: bool
-        pedestal_value: int
-        calibration_image: numpy.ndarray
         assert len(input_files) > 0
         binning: int = input_files[0].get_binning()
-        (pre_calibrate, pedestal_value, calibration_image) = (Constants.CALIBRATION_NONE, 0, None)
         method = self.get_combine_method()
         if method == Constants.COMBINE_MEAN:
-            mean_data = RmFitsUtil.combine_mean(file_names, pre_calibrate, pedestal_value, calibration_image)
+            mean_data = RmFitsUtil.combine_mean(file_names, precalibration_code, pedestal_value, calibration_image)
             if mean_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
@@ -535,7 +616,7 @@ class MainWindow(QMainWindow):
                                                      mean_exposure, mean_temperature, filter_name, binning,
                                                      "Master Dark MEAN combined")
         elif method == Constants.COMBINE_MEDIAN:
-            median_data = RmFitsUtil.combine_median(file_names, pre_calibrate, pedestal_value, calibration_image)
+            median_data = RmFitsUtil.combine_median(file_names, precalibration_code, pedestal_value, calibration_image)
             if median_data is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
@@ -546,7 +627,7 @@ class MainWindow(QMainWindow):
         elif method == Constants.COMBINE_MINMAX:
             number_dropped_points = int(self.ui.minMaxNumDropped.text())
             min_max_clipped_mean = RmFitsUtil.combine_min_max_clip(file_names, number_dropped_points,
-                                                                   pre_calibrate, pedestal_value, calibration_image)
+                                                                   precalibration_code, pedestal_value, calibration_image)
             if min_max_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
@@ -559,7 +640,7 @@ class MainWindow(QMainWindow):
             assert method == Constants.COMBINE_SIGMA_CLIP
             sigma_threshold = float(self.ui.sigmaThreshold.text())
             sigma_clipped_mean = RmFitsUtil.combine_sigma_clip(file_names, sigma_threshold,
-                                                               pre_calibrate, pedestal_value, calibration_image)
+                                                               precalibration_code, pedestal_value, calibration_image)
             if sigma_clipped_mean is not None:
                 (mean_exposure, mean_temperature) = RmFitsUtil.mean_exposure_and_temperature(file_names)
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
@@ -650,39 +731,44 @@ class MainWindow(QMainWindow):
         print(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
               f"{exposure} seconds at {temperature} degrees.")
 
-        # Make up a file name for this group's output, into the given directory
-        file_name = CommandLineHandler.get_file_name_portion(combine_method, sample_file)
-        output_file = f"{output_directory}/{file_name}"
+        # Get calibration info for this group of files
+        (calibration_info_success, precalibration_code, pedestal_value, calibration_image) \
+            = self.get_precalibration_info(sample_file)
+        if calibration_info_success:
 
-        # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
-        if RmFitsUtil.all_compatible_sizes(descriptor_list):
-            if self.ui.ignoreFileType.isChecked() \
-                    or RmFitsUtil.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
-                # Get (most common) filter name in the set
-                # Since these are darks, the filter is meaningless, but we need the value
-                # for the shared "create file" routine
-                filter_name = SharedUtils.most_common_filter_name(descriptor_list)
+            # Make up a file name for this group's output, into the given directory
+            file_name = CommandLineHandler.get_file_name_portion(combine_method, sample_file)
+            output_file = f"{output_directory}/{file_name}"
 
-                # Do the combination
-                self.combine_files(descriptor_list, filter_name, output_file)
+            # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
+            if RmFitsUtil.all_compatible_sizes(descriptor_list):
+                if self.ui.ignoreFileType.isChecked() \
+                        or RmFitsUtil.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
+                    # Get (most common) filter name in the set
+                    # Since these are darks, the filter is meaningless, but we need the value
+                    # for the shared "create file" routine
+                    filter_name = SharedUtils.most_common_filter_name(descriptor_list)
 
-                # Optionally do something with the original input files
-                self.handle_input_files_disposition(descriptor_list)
-                self.ui.message.setText("Combine completed")
+                    # Do the combination
+                    self.combine_files(descriptor_list, filter_name, output_file, precalibration_code, pedestal_value, calibration_image)
+
+                    # Optionally do something with the original input files
+                    self.handle_input_files_disposition(descriptor_list)
+                    self.ui.message.setText("Combine completed")
+                else:
+                    not_dark_error = QMessageBox()
+                    not_dark_error.setText("The selected files are not all Dark Frames")
+                    not_dark_error.setInformativeText("If you know the files are dark frames, they may not have proper FITS"
+                                                      + " data internally. Check the \"Ignore FITS file type\" box"
+                                                      + " to proceed anyway.")
+                    not_dark_error.setStandardButtons(QMessageBox.Ok)
+                    not_dark_error.setDefaultButton(QMessageBox.Ok)
+                    _ = not_dark_error.exec_()
             else:
-                not_dark_error = QMessageBox()
-                not_dark_error.setText("The selected files are not all Dark Frames")
-                not_dark_error.setInformativeText("If you know the files are dark frames, they may not have proper FITS"
-                                                  + " data internally. Check the \"Ignore FITS file type\" box"
-                                                  + " to proceed anyway.")
-                not_dark_error.setStandardButtons(QMessageBox.Ok)
-                not_dark_error.setDefaultButton(QMessageBox.Ok)
-                _ = not_dark_error.exec_()
-        else:
-            not_compatible = QMessageBox()
-            not_compatible.setText("The selected files can't be combined.")
-            not_compatible.setInformativeText("To be combined into a master file, the files must have identical"
-                                              + " X and Y dimensions, and identical Binning values.")
-            not_compatible.setStandardButtons(QMessageBox.Ok)
-            not_compatible.setDefaultButton(QMessageBox.Ok)
-            _ = not_compatible.exec_()
+                not_compatible = QMessageBox()
+                not_compatible.setText("The selected files can't be combined.")
+                not_compatible.setInformativeText("To be combined into a master file, the files must have identical"
+                                                  + " X and Y dimensions, and identical Binning values.")
+                not_compatible.setStandardButtons(QMessageBox.Ok)
+                not_compatible.setDefaultButton(QMessageBox.Ok)
+                _ = not_compatible.exec_()

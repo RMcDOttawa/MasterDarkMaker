@@ -1015,6 +1015,7 @@ class RmFitsUtil:
                          calibration_image: ndarray) -> bool:
         result = file_data.copy()
         if pedestal_value is not None:
+            print(f"Calibrating images with pedestal value {pedestal_value}")
             assert calibration_image is None
             for index in range(len(result)):
                 reduced_by_pedestal: ndarray = result[index] - pedestal_value
@@ -1022,6 +1023,7 @@ class RmFitsUtil:
                 result[index] = reduced_by_pedestal.clip(0, 0xFFFF)
         else:
             assert calibration_image is not None
+            print("Calibrating images with given calibration image")
             (calibration_x, calibration_y) = calibration_image.shape
             for index in range(len(result)):
                 (layer_x, layer_y) = result[index].shape
@@ -1031,3 +1033,7 @@ class RmFitsUtil:
                 result[index] = difference.clip(0, 0xFFFF)
 
         return result
+
+# todo Get precalibration info - copy from FlatMaster and modify
+# todo Take out Prompt option for calibration file
+# todo need a directory of bias files to choose appropriate size and temperature

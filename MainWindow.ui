@@ -62,14 +62,14 @@
      <widget class="QFrame" name="frame_2">
       <property name="minimumSize">
        <size>
-        <width>311</width>
-        <height>198</height>
+        <width>200</width>
+        <height>200</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>311</width>
-        <height>198</height>
+        <width>9999</width>
+        <height>9999</height>
        </size>
       </property>
       <property name="frameShape">
@@ -79,6 +79,9 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout">
+       <property name="verticalSpacing">
+        <number>8</number>
+       </property>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -94,6 +97,9 @@
          <property name="text">
           <string>No pre-calibration</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">preCalibrationGroup</string>
+         </attribute>
         </widget>
        </item>
        <item row="2" column="0">
@@ -104,22 +110,48 @@
          <property name="text">
           <string>Pedestal</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">preCalibrationGroup</string>
+         </attribute>
         </widget>
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="fixedPedestalAmount"/>
        </item>
        <item row="3" column="0">
-        <widget class="QRadioButton" name="promptPreCalFileRB">
+        <widget class="QRadioButton" name="autoPreCalibrationRB">
          <property name="toolTip">
-          <string>Prompt user for a bias file for precalibration</string>
+          <string>Automatically choose a matching Bias file from a directory of Bias files</string>
          </property>
          <property name="text">
-          <string>Prompt User</string>
+          <string>Auto from Directory</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">preCalibrationGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="setAutoDirectory">
+         <property name="text">
+          <string>Set Dir</string>
          </property>
         </widget>
        </item>
        <item row="4" column="0">
+        <widget class="QLabel" name="autoDirectoryName">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Directory name echoed here&lt;br/&gt;second line&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
         <widget class="QRadioButton" name="fixedPreCalFileRB">
          <property name="toolTip">
           <string>Use fixed bias file specified here for precalibration</string>
@@ -127,21 +159,24 @@
          <property name="text">
           <string>Fixed Bias File:</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">preCalibrationGroup</string>
+         </attribute>
         </widget>
        </item>
-       <item row="4" column="1" rowspan="2">
+       <item row="5" column="1" rowspan="2">
         <widget class="QPushButton" name="selectPreCalFile">
          <property name="text">
           <string>Select File</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="precalibrationPathDisplay">
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>41</height>
+           <height>0</height>
           </size>
          </property>
          <property name="text">
@@ -595,6 +630,7 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="preCalibrationGroup"/>
   <buttongroup name="dispositionGroup"/>
  </buttongroups>
 </ui>

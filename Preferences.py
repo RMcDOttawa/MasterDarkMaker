@@ -36,6 +36,8 @@ class Preferences(QSettings):
     PRE_CALIBRATION_PEDESTAL = "pre_calibration_pedestal"
     # File path if bias/dark file is to be subtracted
     PRE_CALIBRATION_FILE = "pre_calibration_file"
+    # File path to auto bias directory
+    PRE_CALIBRATION_AUTO_DIRECTORY = "pre_calibration_auto_directory"
 
     # Are we processing multiple file sets at once using grouping?
     GROUP_BY_SIZE = "group_by_size"
@@ -128,14 +130,14 @@ class Preferences(QSettings):
         result = int(self.value(self.IMAGE_PRE_CALIBRATION, defaultValue=Constants.CALIBRATION_NONE))
         assert (result == Constants.CALIBRATION_NONE) \
                or (result == Constants.CALIBRATION_FIXED_FILE) \
-               or (result == Constants.CALIBRATION_PROMPT) \
+               or (result == Constants.CALIBRATION_AUTO_DIRECTORY) \
                or (result == Constants.CALIBRATION_PEDESTAL)
         return result
 
     def set_precalibration_type(self, value: int):
         assert (value == Constants.CALIBRATION_NONE) \
                or (value == Constants.CALIBRATION_FIXED_FILE) \
-               or (value == Constants.CALIBRATION_PROMPT) \
+               or (value == Constants.CALIBRATION_AUTO_DIRECTORY) \
                or (value == Constants.CALIBRATION_PEDESTAL)
         self.setValue(self.IMAGE_PRE_CALIBRATION, value)
 
@@ -154,6 +156,14 @@ class Preferences(QSettings):
 
     def set_precalibration_fixed_path(self, path: str):
         self.setValue(self.PRE_CALIBRATION_FILE, path)
+
+    # Directory path if automatic selection of bias from directory is used
+
+    def get_precalibration_auto_directory(self) -> str:
+        return str(self.value(self.PRE_CALIBRATION_AUTO_DIRECTORY, defaultValue=""))
+
+    def set_precalibration_auto_directory(self, path: str):
+        self.setValue(self.PRE_CALIBRATION_AUTO_DIRECTORY, path)
 
     # Are we processing multiple file sets at once using grouping?
 

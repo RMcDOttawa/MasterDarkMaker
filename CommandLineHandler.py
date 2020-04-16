@@ -82,12 +82,7 @@ class CommandLineHandler:
             precalibration_type = self._preferences.get_precalibration_type()
             parameters.set_pedestal(self._preferences.get_precalibration_pedestal())
             parameters.set_fixed_calibration_file(self._preferences.get_precalibration_fixed_path())
-            if precalibration_type == Constants.CALIBRATION_PROMPT:
-                print("No precalibration method specified.  Preferences says \"prompt user\""
-                      " but that method is not allowed unless running the GUI")
-                valid = False
-            else:
-                print("Using precalibration setting from preferences: " + Constants.calibration_string(precalibration_type))
+            print("Using precalibration setting from preferences: " + Constants.calibration_string(precalibration_type))
         parameters.set_pre_calibration_type(precalibration_type)
 
         # Master frame combination algorithm and parameters
