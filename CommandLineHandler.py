@@ -275,47 +275,7 @@ class CommandLineHandler:
             pre_calibration = False
         return pre_calibration, pedestal_value, image_data
 
-    # Create a file name for the output file
-    #   of the form Dark-Mean-yyyymmddhhmm-temp-x-y-bin.fit
-    @classmethod
-    def create_output_path(cls, sample_input_file: FileDescriptor, combine_method: int):
-        """Create an output file name in the case where one wasn't specified"""
-        # Get directory of sample input file
-        directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
-        file_name = cls.get_file_name_portion(combine_method, sample_input_file)
-        file_path = f"{directory_prefix}/{file_name}"
-        return file_path
 
-    @classmethod
-    def get_file_name_portion(cls, combine_method, sample_input_file):
-        # Get other components of name
-        now = datetime.now()
-        date_time_string = now.strftime("%Y%m%d-%H%M")
-        temperature = f"{sample_input_file.get_temperature():.1f}"
-        exposure = f"{sample_input_file.get_exposure():.3f}"
-        dimensions = f"{sample_input_file.get_x_dimension()}x{sample_input_file.get_y_dimension()}"
-        binning = f"{sample_input_file.get_binning()}x{sample_input_file.get_binning()}"
-        method = Constants.combine_method_string(combine_method)
-        file_name = f"DARK-{method}-{date_time_string}-{exposure}s-{temperature}C-{dimensions}-{binning}.fit"
-
-        return file_name
-
-    # Create a suggested directory for the output files from group processing
-    #   of the form Dark-Mean-Groups-yyyymmddhhmm
-    @classmethod
-    def create_output_directory(cls, sample_input_file: FileDescriptor, combine_method: int):
-        """Create an output directory name for the files from group processing"""
-        # Get directory of sample input file
-        directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
-
-        # Get other components of name
-        now = datetime.now()
-        date_time_string = now.strftime("%Y%m%d-%H%M")
-        method = Constants.combine_method_string(combine_method)
-
-        # Make name
-        file_path = f"{directory_prefix}/DARK-{method}-Groups-{date_time_string}"
-        return file_path
 
     # Check if the user wanted us to move the input files after combining them.
     # If so, move them to the named subdirectory

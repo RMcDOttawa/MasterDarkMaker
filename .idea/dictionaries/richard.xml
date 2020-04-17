@@ -2,12 +2,17 @@
   <dictionary name="richard">
     <words>
       <w>ccdsoft</w>
+      <w>classmethod</w>
       <w>combinable</w>
       <w>darks</w>
       <w>enablement</w>
+      <w>exptime</w>
       <w>hdul</w>
+      <w>imagetyp</w>
+      <w>naxis</w>
       <w>ndarray</w>
       <w>ndarrays</w>
+      <w>picttype</w>
       <w>precal</w>
       <w>precalibrate</w>
       <w>precalibration</w>
@@ -17,6 +22,8 @@
       <w>stdevs</w>
       <w>subfolder</w>
       <w>unclipped</w>
+      <w>xbinning</w>
+      <w>ybinning</w>
       <w>yyyymmddhhmm</w>
     </words>
   </dictionary>

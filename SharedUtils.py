@@ -11,6 +11,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QWidget
 
+from Constants import Constants
 from FileDescriptor import FileDescriptor
 from Validators import Validators
 
@@ -30,15 +31,15 @@ class SharedUtils:
             result = QColor(cls._error_red, cls._error_green, cls._error_blue)
         return result
 
-    # Generate a file's full path, given the file name, and having the
-    # file reside in the same directory where the running program resides
-
-    @classmethod
-    def path_for_file_in_program_directory(cls, file_name: str) -> str:
-        program_full_path = os.path.realpath(__file__)
-        directory_name = os.path.dirname(program_full_path)
-        path_to_file = f"{directory_name}/{file_name}"
-        return path_to_file
+    # # Generate a file's full path, given the file name, and having the
+    # # file reside in the same directory where the running program resides
+    #
+    # @classmethod
+    # def path_for_file_in_program_directory(cls, file_name: str) -> str:
+    #     program_full_path = os.path.realpath(__file__)
+    #     directory_name = os.path.dirname(program_full_path)
+    #     path_to_file = f"{directory_name}/{file_name}"
+    #     return path_to_file
 
     @classmethod
     def background_validity_color(cls, field: QWidget, is_valid: bool):
@@ -129,6 +130,48 @@ class SharedUtils:
 
         return success
 
+    # Create a file name for the output file
+    #   of the form Dark-Mean-yyyymmddhhmm-temp-x-y-bin.fit
+    @classmethod
+    def create_output_path(cls, sample_input_file: FileDescriptor, combine_method: int):
+        """Create an output file name in the case where one wasn't specified"""
+        # Get directory of sample input file
+        directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
+        file_name = cls.get_file_name_portion(combine_method, sample_input_file)
+        file_path = f"{directory_prefix}/{file_name}"
+        return file_path
+
+    @classmethod
+    def get_file_name_portion(cls, combine_method, sample_input_file):
+        # Get other components of name
+        now = datetime.now()
+        date_time_string = now.strftime("%Y%m%d-%H%M")
+        temperature = f"{sample_input_file.get_temperature():.1f}"
+        exposure = f"{sample_input_file.get_exposure():.3f}"
+        dimensions = f"{sample_input_file.get_x_dimension()}x{sample_input_file.get_y_dimension()}"
+        binning = f"{sample_input_file.get_binning()}x{sample_input_file.get_binning()}"
+        method = Constants.combine_method_string(combine_method)
+        file_name = f"DARK-{method}-{date_time_string}-{exposure}s-{temperature}C-{dimensions}-{binning}.fit"
+
+        return file_name
+
+    # Create a suggested directory for the output files from group processing
+    #   of the form Dark-Mean-Groups-yyyymmddhhmm
+    @classmethod
+    def create_output_directory(cls, sample_input_file: FileDescriptor, combine_method: int):
+        """Create an output directory name for the files from group processing"""
+        # Get directory of sample input file
+        directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
+
+        # Get other components of name
+        now = datetime.now()
+        date_time_string = now.strftime("%Y%m%d-%H%M")
+        method = Constants.combine_method_string(combine_method)
+
+        # Make name
+        file_path = f"{directory_prefix}/DARK-{method}-Groups-{date_time_string}"
+        return file_path
+
     # Move files to given sub-folder
     @classmethod
     def move_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
@@ -153,72 +196,6 @@ class SharedUtils:
             destination_path = directory_path + "/" + str(unique_counter) + "-" + file_name
 
         return destination_path
-
-    # Given list of file descriptors, return a list of lists, where each outer list is all the
-    # file descriptors with the same size (dimensions and binning)
-
-    @classmethod
-    def get_groups_by_size(cls, selected_files: [FileDescriptor], is_grouped: bool) -> [[FileDescriptor]]:
-        if is_grouped:
-            descriptors_sorted = sorted(selected_files, key=FileDescriptor.get_size_key)
-            descriptors_grouped = groupby(descriptors_sorted, FileDescriptor.get_size_key)
-            result: [[FileDescriptor]] = []
-            for key, sub_group in descriptors_grouped:
-                sub_list = list(sub_group)
-                result.append(sub_list)
-            return result
-        else:
-            return [selected_files]   # One group with all the files
-
-    # Given list of file descriptors, return a list of lists, where each outer list is all the
-    # file descriptors with the same exposure within a given tolerance.
-    # Note that, because of the "tolerance" comparison, we need to process the list manually,
-    # not with the "groupby" function.
-
-    @classmethod
-    def get_groups_by_exposure(cls, selected_files: [FileDescriptor], is_grouped: bool, tolerance: float) -> [[FileDescriptor]]:
-        if is_grouped:
-            result: [[FileDescriptor]] = []
-            files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_exposure)
-            current_exposure: float = files_sorted[0].get_exposure()
-            current_list: [FileDescriptor] = []
-            for next_file in files_sorted:
-                this_exposure = next_file.get_exposure()
-                if cls.values_same_within_tolerance(current_exposure, this_exposure, tolerance):
-                    current_list.append(next_file)
-                else:
-                    result.append(current_list)
-                    current_list = [next_file]
-                    current_exposure = this_exposure
-            result.append(current_list)
-            return result
-        else:
-            return [selected_files]   # One group with all the files
-
-    # Given list of file descriptors, return a list of lists, where each outer list is all the
-    # file descriptors with the same temperature within a given tolerance
-    # Note that, because of the "tolerance" comparison, we need to process the list manually,
-    # not with the "groupby" function.
-
-    @classmethod
-    def get_groups_by_temperature(cls, selected_files: [FileDescriptor], is_grouped: bool, tolerance: float) -> [[FileDescriptor]]:
-        if is_grouped:
-            result: [[FileDescriptor]] = []
-            files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_temperature)
-            current_temperature: float = files_sorted[0].get_temperature()
-            current_list: [FileDescriptor] = []
-            for next_file in files_sorted:
-                this_temperature = next_file.get_temperature()
-                if cls.values_same_within_tolerance(current_temperature, this_temperature, tolerance):
-                    current_list.append(next_file)
-                else:
-                    result.append(current_list)
-                    current_list = [next_file]
-                    current_temperature = this_temperature
-            result.append(current_list)
-            return result
-        else:
-            return [selected_files]   # One group with all the files
 
     # Determine if two values are the same within a given tolerance.
     # Careful - either value might be zero, so divide only after checking
