@@ -1,6 +1,8 @@
 #
 #   Class to handle calibration of images using specified method (including none)
 #
+import sys
+
 from numpy import ndarray
 
 import MasterMakerExceptions
@@ -8,6 +10,7 @@ from Constants import Constants
 from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from RmFitsUtil import RmFitsUtil
+from SharedUtils import SharedUtils
 
 
 class Calibrator:
@@ -31,7 +34,6 @@ class Calibrator:
                                                       sample_file)
 
     def calibrate_with_pedestal(self, file_data: [ndarray], pedestal: int) -> [ndarray]:
-        print(f"calibrate_with_pedestal({pedestal})")
         result = file_data.copy()
         for index in range(len(result)):
             reduced_by_pedestal: ndarray = result[index] - pedestal
@@ -39,7 +41,6 @@ class Calibrator:
         return result
 
     def calibrate_with_file(self, file_data: [ndarray], calibration_file_path: str) -> [ndarray]:
-        print(f"calibrate_with_file({calibration_file_path}) STUB")
         result = file_data.copy()
         calibration_image = RmFitsUtil.fits_data_from_path(calibration_file_path)
         (calibration_x, calibration_y) = calibration_image.shape
@@ -53,7 +54,6 @@ class Calibrator:
 
     def calibrate_with_auto_directory(self, file_data: [ndarray], auto_directory_path: str,
                                       sample_file: FileDescriptor) -> [ndarray]:
-        print(f"calibrate_with_auto_directory({auto_directory_path}) STUB")
         calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file)
         return self.calibrate_with_file(file_data, calibration_file)
 
@@ -66,9 +66,49 @@ class Calibrator:
 
     @classmethod
     def get_best_calibration_file(cls, directory_path: str, sample_file: FileDescriptor) -> str:
-        print(f"get_best_calibration_file({directory_path})")
-        print(sample_file)
-        # todo get_best_calibration_file
-        raise MasterMakerExceptions.NoSuitableAutoBias
-        raise MasterMakerExceptions.NoAutoCalibrationDirectory("fart auto dir name")
-        return "fart"
+        # Get all calibration files in the given directory
+        all_descriptors = cls.all_descriptors_from_directory(directory_path)
+        if len(all_descriptors) == 0:
+            # No files in that directory, raise exception
+            raise MasterMakerExceptions.AutoCalibrationDirectoryEmpty(directory_path)
+
+        # Get the subset that are the correct size and binning
+        correct_size = cls.filter_to_correct_size(all_descriptors, sample_file)
+        if len(correct_size) == 0:
+            # No files in that directory are the correct size
+            raise MasterMakerExceptions.NoSuitableAutoBias
+
+        # From the correct-sized files, find the one closest to the sample file temperature
+        closest_match = cls.closest_temperature_match(correct_size, sample_file.get_temperature())
+        return closest_match.get_absolute_path()
+
+    @classmethod
+    def all_descriptors_from_directory(cls, directory_path: str) -> [FileDescriptor]:
+        paths: [str] = SharedUtils.files_in_directory(directory_path)
+        descriptors = RmFitsUtil.make_file_descriptions(paths)
+        return descriptors
+
+    @classmethod
+    def filter_to_correct_size(cls, all_descriptors: [FileDescriptor], sample_file: FileDescriptor) -> [FileDescriptor]:
+        x_dimension = sample_file.get_x_dimension()
+        y_dimension = sample_file.get_y_dimension()
+        binning = sample_file.get_binning()
+        d: FileDescriptor
+        filtered = [d for d in all_descriptors
+                    if d.get_x_dimension() == x_dimension
+                    and d.get_y_dimension() == y_dimension
+                    and d.get_binning() == binning]
+        return filtered
+
+    @classmethod
+    def closest_temperature_match(cls, descriptors: [FileDescriptor], target_temperature: float) -> FileDescriptor:
+        best_file_so_far: FileDescriptor = None
+        best_difference_so_far = sys.float_info.max
+        for descriptor in descriptors:
+            this_difference = abs(descriptor.get_temperature() - target_temperature)
+            if this_difference < best_difference_so_far:
+                best_difference_so_far = this_difference
+                best_file_so_far = descriptor
+        assert best_file_so_far is not None
+        print(f"Selected calibration file {best_file_so_far.get_name()} at temperature {best_file_so_far.get_temperature()}")
+        return best_file_so_far

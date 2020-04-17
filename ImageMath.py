@@ -450,6 +450,7 @@ class ImageMath:
                 column = file_data[:, column_x, column_y]
                 min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, number_dropped_values - 1))
                 masked_means[column_x, column_y] = min_max_clipped_mean
+            print("")
             # We've replaced the problematic columns, now the mean should calculate cleanly
             assert not ma.is_masked(masked_means)
         return masked_means.round()
@@ -515,7 +516,7 @@ class ImageMath:
         total_pixels = dimensions[0] * dimensions[1] * dimensions[2]
         number_masked = numpy.count_nonzero(exceeds_threshold)
         percentage_masked = 100.0 * number_masked / total_pixels
-        print(f"Discarded {number_masked:,} pixels of {total_pixels:,} ({percentage_masked:.3f}% of data)")
+        print(f"    Discarded {number_masked:,} pixels of {total_pixels:,} ({percentage_masked:.3f}% of data)")
 
         masked_array = ma.masked_array(file_data, exceeds_threshold)
         print("  Calculating adjusted means")

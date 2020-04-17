@@ -216,3 +216,15 @@ class SharedUtils:
         else:
             percent_difference = difference / first_value
         return percent_difference <= tolerance
+
+    @classmethod
+    def files_in_directory(cls, directory_path: str) -> [str]:
+        contents = os.listdir(directory_path)
+        result_list: [str] = []
+        for entry in contents:
+            full_path = directory_path + "/" + entry
+            if os.path.isfile(full_path):  # Ignore subdirectories
+                name_lower = full_path.lower()
+                if name_lower.endswith(".fit") or name_lower.endswith(".fits"):  # Only FITS files
+                    result_list.append(full_path)
+        return result_list

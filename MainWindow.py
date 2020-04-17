@@ -444,7 +444,7 @@ class MainWindow(QMainWindow):
 
         selected_row_indices = self.ui.filesTable.selectionModel().selectedRows()
         if len(selected_row_indices) == 0:
-            tool_tip_text = "Disabled because no files are selected"
+            tool_tip_text = "Disabled because more than one file needs to be selected"
 
         sigma_clip_enough_files = (combination_type != Constants.COMBINE_SIGMA_CLIP) or len(selected_row_indices) >= 3
         if not sigma_clip_enough_files:
@@ -472,7 +472,7 @@ class MainWindow(QMainWindow):
                                 f" does not exist."
 
         self.ui.combineSelectedButton.setEnabled(text_fields_valid
-                                                 and len(selected_row_indices) > 0
+                                                 and len(selected_row_indices) > 1
                                                  and self.min_max_enough_files(len(selected_row_indices))
                                                  and sigma_clip_enough_files
                                                  and dimensions_ok

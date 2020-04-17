@@ -47,9 +47,6 @@ class FileCombiner:
     #       NoGroupOutputDirectory      Output directory does not exist and unable to create it
     @classmethod
     def process_groups(cls, data_model: DataModel, selected_files: [FileDescriptor], output_directory: str):
-        print("process_groups")
-        # todo process_groups
-
         exposure_tolerance = data_model.get_exposure_group_tolerance()
         temperature_tolerance = data_model.get_temperature_group_tolerance()
         print("Process groups into output directory: " + output_directory)
@@ -59,21 +56,21 @@ class FileCombiner:
         #  Process size groups, or all sizes if not grouping
         groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
         for size_group in groups_by_size:
-            print(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+            print(f"   Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
             # Within this size group, process exposure groups, or all exposures if not grouping
             groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
                                                                      data_model.get_group_by_exposure(),
                                                                      exposure_tolerance)
             for exposure_group in groups_by_exposure:
-                print(f"Processing one exposure group: {len(exposure_group)} "
+                print(f"      Processing one exposure group: {len(exposure_group)} "
                       f"files exposed {size_group[0].get_exposure()}")
                 # Within this exposure group, process temperature groups, or all temperatures if not grouping
                 groups_by_temperature = FileCombiner.get_groups_by_temperature(exposure_group,
                                                                                data_model.get_group_by_temperature(),
                                                                                temperature_tolerance)
                 for temperature_group in groups_by_temperature:
-                    # print(f"Processing one temperature group: "
-                    #       f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
+                    print(f"         Processing one temperature group: "
+                          f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
                     # Now we have a list of descriptors, grouped as appropriate, to process
                     cls.process_one_group(data_model, temperature_group, output_directory,
                                            data_model.get_master_combine_method())
@@ -96,7 +93,7 @@ class FileCombiner:
         binning = sample_file.get_binning()
         exposure = sample_file.get_exposure()
         temperature = sample_file.get_temperature()
-        print(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
+        print(f"            Processing {len(descriptor_list)} files binned {binning} x {binning}, "
               f"{exposure} seconds at {temperature} degrees.")
 
         # Make up a file name for this group's output, into the given directory

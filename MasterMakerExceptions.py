@@ -49,3 +49,11 @@ class NoAutoCalibrationDirectory(Exception):
 
     def get_directory_name(self) -> str:
         return self._directory_name
+
+
+class AutoCalibrationDirectoryEmpty(Exception):
+    def __init__(self, directory_name: str):
+        self._directory_name = directory_name
+
+    def get_directory_name(self) -> str:
+        return self._directory_name
