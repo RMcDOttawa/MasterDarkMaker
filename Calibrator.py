@@ -70,4 +70,5 @@ class Calibrator:
         print(sample_file)
         # todo get_best_calibration_file
         raise MasterMakerExceptions.NoSuitableAutoBias
+        raise MasterMakerExceptions.NoAutoCalibrationDirectory("fart auto dir name")
         return "fart"

@@ -180,4 +180,12 @@ class RmFitsUtil:
             # Exposure and temperature
             return primary.data.astype(float)
 
+    @classmethod
+    def make_file_descriptions(cls, file_names: [str]) -> [FileDescriptor]:
+        result: [FileDescriptor] = []
+        for absolute_path in file_names:
+            descriptor = RmFitsUtil.make_file_descriptor(absolute_path)
+            result.append(descriptor)
+        return result
+
 

@@ -350,9 +350,8 @@ class MainWindow(QMainWindow):
             pass
         else:
             try:
-                file_descriptions = self.make_file_descriptions(file_names)
-                self._data_model.set_file_descriptors(file_descriptions)
-                self._table_model.set_file_descriptors(self._data_model.get_file_descriptors())
+                file_descriptions = RmFitsUtil.make_file_descriptions(file_names)
+                self._table_model.set_file_descriptors(file_descriptions)
             except FileNotFoundError as exception:
                 self.error_dialog("File Not Found", f"File \"{exception.filename}\" was not found or not readable")
         self.enable_buttons()
@@ -499,24 +498,23 @@ class MainWindow(QMainWindow):
         all_fields_good = all(valid for valid in self._field_validity.values())
         return all_fields_good
 
-    def make_file_descriptions(self, file_names: [str]) -> [FileDescriptor]:
-        result: [FileDescriptor] = []
-        for absolute_path in file_names:
-            descriptor = RmFitsUtil.make_file_descriptor(absolute_path)
-            result.append(descriptor)
-        return result
-
+    #
+    #   This is the "main program" of the actual combination of files into a master, for the GUI version
+    #   We farm the work out to other classes that can be reused by the command-line version.
+    #   Any errors come back here as exceptions for reporting in GUI fashion.
+    #
     def combine_selected_clicked(self):
         # Get the list of selected files
         selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
         assert len(selected_files) > 0  # Or else the button would have been disabled
         try:
+            # Are we using grouped processing?
             if self._data_model.get_group_by_exposure() \
                     or self._data_model.get_group_by_size() \
                     or self._data_model.get_group_by_temperature():
                 FileCombiner.process_groups(self._data_model, selected_files, self.get_group_output_directory())
             else:
-                # Get output file location
+                # Not grouped, producing a single output file. Get output file location
                 suggested_output_path = SharedUtils.create_output_path(selected_files[0],
                                                                        self._data_model.get_master_combine_method())
                 output_path = self.get_output_file(suggested_output_path)
@@ -535,9 +533,23 @@ class MainWindow(QMainWindow):
                               "If you know the files are dark frames, they may not have proper FITS data "
                               "internally. Check the \"Ignore FITS file type\" box to proceed anyway.")
         except MasterMakerExceptions.IncompatibleSizes:
-            self.error_dialog("The selected files can't be combined", "To be combined into a master file, the files "
-                                                                      "must have identical X and Y dimensions, and "
-                                                                      "identical Binning values.")
+            self.error_dialog("The selected files can't be combined",
+                              "To be combined into a master file, the files must have identical X and Y "
+                              "dimensions, and identical Binning values.")
+        except MasterMakerExceptions.NoAutoCalibrationDirectory as exception:
+            self.error_dialog("Auto Calibration Directory Missing",
+                              f"The specified directory for auto-calibration files, "
+                              f"\"{exception.get_directory_name()}\","
+                              f" does not exist or could not be read.")
+        except MasterMakerExceptions.NoSuitableAutoBias:
+            self.error_dialog("No matching calibration file",
+                              "No bias or dark file of appropriate size could be found in the provided "
+                              "calibration file directory.")
+        except PermissionError as exception:
+            self.error_dialog("Unable to write file",
+                              f"The specified output file, "
+                              f"\"{exception.filename}\","
+                              f" cannot be written or replaced: \"permission error\"")
 
     def get_group_output_directory(self) -> str:
         dialog = QFileDialog()

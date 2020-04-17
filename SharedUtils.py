@@ -5,7 +5,6 @@ import os
 import shutil
 import sys
 from datetime import datetime
-from itertools import groupby
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
@@ -60,15 +59,16 @@ class SharedUtils:
 
     # In given string, replace all occurrences of %d with date and %t with time
     # In YYYY-MM-DD  and HH-MM-SS formats
+
     @classmethod
     def substitute_date_time_filter_in_string(cls, output_path: str) -> str:
         now = datetime.now()
         year = now.strftime("%Y-%m-%d")
         time = now.strftime("%H-%M-%S")
-        return output_path.replace("%d", year).replace("%D", year).replace("%t", time).replace("%T", time) \
-
+        return output_path.replace("%d", year).replace("%D", year).replace("%t", time).replace("%T", time)
 
     # Find the most common filter name in the given collection
+
     @classmethod
     def most_common_filter_name(cls, descriptors: [FileDescriptor]) -> str:
         filter_counts: {str, int} = {}
@@ -99,6 +99,7 @@ class SharedUtils:
 
     # Given a desired sub-directory name, make it a sub-directory of the location of the input files
     # by putting the path to a sample input file on the front of the name
+
     @classmethod
     def make_name_a_subfolder(cls, sample_input_file: FileDescriptor, sub_directory_name: str) -> str:
         parent_path = os.path.dirname(sample_input_file.get_absolute_path())
@@ -132,6 +133,7 @@ class SharedUtils:
 
     # Create a file name for the output file
     #   of the form Dark-Mean-yyyymmddhhmm-temp-x-y-bin.fit
+
     @classmethod
     def create_output_path(cls, sample_input_file: FileDescriptor, combine_method: int):
         """Create an output file name in the case where one wasn't specified"""
@@ -157,6 +159,7 @@ class SharedUtils:
 
     # Create a suggested directory for the output files from group processing
     #   of the form Dark-Mean-Groups-yyyymmddhhmm
+
     @classmethod
     def create_output_directory(cls, sample_input_file: FileDescriptor, combine_method: int):
         """Create an output directory name for the files from group processing"""
@@ -173,6 +176,7 @@ class SharedUtils:
         return file_path
 
     # Move files to given sub-folder
+
     @classmethod
     def move_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
         for descriptor in descriptors:
@@ -183,6 +187,7 @@ class SharedUtils:
 
     # In case the disposition directory already existed and has files in it, ensure the
     # given file would be unique in the directory, by appending a number to it if necessary
+
     @classmethod
     def unique_destination_file(cls, directory_path: str, file_name: str) -> str:
         unique_counter = 0
@@ -199,6 +204,7 @@ class SharedUtils:
 
     # Determine if two values are the same within a given tolerance.
     # Careful - either value might be zero, so divide only after checking
+
     @classmethod
     def values_same_within_tolerance(cls, first_value: float, second_value: float, tolerance: float):
         difference = abs(first_value - second_value)

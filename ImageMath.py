@@ -2,7 +2,6 @@
 #   Class to do the math on FITS images to combine them in various ways
 #
 import sys
-from typing import Optional
 
 import numpy
 from numpy import ma, array
@@ -602,7 +601,8 @@ class ImageMath:
                        calibrator: Calibrator) -> ndarray:
         assert len(file_names) > 0  # Otherwise the combine button would have been disabled
         file_data = RmFitsUtil.read_all_files_data(file_names)
-        file_data = calibrator.calibrate_images(file_data)
+        sample_file = RmFitsUtil.make_file_descriptor(file_names[0])
+        file_data = calibrator.calibrate_images(file_data, sample_file)
         median_result = numpy.median(file_data, axis=0)
         return median_result
         # Combine given files using "min-max clip"
@@ -655,7 +655,8 @@ class ImageMath:
         # Get the data to be processed
         file_data_list: [ndarray] = RmFitsUtil.read_all_files_data(file_names)
         file_data = numpy.asarray(file_data_list)
-        file_data = calibrator.calibrate_images(file_data)
+        sample_file = RmFitsUtil.make_file_descriptor(file_names[0])
+        file_data = calibrator.calibrate_images(file_data, sample_file)
 
         # Do the math using each algorithm, and display how long it takes
 

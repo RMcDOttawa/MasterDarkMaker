@@ -32,7 +32,6 @@ class DataModel:
         self._exposure_group_tolerance: float = preferences.get_exposure_group_tolerance()
         self._temperature_group_tolerance: float = preferences.get_temperature_group_tolerance()
         self._ignore_file_type: bool = False
-        self._file_descriptors: [FileDescriptor] = []
 
     def get_master_combine_method(self) -> int:
         result = self._master_combine_method
@@ -183,10 +182,3 @@ class DataModel:
     def set_ignore_file_type(self, ignore: bool):
         self._ignore_file_type = ignore
 
-    # List of file descriptors displayed in the window
-
-    def get_file_descriptors(self) -> [FileDescriptor]:
-        return self._file_descriptors
-
-    def set_file_descriptors(self, descriptors: [FileDescriptor]):
-        self._file_descriptors = descriptors

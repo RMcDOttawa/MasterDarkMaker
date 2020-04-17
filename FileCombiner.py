@@ -2,9 +2,6 @@
 #   Static methods for combining FITS files using different algorithms
 #
 from itertools import groupby
-from typing import Optional
-
-import numpy
 
 import MasterMakerExceptions
 from Calibrator import Calibrator
@@ -17,56 +14,6 @@ from SharedUtils import SharedUtils
 
 
 class FileCombiner:
-
-    # Combine the given files, output to the given output file
-    # Use the combination algorithm given by the radio buttons on the main window
-    @classmethod
-    def combine_files(cls, input_files: [FileDescriptor],
-                      data_model: DataModel,
-                      filter_name: str, output_path: str):
-        substituted_file_name = SharedUtils.substitute_date_time_filter_in_string(output_path)
-        file_names = [d.get_absolute_path() for d in input_files]
-        combine_method = data_model.get_master_combine_method()
-        # Get info about any precalibration that is to be done
-        calibrator = Calibrator(data_model)
-        assert len(input_files) > 0
-        binning: int = input_files[0].get_binning()
-        (mean_exposure, mean_temperature) = ImageMath.mean_exposure_and_temperature(input_files)
-        if combine_method == Constants.COMBINE_MEAN:
-            mean_data = ImageMath.combine_mean(file_names, calibrator)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 "Master Dark MEAN combined")
-        elif combine_method == Constants.COMBINE_MEDIAN:
-            median_data = ImageMath.combine_median(file_names, calibrator)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 "Master Dark MEDIAN combined")
-        elif combine_method == Constants.COMBINE_MINMAX:
-            number_dropped_points = data_model.get_min_max_number_clipped_per_end()
-            min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
-                                                                   calibrator)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 f"Master Dark Min/Max Clipped "
-                                                 f"(drop {number_dropped_points}) Mean combined")
-        else:
-            assert combine_method == Constants.COMBINE_SIGMA_CLIP
-            sigma_threshold = data_model.get_sigma_clip_threshold()
-            sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
-                                                               calibrator)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 f"Master Dark Sigma Clipped "
-                                                 f"(threshold {sigma_threshold}) Mean combined")
 
     # Process one set of files.  Output to the given path, if provided.  If not provided, prompt the user for it.
     @classmethod
@@ -115,15 +62,15 @@ class FileCombiner:
             print(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
             # Within this size group, process exposure groups, or all exposures if not grouping
             groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
-                                                                    data_model.get_group_by_exposure(),
-                                                                    exposure_tolerance)
+                                                                     data_model.get_group_by_exposure(),
+                                                                     exposure_tolerance)
             for exposure_group in groups_by_exposure:
                 print(f"Processing one exposure group: {len(exposure_group)} "
                       f"files exposed {size_group[0].get_exposure()}")
                 # Within this exposure group, process temperature groups, or all temperatures if not grouping
                 groups_by_temperature = FileCombiner.get_groups_by_temperature(exposure_group,
-                                                                              data_model.get_group_by_temperature(),
-                                                                              temperature_tolerance)
+                                                                               data_model.get_group_by_temperature(),
+                                                                               temperature_tolerance)
                 for temperature_group in groups_by_temperature:
                     # print(f"Processing one temperature group: "
                     #       f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
@@ -239,7 +186,6 @@ class FileCombiner:
 
         return True
 
-
     # Given list of file descriptors, return a list of lists, where each outer list is all the
     # file descriptors with the same size (dimensions and binning)
 
@@ -262,7 +208,10 @@ class FileCombiner:
     # not with the "groupby" function.
 
     @classmethod
-    def get_groups_by_exposure(cls, selected_files: [FileDescriptor], is_grouped: bool, tolerance: float) -> [[FileDescriptor]]:
+    def get_groups_by_exposure(cls,
+                               selected_files: [FileDescriptor],
+                               is_grouped: bool,
+                               tolerance: float) -> [[FileDescriptor]]:
         if is_grouped:
             result: [[FileDescriptor]] = []
             files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_exposure)
@@ -287,7 +236,10 @@ class FileCombiner:
     # not with the "groupby" function.
 
     @classmethod
-    def get_groups_by_temperature(cls, selected_files: [FileDescriptor], is_grouped: bool, tolerance: float) -> [[FileDescriptor]]:
+    def get_groups_by_temperature(cls,
+                                  selected_files: [FileDescriptor],
+                                  is_grouped: bool,
+                                  tolerance: float) -> [[FileDescriptor]]:
         if is_grouped:
             result: [[FileDescriptor]] = []
             files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_temperature)
@@ -305,3 +257,53 @@ class FileCombiner:
             return result
         else:
             return [selected_files]   # One group with all the files
+
+    # Combine the given files, output to the given output file
+    # Use the combination algorithm given by the radio buttons on the main window
+    @classmethod
+    def combine_files(cls, input_files: [FileDescriptor],
+                      data_model: DataModel,
+                      filter_name: str, output_path: str):
+        substituted_file_name = SharedUtils.substitute_date_time_filter_in_string(output_path)
+        file_names = [d.get_absolute_path() for d in input_files]
+        combine_method = data_model.get_master_combine_method()
+        # Get info about any precalibration that is to be done
+        calibrator = Calibrator(data_model)
+        assert len(input_files) > 0
+        binning: int = input_files[0].get_binning()
+        (mean_exposure, mean_temperature) = ImageMath.mean_exposure_and_temperature(input_files)
+        if combine_method == Constants.COMBINE_MEAN:
+            mean_data = ImageMath.combine_mean(file_names, calibrator)
+            RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
+                                                 FileDescriptor.FILE_TYPE_DARK,
+                                                 "Dark Frame",
+                                                 mean_exposure, mean_temperature, filter_name, binning,
+                                                 "Master Dark MEAN combined")
+        elif combine_method == Constants.COMBINE_MEDIAN:
+            median_data = ImageMath.combine_median(file_names, calibrator)
+            RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
+                                                 FileDescriptor.FILE_TYPE_DARK,
+                                                 "Dark Frame",
+                                                 mean_exposure, mean_temperature, filter_name, binning,
+                                                 "Master Dark MEDIAN combined")
+        elif combine_method == Constants.COMBINE_MINMAX:
+            number_dropped_points = data_model.get_min_max_number_clipped_per_end()
+            min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
+                                                                   calibrator)
+            RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
+                                                 FileDescriptor.FILE_TYPE_DARK,
+                                                 "Dark Frame",
+                                                 mean_exposure, mean_temperature, filter_name, binning,
+                                                 f"Master Dark Min/Max Clipped "
+                                                 f"(drop {number_dropped_points}) Mean combined")
+        else:
+            assert combine_method == Constants.COMBINE_SIGMA_CLIP
+            sigma_threshold = data_model.get_sigma_clip_threshold()
+            sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
+                                                               calibrator)
+            RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
+                                                 FileDescriptor.FILE_TYPE_DARK,
+                                                 "Dark Frame",
+                                                 mean_exposure, mean_temperature, filter_name, binning,
+                                                 f"Master Dark Sigma Clipped "
+                                                 f"(threshold {sigma_threshold}) Mean combined")
