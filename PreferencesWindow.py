@@ -70,9 +70,11 @@ class PreferencesWindow(QDialog):
         self.ui.groupBySizeCB.setChecked(preferences.get_group_by_size())
         self.ui.groupByExposureCB.setChecked(preferences.get_group_by_exposure())
         self.ui.groupByTemperatureCB.setChecked(preferences.get_group_by_temperature())
+        self.ui.ignoreSmallGroupsCB.setChecked(preferences.get_ignore_groups_fewer_than())
 
         self.ui.exposureGroupTolerance.setText(f"{100 * preferences.get_exposure_group_tolerance():.0f}")
         self.ui.temperatureGroupTolerance.setText(f"{100 * preferences.get_temperature_group_tolerance():.0f}")
+        self.ui.minimumGroupSize.setText(str(preferences.get_minimum_group_size()))
 
         # Set up responders for buttons and fields
         self.ui.combineMeanRB.clicked.connect(self.combine_mean_button_clicked)
@@ -94,6 +96,7 @@ class PreferencesWindow(QDialog):
         self.ui.groupBySizeCB.clicked.connect(self.group_by_size_clicked)
         self.ui.groupByExposureCB.clicked.connect(self.group_by_exposure_clicked)
         self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
+        self.ui.ignoreSmallGroupsCB.clicked.connect(self.ignore_small_groups_clicked)
 
         self.ui.closeButton.clicked.connect(self.close_button_clicked)
 
@@ -104,6 +107,7 @@ class PreferencesWindow(QDialog):
         self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
         self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
         self.ui.temperatureGroupTolerance.editingFinished.connect(self.temperature_group_tolerance_changed)
+        self.ui.minimumGroupSize.editingFinished.connect(self.minimum_group_size_changed)
 
         # Tiny fonts in path display fields
         tiny_font = self.ui.precalibrationPathDisplay.font()
@@ -123,6 +127,10 @@ class PreferencesWindow(QDialog):
 
     def group_by_temperature_clicked(self):
         self._preferences.set_group_by_temperature(self.ui.groupByTemperatureCB.isChecked())
+        self.enableFields()
+
+    def ignore_small_groups_clicked(self):
+        self._preferences.set_ignore_groups_fewer_than(self.ui.ignoreSmallGroupsCB.isChecked())
         self.enableFields()
 
     def combine_mean_button_clicked(self):
@@ -220,6 +228,15 @@ class PreferencesWindow(QDialog):
             self._preferences.set_temperature_group_tolerance(new_number / 100.0)
         SharedUtils.background_validity_color(self.ui.temperatureGroupTolerance, valid)
 
+    def minimum_group_size_changed(self):
+        """User has entered value in minimum group size field.  Validate and save"""
+        proposed_new_number: str = self.ui.minimumGroupSize.text()
+        new_number = Validators.valid_int_in_range(proposed_new_number, 1, 32767)
+        valid = new_number is not None
+        if valid:
+            self._preferences.set_minimum_group_size(new_number)
+        SharedUtils.background_validity_color(self.ui.minimumGroupSize, valid)
+
     def min_max_drop_changed(self):
         """the field giving the number of minimum and maximum values to drop has been changed.
         Validate it (integer > 0) and store if valid"""
@@ -262,11 +279,9 @@ class PreferencesWindow(QDialog):
             self._preferences.get_precalibration_type() == Constants.CALIBRATION_FIXED_FILE)
         self.ui.setAutoDirectory.setEnabled(
             self._preferences.get_precalibration_type() == Constants.CALIBRATION_AUTO_DIRECTORY)
-        self.ui.exposureGroupTolerance.setEnabled(
-            self._preferences.get_group_by_exposure())
-        self.ui.temperatureGroupTolerance.setEnabled(
-            self._preferences.get_group_by_temperature())
-
+        self.ui.exposureGroupTolerance.setEnabled(self._preferences.get_group_by_exposure())
+        self.ui.temperatureGroupTolerance.setEnabled(self._preferences.get_group_by_temperature())
+        self.ui.minimumGroupSize.setEnabled(self._preferences.get_ignore_groups_fewer_than())
 
     def close_button_clicked(self):
         """Close button has been clicked - close the preferences window"""

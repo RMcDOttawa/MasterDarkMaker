@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>465</width>
-    <height>715</height>
+    <width>894</width>
+    <height>470</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>465</width>
-    <height>715</height>
+    <width>894</width>
+    <height>470</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>9999</width>
-    <height>9999</height>
+    <width>894</width>
+    <height>470</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -201,6 +201,150 @@
      </layout>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QFrame" name="frame">
+     <property name="minimumSize">
+      <size>
+       <width>431</width>
+       <height>125</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>431</width>
+       <height>221</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="label_4">
+        <property name="maximumSize">
+         <size>
+          <width>338</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Process Multiple Files at Once, Grouped by Attribute&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="groupBySizeCB">
+        <property name="toolTip">
+         <string>Process sets of files having different dimensions or binnings</string>
+        </property>
+        <property name="text">
+         <string>Group by size (dimensions and binning)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="groupByExposureCB">
+        <property name="toolTip">
+         <string>Process sets of files having different exposure times</string>
+        </property>
+        <property name="text">
+         <string>Group by Exposure, within:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="exposureGroupTolerance">
+        <property name="maximumSize">
+         <size>
+          <width>41</width>
+          <height>21</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Consider exposure times to be the same if the are within this percentage of each other.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>%</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="groupByTemperatureCB">
+        <property name="toolTip">
+         <string>Process sets of files having different CCD temperatures</string>
+        </property>
+        <property name="text">
+         <string>Group by Temperature, within:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="temperatureGroupTolerance">
+        <property name="maximumSize">
+         <size>
+          <width>41</width>
+          <height>21</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Consider temperatures to be the same if the are within this percentage of each other.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>%</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="ignoreSmallGroupsCB">
+        <property name="text">
+         <string>Ignore groups with fewer than:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="minimumGroupSize">
+        <property name="maximumSize">
+         <size>
+          <width>41</width>
+          <height>21</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>files</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>51</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QFrame" name="CombineMethod">
      <property name="minimumSize">
@@ -312,108 +456,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QFrame" name="frame">
-     <property name="minimumSize">
-      <size>
-       <width>431</width>
-       <height>125</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>431</width>
-       <height>125</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" colspan="3">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Process Multiple Files at Once, Grouped by Attribute&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="groupBySizeCB">
-        <property name="toolTip">
-         <string>Process sets of files having different dimensions or binnings</string>
-        </property>
-        <property name="text">
-         <string>Group by size (dimensions and binning)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="groupByExposureCB">
-        <property name="toolTip">
-         <string>Process sets of files having different exposure times</string>
-        </property>
-        <property name="text">
-         <string>Group by Exposure, within:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="exposureGroupTolerance">
-        <property name="maximumSize">
-         <size>
-          <width>31</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Consider exposure times to be the same if the are within this percentage of each other.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>%</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="groupByTemperatureCB">
-        <property name="toolTip">
-         <string>Process sets of files having different CCD temperatures</string>
-        </property>
-        <property name="text">
-         <string>Group by Temperature, within:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="temperatureGroupTolerance">
-        <property name="maximumSize">
-         <size>
-          <width>31</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>Consider temperatures to be the same if the are within this percentage of each other.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>%</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0">
+   <item row="1" column="1">
     <widget class="QFrame" name="frame_2">
      <property name="minimumSize">
       <size>
@@ -424,7 +467,7 @@
      <property name="maximumSize">
       <size>
        <width>431</width>
-       <height>95</height>
+       <height>151</height>
       </size>
      </property>
      <property name="frameShape">
@@ -436,6 +479,12 @@
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="label_5">
+        <property name="maximumSize">
+         <size>
+          <width>330</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;b&gt;Disposition of Input Files after Successful Combine&lt;/b&gt;&lt;/html&gt;</string>
         </property>
@@ -474,10 +523,23 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>42</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="2" column="0" colspan="2">
     <widget class="QWidget" name="widget" native="true">
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
@@ -508,8 +570,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="combineMethodGroup"/>
-  <buttongroup name="precalibrationGroup"/>
   <buttongroup name="dispositionGroup"/>
+  <buttongroup name="combineMethodGroup"/>
  </buttongroups>
 </ui>

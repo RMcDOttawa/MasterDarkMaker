@@ -50,6 +50,10 @@ class Preferences(QSettings):
     # How much, as a percentage, can temperatures vary before being considered a different group?
     TEMPERATURE_GROUP_TOLERANCE = "temperature_group_tolerance"
 
+    # Should we ignore small groups (probably haven't finished collecting them yet)?  How small
+    IGNORE_GROUPS_FEWER_THAN = "ignore_groups_fewer_than"
+    MINIMUM_GROUP_SIZE = "minimum_group_size"
+
     def __init__(self):
         QSettings.__init__(self, "EarwigHavenObservatory.com", "MasterDarkMaker_b")
         # print(f"Preferences file path: {self.fileName()}")
@@ -206,3 +210,18 @@ class Preferences(QSettings):
     def set_temperature_group_tolerance(self, percentage: float):
         assert 0 <= percentage < 1
         self.setValue(self.TEMPERATURE_GROUP_TOLERANCE, percentage)
+
+    # Should we ignore small groups (probably haven't finished collecting them yet)?  How small?
+
+
+    def get_ignore_groups_fewer_than(self) -> bool:
+        return bool(self.value(self.IGNORE_GROUPS_FEWER_THAN, defaultValue=False))
+
+    def set_ignore_groups_fewer_than(self, ignore: bool):
+        self.setValue(self.IGNORE_GROUPS_FEWER_THAN, ignore)
+
+    def get_minimum_group_size(self) -> int:
+        return int(self.value(self.MINIMUM_GROUP_SIZE, defaultValue=32))
+
+    def set_minimum_group_size(self, value: int):
+        self.setValue(self.MINIMUM_GROUP_SIZE, value)

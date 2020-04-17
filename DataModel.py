@@ -32,6 +32,8 @@ class DataModel:
         self._exposure_group_tolerance: float = preferences.get_exposure_group_tolerance()
         self._temperature_group_tolerance: float = preferences.get_temperature_group_tolerance()
         self._ignore_file_type: bool = False
+        self._ignore_groups_fewer_than: bool = preferences.get_ignore_groups_fewer_than()
+        self._minimum_group_size: int = preferences.get_minimum_group_size()
 
     def get_master_combine_method(self) -> int:
         result = self._master_combine_method
@@ -182,3 +184,14 @@ class DataModel:
     def set_ignore_file_type(self, ignore: bool):
         self._ignore_file_type = ignore
 
+    def get_ignore_groups_fewer_than(self) -> bool:
+        return self._ignore_groups_fewer_than
+
+    def set_ignore_groups_fewer_than(self, ignore: bool):
+        self._ignore_groups_fewer_than = ignore
+
+    def get_minimum_group_size(self) -> int:
+        return self._minimum_group_size
+
+    def set_minimum_group_size(self, minimum: int):
+        self._minimum_group_size = minimum

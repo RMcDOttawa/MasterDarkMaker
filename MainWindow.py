@@ -84,9 +84,11 @@ class MainWindow(QMainWindow):
         self.ui.groupBySizeCB.setChecked(data_model.get_group_by_size())
         self.ui.groupByExposureCB.setChecked(data_model.get_group_by_exposure())
         self.ui.groupByTemperatureCB.setChecked(data_model.get_group_by_temperature())
+        self.ui.ignoreSmallGroupsCB.setChecked(data_model.get_ignore_groups_fewer_than())
 
         self.ui.exposureGroupTolerance.setText(f"{100 * data_model.get_exposure_group_tolerance():.0f}")
         self.ui.temperatureGroupTolerance.setText(f"{100 * data_model.get_temperature_group_tolerance():.0f}")
+        self.ui.minimumGroupSize.setText(str(data_model.get_minimum_group_size()))
 
         # Set up the file table
         self._table_model = FitsFileTableModel(data_model.get_ignore_file_type())
@@ -160,8 +162,10 @@ class MainWindow(QMainWindow):
         self.ui.groupBySizeCB.clicked.connect(self.group_by_size_clicked)
         self.ui.groupByExposureCB.clicked.connect(self.group_by_exposure_clicked)
         self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
+        self.ui.ignoreSmallGroupsCB.clicked.connect(self.ignore_small_groups_clicked)
         self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
         self.ui.temperatureGroupTolerance.editingFinished.connect(self.temperature_group_tolerance_changed)
+        self.ui.minimumGroupSize.editingFinished.connect(self.minimum_group_size_changed)
 
         # Tiny fonts in path display fields
         tiny_font = self.ui.precalibrationPathDisplay.font()
@@ -237,6 +241,11 @@ class MainWindow(QMainWindow):
         self.enable_fields()
         self.enable_buttons()
 
+    def ignore_small_groups_clicked(self):
+        self._data_model.set_ignore_groups_fewer_than(self.ui.ignoreSmallGroupsCB.isChecked())
+        self.enable_fields()
+        self.enable_buttons()
+
     def disposition_button_clicked(self):
         """ One of the disposition buttons is clicked.  Change what fields are enabled"""
         disposition: int
@@ -259,6 +268,18 @@ class MainWindow(QMainWindow):
             self._data_model.set_precalibration_pedestal(new_number)
         SharedUtils.background_validity_color(self.ui.fixedPedestalAmount, valid)
         self._field_validity[self.ui.fixedPedestalAmount] = valid
+        self.enable_buttons()
+
+    def minimum_group_size_changed(self):
+        """the field giving the minimum group size to recognize has been changed.
+        Validate it (integer > 1) and store if valid"""
+        proposed_new_number: str = self.ui.minimumGroupSize.text()
+        new_number = Validators.valid_int_in_range(proposed_new_number, 1, 32767)
+        valid = new_number is not None
+        if valid:
+            self._data_model.set_minimum_group_size(new_number)
+        SharedUtils.background_validity_color(self.ui.minimumGroupSize, valid)
+        self._field_validity[self.ui.minimumGroupSize] = valid
         self.enable_buttons()
 
     def min_max_drop_changed(self):
@@ -417,6 +438,7 @@ class MainWindow(QMainWindow):
         calibration_type = self._data_model.get_precalibration_type()
         self.ui.selectPreCalFile.setEnabled(calibration_type == Constants.CALIBRATION_FIXED_FILE)
         self.ui.setAutoDirectory.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
+        self.ui.minimumGroupSize.setEnabled(self._data_model.get_ignore_groups_fewer_than())
 
         # "combineSelectedButton" is enabled only if
         #   - No text fields are in error state
