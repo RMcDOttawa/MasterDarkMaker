@@ -1,10 +1,6 @@
-from typing import Optional
-
-import numpy
 from astropy.io import fits
 from numpy.core.multiarray import ndarray
 
-import MasterMakerExceptions
 from FileDescriptor import FileDescriptor
 
 

@@ -5,12 +5,14 @@
 
 import os
 from datetime import datetime
+from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QEvent, QModelIndex
 from PyQt5.QtWidgets import QMainWindow, QDialog, QHeaderView, QFileDialog, QMessageBox
 
 import MasterMakerExceptions
+from Console import Console
 from Constants import Constants
 from DataModel import DataModel
 from FileCombiner import FileCombiner
@@ -34,6 +36,7 @@ class MainWindow(QMainWindow):
         self.ui = uic.loadUi(MultiOsUtil.path_for_file_in_program_directory("MainWindow.ui"))
         self._field_validity: {object, bool} = {}
         self._table_model: FitsFileTableModel
+        self._indent_level = 0
 
         # Load algorithm from preferences
 
@@ -535,6 +538,8 @@ class MainWindow(QMainWindow):
         self.sub_folder_name_changed()
         self.temperature_group_tolerance_changed()
 
+        console = Console()
+
         # Get the list of selected files
         selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
         assert len(selected_files) > 0  # Or else the button would have been disabled
@@ -546,7 +551,7 @@ class MainWindow(QMainWindow):
                     or self._data_model.get_group_by_temperature():
                 remove_from_ui = FileCombiner.process_groups(self._data_model, selected_files,
                                                              self.get_group_output_directory(),
-                                                             self.console_output)
+                                                             console)
             else:
                 # Not grouped, producing a single output file. Get output file location
                 suggested_output_path = SharedUtils.create_output_path(selected_files[0],
@@ -555,7 +560,7 @@ class MainWindow(QMainWindow):
                 if output_path is not None:
                     remove_from_ui = FileCombiner.original_non_grouped_processing(selected_files, self._data_model,
                                                                                   output_path,
-                                                                                  self.console_output)
+                                                                                  console)
         except FileNotFoundError as exception:
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
@@ -587,6 +592,7 @@ class MainWindow(QMainWindow):
 
         # Remove moved files from the table since those paths are no longer valid
         self._table_model.remove_files(remove_from_ui)
+        console.verify_done()
 
     def get_group_output_directory(self) -> str:
         dialog = QFileDialog()
@@ -620,12 +626,3 @@ class MainWindow(QMainWindow):
         return True if self._data_model.get_master_combine_method() != Constants.COMBINE_MINMAX \
             else num_selected > (2 * self._data_model.get_min_max_number_clipped_per_end())
 
-    # Callback method for combiner routines to produce console output.
-    # We use this so GUI and Command line version can handle console output differently
-    # In the GUI we'll put the lines into a console window, while the command will just print them directly
-
-    def console_output(self, message: str, indent_level: int = 1):
-        assert 0 < indent_level <= 10
-        indentation_string = " " * ((indent_level - 1) * Constants.CONSOLE_INDENTATION_SIZE)
-        time_string = datetime.now().strftime("%H:%M")
-        print("* " + time_string + ": " + indentation_string + message)

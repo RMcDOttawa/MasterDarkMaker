@@ -4,13 +4,13 @@
 #
 
 import os
-from datetime import datetime
+
 import numpy
+
 from CommandLineParameters import CommandLineParameters
 from Constants import Constants
 from DataModel import DataModel
 from FileDescriptor import FileDescriptor
-from Preferences import Preferences
 from RmFitsUtil import RmFitsUtil
 from SharedUtils import SharedUtils
 
@@ -274,8 +274,6 @@ class CommandLineHandler:
             assert calibration_type == Constants.CALIBRATION_NONE
             pre_calibration = False
         return pre_calibration, pedestal_value, image_data
-
-
 
     # Check if the user wanted us to move the input files after combining them.
     # If so, move them to the named subdirectory

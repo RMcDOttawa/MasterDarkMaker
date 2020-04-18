@@ -18,7 +18,7 @@ class Constants:
     CALIBRATION_NONE = -9717  # Don't do any precalibration on the image files
     CALIBRATION_PEDESTAL = -9715  # Subtract a fixed pedestal number from all files
     CALIBRATION_FIXED_FILE = -9713  # Precalibration file path is permanently stored
-    CALIBRATION_AUTO_DIRECTORY = -9709 # Auto-select best file from a given directory
+    CALIBRATION_AUTO_DIRECTORY = -9709  # Auto-select best file from a given directory
     # CALIBRATION_PROMPT = -9711  # Prompt user for precalibration file
 
     DEFAULT_CALIBRATION_PEDESTAL = 100

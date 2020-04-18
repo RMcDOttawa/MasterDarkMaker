@@ -8,7 +8,6 @@
 #   created from values in the Preferences object
 #
 from Constants import Constants
-from FileDescriptor import FileDescriptor
 from Preferences import Preferences
 
 

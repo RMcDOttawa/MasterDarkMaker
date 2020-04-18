@@ -5,6 +5,7 @@ from itertools import groupby
 
 import MasterMakerExceptions
 from Calibrator import Calibrator
+from Console import Console
 from Constants import Constants
 from DataModel import DataModel
 from FileDescriptor import FileDescriptor
@@ -21,9 +22,9 @@ class FileCombiner:
     def original_non_grouped_processing(cls, selected_files: [FileDescriptor],
                                         data_model: DataModel,
                                         output_file: str,
-                                        console,        # Console output callback method
-                                        ) -> [FileDescriptor]:
-        console("Using single-file processing", 1)
+                                        console: Console) -> [FileDescriptor]:
+        console.push_level()
+        console.message("Using single-file processing", +1)
         # We'll use the first file in the list as a sample for things like image size
         assert len(selected_files) > 0
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
@@ -39,13 +40,16 @@ class FileCombiner:
                 FileCombiner.combine_files(selected_files, data_model, filter_name, output_file, console)
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
-                return cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                result = cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
                                                           data_model.get_disposition_subfolder_name(),
                                                           selected_files)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
             raise MasterMakerExceptions.IncompatibleSizes
+        console.message("Combining complete", 0)
+        console.pop_level()
+        return result
 
     #
     #   Process the given selected files in groups by size, exposure, or temperature (or any combination)
@@ -57,13 +61,14 @@ class FileCombiner:
     def process_groups(cls, data_model: DataModel,
                        selected_files: [FileDescriptor],
                        output_directory: str,
-                       console) -> [FileDescriptor]:
+                       console: Console) -> [FileDescriptor]:
+        console.push_level()
         files_to_remove_from_ui: [FileDescriptor] = []
         exposure_tolerance = data_model.get_exposure_group_tolerance()
         temperature_tolerance = data_model.get_temperature_group_tolerance()
         disposition_folder = data_model.get_disposition_subfolder_name()
         substituted_folder_name = SharedUtils.substitute_date_time_filter_in_string(disposition_folder)
-        console("Process groups into output directory: " + output_directory, 1)
+        console.message("Process groups into output directory: " + output_directory, +1)
         if not SharedUtils.ensure_directory_exists(output_directory):
             raise MasterMakerExceptions.NoGroupOutputDirectory(output_directory)
         minimum_group_size = data_model.get_minimum_group_size() \
@@ -72,38 +77,49 @@ class FileCombiner:
         #  Process size groups, or all sizes if not grouping
         groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
         for size_group in groups_by_size:
+            console.push_level()
             if len(size_group) < minimum_group_size:
-                console(f"Ignoring one size group: {len(size_group)} files sized {size_group[0].get_size_key()}", 2)
+                console.message(f"Ignoring one size group: {len(size_group)} "
+                                f"files sized {size_group[0].get_size_key()}", +1)
             else:
-                console(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}", 2)
+                console.message(f"Processing one size group: {len(size_group)} "
+                                f"files sized {size_group[0].get_size_key()}", +1)
                 # Within this size group, process exposure groups, or all exposures if not grouping
                 groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
                                                                          data_model.get_group_by_exposure(),
                                                                          exposure_tolerance)
                 for exposure_group in groups_by_exposure:
+                    console.push_level()
                     if len(exposure_group) < minimum_group_size:
-                        console(f"Ignoring one exposure group: {len(exposure_group)} "
-                                f"files exposed {size_group[0].get_exposure()}", 3)
+                        console.message(f"Ignoring one exposure group: {len(exposure_group)} "
+                                f"files exposed {size_group[0].get_exposure()}", +1)
                     else:
-                        console(f"Processing one exposure group: {len(exposure_group)} "
-                                f"files exposed {size_group[0].get_exposure()}", 3)
+                        console.message(f"Processing one exposure group: {len(exposure_group)} "
+                                f"files exposed {size_group[0].get_exposure()}", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
-                        groups_by_temperature = FileCombiner.get_groups_by_temperature(exposure_group,
-                                                                                       data_model.get_group_by_temperature(),
-                                                                                       temperature_tolerance)
+                        groups_by_temperature = \
+                            FileCombiner.get_groups_by_temperature(exposure_group,
+                                                                   data_model.get_group_by_temperature(),
+                                                                   temperature_tolerance)
                         for temperature_group in groups_by_temperature:
+                            console.push_level()
                             if len(temperature_group) < minimum_group_size:
-                                console(f"Ignoring one temperature group: "
-                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", 4)
+                                console.message(f"Ignoring one temperature group: "
+                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
                             else:
-                                console(f"Processing one temperature group: "
-                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", 4)
+                                console.message(f"Processing one temperature group: "
+                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 files_to_remove_from_ui += cls.process_one_group(data_model, temperature_group,
                                                                                  output_directory,
                                                                                  data_model.get_master_combine_method(),
                                                                                  substituted_folder_name,
                                                                                  console)
+                            console.pop_level()
+                    console.pop_level()
+            console.pop_level()
+        console.message("Group combining complete", 0)
+        console.pop_level()
         return files_to_remove_from_ui
 
     # Process one group of files, output to the given directory
@@ -119,16 +135,16 @@ class FileCombiner:
                           output_directory: str,
                           combine_method: int,
                           disposition_folder_name,
-                          console) -> [FileDescriptor]:
+                          console: Console) -> [FileDescriptor]:
         # todo process_one_group
-        # Descriptive message to the console
         assert len(descriptor_list) > 0
         sample_file: FileDescriptor = descriptor_list[0]
         binning = sample_file.get_binning()
         exposure = sample_file.get_exposure()
         temperature = sample_file.get_temperature()
-        console(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
-                f"{exposure} seconds at {temperature} degrees.", 4)
+        console.push_level()
+        console.message(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
+                f"{exposure} seconds at {temperature} degrees.", +1)
 
         # Make up a file name for this group's output, into the given directory
         file_name = SharedUtils.get_file_name_portion(combine_method, sample_file)
@@ -144,16 +160,18 @@ class FileCombiner:
                 filter_name = SharedUtils.most_common_filter_name(descriptor_list)
 
                 # Do the combination
-                cls.combine_files(descriptor_list, data_model, filter_name, output_file,)
+                cls.combine_files(descriptor_list, data_model, filter_name, output_file, console)
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
-                return cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                result = cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
                                                           disposition_folder_name,
                                                           descriptor_list)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
             raise MasterMakerExceptions.IncompatibleSizes
+        console.pop_level()
+        return result
 
     # Move the given files if the given disposition type requests it.
     # Return a list of any files that were moved so the UI can be adjusted if necessary
@@ -317,7 +335,9 @@ class FileCombiner:
                       data_model: DataModel,
                       filter_name: str,
                       output_path: str,
-                      console):
+                      console: Console):
+        console.push_level()
+        stack_size = console.get_stack_size()
         substituted_file_name = SharedUtils.substitute_date_time_filter_in_string(output_path)
         file_names = [d.get_absolute_path() for d in input_files]
         combine_method = data_model.get_master_combine_method()
@@ -361,3 +381,5 @@ class FileCombiner:
                                                  mean_exposure, mean_temperature, filter_name, binning,
                                                  f"Master Dark Sigma Clipped "
                                                  f"(threshold {sigma_threshold}) Mean combined")
+        assert stack_size == console.get_stack_size()
+        console.pop_level()

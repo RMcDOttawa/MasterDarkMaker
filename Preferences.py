@@ -174,20 +174,20 @@ class Preferences(QSettings):
     def get_group_by_size(self) -> bool:
         return bool(self.value(self.GROUP_BY_SIZE, defaultValue=False))
 
-    def set_group_by_size(self, isGrouped: bool):
-        self.setValue(self.GROUP_BY_SIZE, isGrouped)
+    def set_group_by_size(self, is_grouped: bool):
+        self.setValue(self.GROUP_BY_SIZE, is_grouped)
 
     def get_group_by_exposure(self) -> bool:
         return bool(self.value(self.GROUP_BY_EXPOSURE, defaultValue=False))
 
-    def set_group_by_exposure(self, isGrouped: bool):
-        self.setValue(self.GROUP_BY_EXPOSURE, isGrouped)
+    def set_group_by_exposure(self, is_grouped: bool):
+        self.setValue(self.GROUP_BY_EXPOSURE, is_grouped)
 
     def get_group_by_temperature(self) -> bool:
         return bool(self.value(self.GROUP_BY_TEMPERATURE, defaultValue=False))
 
-    def set_group_by_temperature(self, isGrouped: bool):
-        self.setValue(self.GROUP_BY_TEMPERATURE, isGrouped)
+    def set_group_by_temperature(self, is_grouped: bool):
+        self.setValue(self.GROUP_BY_TEMPERATURE, is_grouped)
 
     # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
 
@@ -212,7 +212,6 @@ class Preferences(QSettings):
         self.setValue(self.TEMPERATURE_GROUP_TOLERANCE, percentage)
 
     # Should we ignore small groups (probably haven't finished collecting them yet)?  How small?
-
 
     def get_ignore_groups_fewer_than(self) -> bool:
         return bool(self.value(self.IGNORE_GROUPS_FEWER_THAN, defaultValue=False))

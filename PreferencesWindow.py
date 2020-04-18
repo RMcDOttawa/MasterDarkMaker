@@ -1,7 +1,6 @@
 import os
 
 from PyQt5 import uic
-from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QDialog, QFileDialog
 
 from Constants import Constants
@@ -53,7 +52,7 @@ class PreferencesWindow(QDialog):
 
         # Precalibration information
         precalibration_option = preferences.get_precalibration_type()
-        if  precalibration_option == Constants.CALIBRATION_FIXED_FILE:
+        if precalibration_option == Constants.CALIBRATION_FIXED_FILE:
             self.ui.FixedPreCalFileRB.setChecked(True)
         elif precalibration_option == Constants.CALIBRATION_NONE:
             self.ui.noPreClalibrationRB.setChecked(True)

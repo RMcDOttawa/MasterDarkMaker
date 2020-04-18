@@ -6,6 +6,7 @@ import sys
 from numpy import ndarray
 
 import MasterMakerExceptions
+from Console import Console
 from Constants import Constants
 from DataModel import DataModel
 from FileDescriptor import FileDescriptor
@@ -20,7 +21,7 @@ class Calibrator:
     def __init__(self, data_model: DataModel):
         self._data_model = data_model
 
-    def calibrate_images(self, file_data: [ndarray], sample_file: FileDescriptor) -> [ndarray]:
+    def calibrate_images(self, file_data: [ndarray], sample_file: FileDescriptor, console: Console) -> [ndarray]:
         calibration_type = self._data_model.get_precalibration_type()
         if calibration_type == Constants.CALIBRATION_NONE:
             return file_data
@@ -31,7 +32,7 @@ class Calibrator:
         else:
             assert calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY
             return self.calibrate_with_auto_directory(file_data, self._data_model.get_precalibration_auto_directory(),
-                                                      sample_file)
+                                                      sample_file, console)
 
     def calibrate_with_pedestal(self, file_data: [ndarray], pedestal: int) -> [ndarray]:
         result = file_data.copy()
@@ -53,8 +54,8 @@ class Calibrator:
         return result
 
     def calibrate_with_auto_directory(self, file_data: [ndarray], auto_directory_path: str,
-                                      sample_file: FileDescriptor) -> [ndarray]:
-        calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file)
+                                      sample_file: FileDescriptor, console: Console) -> [ndarray]:
+        calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file, console)
         return self.calibrate_with_file(file_data, calibration_file)
 
     #
@@ -65,7 +66,7 @@ class Calibrator:
     #       NoSuitableAutoBias
 
     @classmethod
-    def get_best_calibration_file(cls, directory_path: str, sample_file: FileDescriptor) -> str:
+    def get_best_calibration_file(cls, directory_path: str, sample_file: FileDescriptor, console: Console) -> str:
         # Get all calibration files in the given directory
         all_descriptors = cls.all_descriptors_from_directory(directory_path)
         if len(all_descriptors) == 0:
@@ -79,7 +80,7 @@ class Calibrator:
             raise MasterMakerExceptions.NoSuitableAutoBias
 
         # From the correct-sized files, find the one closest to the sample file temperature
-        closest_match = cls.closest_temperature_match(correct_size, sample_file.get_temperature())
+        closest_match = cls.closest_temperature_match(correct_size, sample_file.get_temperature(), console)
         return closest_match.get_absolute_path()
 
     @classmethod
@@ -101,8 +102,10 @@ class Calibrator:
         return filtered
 
     @classmethod
-    def closest_temperature_match(cls, descriptors: [FileDescriptor], target_temperature: float) -> FileDescriptor:
-        best_file_so_far: FileDescriptor = None
+    def closest_temperature_match(cls, descriptors: [FileDescriptor],
+                                  target_temperature: float,
+                                  console: Console) -> FileDescriptor:
+        best_file_so_far: FileDescriptor = FileDescriptor()
         best_difference_so_far = sys.float_info.max
         for descriptor in descriptors:
             this_difference = abs(descriptor.get_temperature() - target_temperature)
@@ -110,5 +113,6 @@ class Calibrator:
                 best_difference_so_far = this_difference
                 best_file_so_far = descriptor
         assert best_file_so_far is not None
-        print(f"Selected calibration file {best_file_so_far.get_name()} at temperature {best_file_so_far.get_temperature()}")
+        console.message(f"Selected calibration file {best_file_so_far.get_name()} "
+                        f"at temperature {best_file_so_far.get_temperature()}", +1, temp=True)
         return best_file_so_far
