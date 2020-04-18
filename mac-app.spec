@@ -6,7 +6,7 @@
 block_cipher = None
 
 
-a = Analysis(['MasterBiasMaker.py'],
+a = Analysis(['MasterDarkMaker.py'],
              pathex=['/Users/richard/DropBox/dropbox/EWHO/Application Development/MasterDarkMaker'],
              binaries=[],
              datas=[('MainWindow.ui', '.'),

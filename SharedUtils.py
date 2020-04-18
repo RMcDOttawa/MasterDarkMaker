@@ -150,10 +150,11 @@ class SharedUtils:
         date_time_string = now.strftime("%Y%m%d-%H%M")
         temperature = f"{sample_input_file.get_temperature():.1f}"
         exposure = f"{sample_input_file.get_exposure():.3f}"
-        dimensions = f"{sample_input_file.get_x_dimension()}x{sample_input_file.get_y_dimension()}"
+        # dimensions = f"{sample_input_file.get_x_dimension()}x{sample_input_file.get_y_dimension()}"
+        # Removed dimensions from file name - cluttered and not needed with binning included
         binning = f"{sample_input_file.get_binning()}x{sample_input_file.get_binning()}"
         method = Constants.combine_method_string(combine_method)
-        file_name = f"DARK-{method}-{date_time_string}-{exposure}s-{temperature}C-{dimensions}-{binning}.fit"
+        file_name = f"DARK-{method}-{date_time_string}-{exposure}s-{temperature}C-{binning}.fit"
 
         return file_name
 

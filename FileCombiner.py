@@ -52,28 +52,41 @@ class FileCombiner:
         print("Process groups into output directory: " + output_directory)
         if not SharedUtils.ensure_directory_exists(output_directory):
             raise MasterMakerExceptions.NoGroupOutputDirectory(output_directory)
+        minimum_group_size = data_model.get_minimum_group_size() \
+            if data_model.get_ignore_groups_fewer_than() else 0
 
         #  Process size groups, or all sizes if not grouping
         groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
         for size_group in groups_by_size:
-            print(f"   Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
-            # Within this size group, process exposure groups, or all exposures if not grouping
-            groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
-                                                                     data_model.get_group_by_exposure(),
-                                                                     exposure_tolerance)
-            for exposure_group in groups_by_exposure:
-                print(f"      Processing one exposure group: {len(exposure_group)} "
-                      f"files exposed {size_group[0].get_exposure()}")
-                # Within this exposure group, process temperature groups, or all temperatures if not grouping
-                groups_by_temperature = FileCombiner.get_groups_by_temperature(exposure_group,
-                                                                               data_model.get_group_by_temperature(),
-                                                                               temperature_tolerance)
-                for temperature_group in groups_by_temperature:
-                    print(f"         Processing one temperature group: "
-                          f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
-                    # Now we have a list of descriptors, grouped as appropriate, to process
-                    cls.process_one_group(data_model, temperature_group, output_directory,
-                                           data_model.get_master_combine_method())
+            if len(size_group) < minimum_group_size:
+                print(f"   Ignoring one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+            else:
+                print(f"   Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+                # Within this size group, process exposure groups, or all exposures if not grouping
+                groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
+                                                                         data_model.get_group_by_exposure(),
+                                                                         exposure_tolerance)
+                for exposure_group in groups_by_exposure:
+                    if len(exposure_group) < minimum_group_size:
+                        print(f"      Ignoring one exposure group: {len(exposure_group)} "
+                              f"files exposed {size_group[0].get_exposure()}")
+                    else:
+                        print(f"      Processing one exposure group: {len(exposure_group)} "
+                              f"files exposed {size_group[0].get_exposure()}")
+                        # Within this exposure group, process temperature groups, or all temperatures if not grouping
+                        groups_by_temperature = FileCombiner.get_groups_by_temperature(exposure_group,
+                                                                                       data_model.get_group_by_temperature(),
+                                                                                       temperature_tolerance)
+                        for temperature_group in groups_by_temperature:
+                            if len(temperature_group) < minimum_group_size:
+                                print(f"         Ignoring one temperature group: "
+                                      f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
+                            else:
+                                print(f"         Processing one temperature group: "
+                                      f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
+                                # Now we have a list of descriptors, grouped as appropriate, to process
+                                cls.process_one_group(data_model, temperature_group, output_directory,
+                                                       data_model.get_master_combine_method())
 
     # Process one group of files, output to the given directory
     #
