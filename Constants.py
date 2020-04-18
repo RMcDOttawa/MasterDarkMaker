@@ -23,6 +23,8 @@ class Constants:
 
     DEFAULT_CALIBRATION_PEDESTAL = 100
 
+    CONSOLE_INDENTATION_SIZE = 3
+
     @classmethod
     def combine_method_string(cls, method: int) -> str:
         if method == cls.COMBINE_MEAN:

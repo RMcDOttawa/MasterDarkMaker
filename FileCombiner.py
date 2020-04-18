@@ -20,8 +20,10 @@ class FileCombiner:
     @classmethod
     def original_non_grouped_processing(cls, selected_files: [FileDescriptor],
                                         data_model: DataModel,
-                                        output_file: str
+                                        output_file: str,
+                                        console,        # Console output callback method
                                         ) -> [FileDescriptor]:
+        console("Using single-file processing", 1)
         # We'll use the first file in the list as a sample for things like image size
         assert len(selected_files) > 0
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
@@ -34,7 +36,7 @@ class FileCombiner:
                 filter_name = SharedUtils.most_common_filter_name(selected_files)
 
                 # Do the combination
-                FileCombiner.combine_files(selected_files, data_model, filter_name, output_file)
+                FileCombiner.combine_files(selected_files, data_model, filter_name, output_file, console)
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
                 return cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
@@ -52,14 +54,16 @@ class FileCombiner:
     #   Exceptions thrown:
     #       NoGroupOutputDirectory      Output directory does not exist and unable to create it
     @classmethod
-    def process_groups(cls, data_model: DataModel, selected_files: [FileDescriptor], output_directory: str)\
-            -> [FileDescriptor]:
+    def process_groups(cls, data_model: DataModel,
+                       selected_files: [FileDescriptor],
+                       output_directory: str,
+                       console) -> [FileDescriptor]:
         files_to_remove_from_ui: [FileDescriptor] = []
         exposure_tolerance = data_model.get_exposure_group_tolerance()
         temperature_tolerance = data_model.get_temperature_group_tolerance()
         disposition_folder = data_model.get_disposition_subfolder_name()
         substituted_folder_name = SharedUtils.substitute_date_time_filter_in_string(disposition_folder)
-        print("Process groups into output directory: " + output_directory)
+        console("Process groups into output directory: " + output_directory, 1)
         if not SharedUtils.ensure_directory_exists(output_directory):
             raise MasterMakerExceptions.NoGroupOutputDirectory(output_directory)
         minimum_group_size = data_model.get_minimum_group_size() \
@@ -69,36 +73,37 @@ class FileCombiner:
         groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
         for size_group in groups_by_size:
             if len(size_group) < minimum_group_size:
-                print(f"   Ignoring one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+                console(f"Ignoring one size group: {len(size_group)} files sized {size_group[0].get_size_key()}", 2)
             else:
-                print(f"   Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}")
+                console(f"Processing one size group: {len(size_group)} files sized {size_group[0].get_size_key()}", 2)
                 # Within this size group, process exposure groups, or all exposures if not grouping
                 groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
                                                                          data_model.get_group_by_exposure(),
                                                                          exposure_tolerance)
                 for exposure_group in groups_by_exposure:
                     if len(exposure_group) < minimum_group_size:
-                        print(f"      Ignoring one exposure group: {len(exposure_group)} "
-                              f"files exposed {size_group[0].get_exposure()}")
+                        console(f"Ignoring one exposure group: {len(exposure_group)} "
+                                f"files exposed {size_group[0].get_exposure()}", 3)
                     else:
-                        print(f"      Processing one exposure group: {len(exposure_group)} "
-                              f"files exposed {size_group[0].get_exposure()}")
+                        console(f"Processing one exposure group: {len(exposure_group)} "
+                                f"files exposed {size_group[0].get_exposure()}", 3)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = FileCombiner.get_groups_by_temperature(exposure_group,
                                                                                        data_model.get_group_by_temperature(),
                                                                                        temperature_tolerance)
                         for temperature_group in groups_by_temperature:
                             if len(temperature_group) < minimum_group_size:
-                                print(f"         Ignoring one temperature group: "
-                                      f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
+                                console(f"Ignoring one temperature group: "
+                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", 4)
                             else:
-                                print(f"         Processing one temperature group: "
-                                      f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
+                                console(f"Processing one temperature group: "
+                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", 4)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 files_to_remove_from_ui += cls.process_one_group(data_model, temperature_group,
                                                                                  output_directory,
                                                                                  data_model.get_master_combine_method(),
-                                                                                 substituted_folder_name)
+                                                                                 substituted_folder_name,
+                                                                                 console)
         return files_to_remove_from_ui
 
     # Process one group of files, output to the given directory
@@ -113,7 +118,8 @@ class FileCombiner:
                           descriptor_list: [FileDescriptor],
                           output_directory: str,
                           combine_method: int,
-                          disposition_folder_name) -> [FileDescriptor]:
+                          disposition_folder_name,
+                          console) -> [FileDescriptor]:
         # todo process_one_group
         # Descriptive message to the console
         assert len(descriptor_list) > 0
@@ -121,8 +127,8 @@ class FileCombiner:
         binning = sample_file.get_binning()
         exposure = sample_file.get_exposure()
         temperature = sample_file.get_temperature()
-        print(f"            Processing {len(descriptor_list)} files binned {binning} x {binning}, "
-              f"{exposure} seconds at {temperature} degrees.")
+        console(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
+                f"{exposure} seconds at {temperature} degrees.", 4)
 
         # Make up a file name for this group's output, into the given directory
         file_name = SharedUtils.get_file_name_portion(combine_method, sample_file)
@@ -309,7 +315,9 @@ class FileCombiner:
     @classmethod
     def combine_files(cls, input_files: [FileDescriptor],
                       data_model: DataModel,
-                      filter_name: str, output_path: str):
+                      filter_name: str,
+                      output_path: str,
+                      console):
         substituted_file_name = SharedUtils.substitute_date_time_filter_in_string(output_path)
         file_names = [d.get_absolute_path() for d in input_files]
         combine_method = data_model.get_master_combine_method()
@@ -319,14 +327,14 @@ class FileCombiner:
         binning: int = input_files[0].get_binning()
         (mean_exposure, mean_temperature) = ImageMath.mean_exposure_and_temperature(input_files)
         if combine_method == Constants.COMBINE_MEAN:
-            mean_data = ImageMath.combine_mean(file_names, calibrator)
+            mean_data = ImageMath.combine_mean(file_names, calibrator, console)
             RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
                                                  FileDescriptor.FILE_TYPE_DARK,
                                                  "Dark Frame",
                                                  mean_exposure, mean_temperature, filter_name, binning,
                                                  "Master Dark MEAN combined")
         elif combine_method == Constants.COMBINE_MEDIAN:
-            median_data = ImageMath.combine_median(file_names, calibrator)
+            median_data = ImageMath.combine_median(file_names, calibrator, console)
             RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
                                                  FileDescriptor.FILE_TYPE_DARK,
                                                  "Dark Frame",
@@ -335,7 +343,7 @@ class FileCombiner:
         elif combine_method == Constants.COMBINE_MINMAX:
             number_dropped_points = data_model.get_min_max_number_clipped_per_end()
             min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
-                                                                   calibrator)
+                                                                   calibrator, console)
             RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
                                                  FileDescriptor.FILE_TYPE_DARK,
                                                  "Dark Frame",
@@ -346,7 +354,7 @@ class FileCombiner:
             assert combine_method == Constants.COMBINE_SIGMA_CLIP
             sigma_threshold = data_model.get_sigma_clip_threshold()
             sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
-                                                               calibrator)
+                                                               calibrator, console)
             RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
                                                  FileDescriptor.FILE_TYPE_DARK,
                                                  "Dark Frame",

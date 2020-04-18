@@ -19,9 +19,10 @@ class ImageMath:
     # Return  the mean data array
 
     @classmethod
-    def combine_mean(cls, file_names: [str], calibrator: Calibrator) -> ndarray:
+    def combine_mean(cls, file_names: [str], calibrator: Calibrator, console) -> ndarray:
         """Combine FITS files in given list using simple mean.  Return an ndarray containing the combined data."""
         assert len(file_names) > 0  # Otherwise the combine button would have been disabled
+        console("Combining by simple mean", 5)
         sample_file = RmFitsUtil.make_file_descriptor(file_names[0])
         file_data: [ndarray]
         file_data = RmFitsUtil.read_all_files_data(file_names)
@@ -37,8 +38,8 @@ class ImageMath:
     # Example list:   [3, 8, 2, 1, 0, 4, 3, 2, 5, 3, 2, 9, 5, 1, 0, 3, 8, 4, 9, 2]
     @classmethod
     def calc_mm_clipped_mean(cls, column: numpy.array,
-                             number_dropped_values: int) -> int:
-        # print(f"calc_mm_clipped_mean({column},{number_dropped_values})")
+                             number_dropped_values: int, console) -> int:
+        console(f"calc_mm_clipped_mean({column},{number_dropped_values})", 5)
         clipped_list = sorted(column.tolist())
         # Example List is now [0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 8, 8, 9, 9]
 
@@ -75,7 +76,7 @@ class ImageMath:
             # print("Min/Max clipping emptied list")
             if number_dropped_values > 1:
                 # print("   Try reducing number of dropped values")
-                result_mean = cls.calc_mm_clipped_mean(column, number_dropped_values - 1)
+                result_mean = cls.calc_mm_clipped_mean(column, number_dropped_values - 1, console)
             else:
                 # Even dropping only 1 value we emptied the list.  Just mean the whole thing.
                 # print("   Dropped values at minimum.  Mean column without clipping.")
@@ -92,8 +93,8 @@ class ImageMath:
     # masked array to do the column calculations rather than editing the list of values.
     @classmethod
     def min_max_clip_version_1(cls, file_data: ndarray, number_dropped_values: int,
-                               progress_dots: bool) -> ndarray:
-        print(f"Using min-max clip version 1: masked array per column")
+                               progress_dots: bool, console) -> ndarray:
+        console(f"Using min-max clip version 1: masked array per column", 5)
         (x_dimension, y_dimension) = file_data[0].shape
         # Set up the output array and then fill the columns one at a time
         # We'll put a "dot" on the screen every "n" items as a progress indicator
@@ -103,7 +104,8 @@ class ImageMath:
         dots_printed = 0
         result = numpy.zeros(shape=(x_dimension, y_dimension))
         if progress_dots:
-            print(f"Processing {x_dimension * y_dimension:,} columns. Each blip below is {blip_every_column_count:,}.")
+            console(f"Processing {x_dimension * y_dimension:,} columns. "
+                    f"Each blip below is {blip_every_column_count:,}.", 6)
         for x_index in range(x_dimension):
             for y_index in range(y_dimension):
                 # Do the "dot" progress indicator
@@ -116,7 +118,8 @@ class ImageMath:
                         dots_printed = 0
                 # Fill in the processed mean at this column
                 column = file_data[:, x_index, y_index]
-                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean_with_mask(column, number_dropped_values))
+                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean_with_mask(column, number_dropped_values,
+                                                                                     console))
                 result[x_index, y_index] = min_max_clipped_mean
         if dots_printed != 100:
             print("", flush=True)
@@ -134,7 +137,7 @@ class ImageMath:
     # We'll try that, as optimization option 2
 
     @classmethod
-    def calc_mm_clipped_mean_with_mask(cls, column: numpy.array, number_dropped_values: int):
+    def calc_mm_clipped_mean_with_mask(cls, column: numpy.array, number_dropped_values: int, console):
 
         masked_array = ma.MaskedArray(column)
 
@@ -152,7 +155,7 @@ class ImageMath:
 
         masked_mean = masked_array.mean()
         if ma.is_masked(masked_mean):
-            return cls.calc_mm_clipped_mean_with_mask(column, number_dropped_values - 1)
+            return cls.calc_mm_clipped_mean_with_mask(column, number_dropped_values - 1, console)
         else:
             return masked_mean
 
@@ -164,8 +167,8 @@ class ImageMath:
 
     @classmethod
     def min_max_clip_version_2(cls, file_data: ndarray, number_dropped_values: int,
-                               progress_dots: bool) -> ndarray:
-        print(f"Using min-max clip version 2: masked array per column, single pass")
+                               progress_dots: bool, console) -> ndarray:
+        console(f"Using min-max clip version 2: masked array per column, single pass", 5)
         (x_dimension, y_dimension) = file_data[0].shape
         # Set up the output array and then fill the columns one at a time
         # We'll put a "dot" on the screen every "n" items as a progress indicator
@@ -175,7 +178,8 @@ class ImageMath:
         dots_printed = 0
         result = numpy.zeros(shape=(x_dimension, y_dimension))
         if progress_dots:
-            print(f"Processing {x_dimension * y_dimension:,} columns. Each blip below is {blip_every_column_count:,}.")
+            console(f"Processing {x_dimension * y_dimension:,} columns. "
+                    f"Each blip below is {blip_every_column_count:,}.", 6)
         for x_index in range(x_dimension):
             for y_index in range(y_dimension):
                 # Do the "dot" progress indicator
@@ -189,7 +193,8 @@ class ImageMath:
                 # Fill in the processed mean at this column
                 column = file_data[:, x_index, y_index]
                 min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean_with_mask_single_pass(column,
-                                                                                                 number_dropped_values))
+                                                                                                 number_dropped_values,
+                                                                                                 console))
                 result[x_index, y_index] = min_max_clipped_mean
         if dots_printed != 100:
             print("", flush=True)
@@ -204,7 +209,7 @@ class ImageMath:
     # those manually on a single pass through the array
 
     @classmethod
-    def calc_mm_clipped_mean_with_mask_single_pass(cls, column: array, number_dropped_values: int):
+    def calc_mm_clipped_mean_with_mask_single_pass(cls, column: array, number_dropped_values: int, console):
 
         masked_array = ma.MaskedArray(column)
 
@@ -247,7 +252,7 @@ class ImageMath:
 
         masked_mean = masked_array.mean()
         if ma.is_masked(masked_mean):
-            return cls.calc_mm_clipped_mean_with_mask_single_pass(column, number_dropped_values - 1)
+            return cls.calc_mm_clipped_mean_with_mask_single_pass(column, number_dropped_values - 1, console)
         else:
             return masked_mean
 
@@ -258,8 +263,8 @@ class ImageMath:
 
     @classmethod
     def min_max_clip_version_3(cls, file_data: ndarray, number_dropped_values: int,
-                               progress_dots: bool) -> ndarray:
-        print(f"Using min-max clip version 3: masked array per column, sorted columns")
+                               progress_dots: bool, console) -> ndarray:
+        console(f"Using min-max clip version 3: masked array per column, sorted columns", 5)
         (x_dimension, y_dimension) = file_data[0].shape
         # Set up the output array and then fill the columns one at a time
         # We'll put a "dot" on the screen every "n" items as a progress indicator
@@ -269,7 +274,8 @@ class ImageMath:
         dots_printed = 0
         result = numpy.zeros(shape=(x_dimension, y_dimension))
         if progress_dots:
-            print(f"Processing {x_dimension * y_dimension:,} columns. Each blip below is {blip_every_column_count:,}.")
+            console(f"Processing {x_dimension * y_dimension:,} columns. "
+                    f"Each blip below is {blip_every_column_count:,}.", 6)
         for x_index in range(x_dimension):
             for y_index in range(y_dimension):
                 # Do the "dot" progress indicator
@@ -282,7 +288,8 @@ class ImageMath:
                         dots_printed = 0
                 # Fill in the processed mean at this column
                 column = file_data[:, x_index, y_index]
-                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean_sorted_masked(column, number_dropped_values))
+                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean_sorted_masked(column, number_dropped_values,
+                                                                                         console))
                 result[x_index, y_index] = min_max_clipped_mean
         if dots_printed != 100:
             print("", flush=True)
@@ -296,7 +303,7 @@ class ImageMath:
     # Example array:   [3, 8, 2, 1, 0, 4, 3, 2, 5, 3, 2, 9, 5, 1, 0, 3, 8, 4, 9, 2]
     @classmethod
     def calc_mm_clipped_mean_sorted_masked(cls, column: numpy.array,
-                                           number_dropped_values: int) -> int:
+                                           number_dropped_values: int, console) -> int:
         # print(f"calc_mm_clipped_mean({column},{number_dropped_values})")
         masked_array = ma.masked_array(numpy.sort(column))
         # Example array is now [0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 5, 5, 8, 8, 9, 9]
@@ -339,7 +346,7 @@ class ImageMath:
 
         masked_mean = masked_array.mean()
         if ma.is_masked(masked_mean):
-            return cls.calc_mm_clipped_mean_sorted_masked(column, number_dropped_values - 1)
+            return cls.calc_mm_clipped_mean_sorted_masked(column, number_dropped_values - 1, console)
         else:
             return masked_mean
 
@@ -359,8 +366,8 @@ class ImageMath:
     #   are recalculated.  This case is rare, and I'm leaving it since it is so much faster.
 
     @classmethod
-    def min_max_clip_version_4(cls, file_data: ndarray, number_dropped_values: int):
-        print(f"Using min-max clip version 4: pure masked-array matrix operation")
+    def min_max_clip_version_4(cls, file_data: ndarray, number_dropped_values: int, console):
+        console(f"Using min-max clip version 4: pure masked-array matrix operation", 5)
         masked_array = ma.MaskedArray(file_data)
         drop_counter = number_dropped_values
         while drop_counter > 0:
@@ -384,8 +391,8 @@ class ImageMath:
         # number of clipped values.  This will degenerate to no clipping if the problem persists, and
         # ends up being a simple mean.
         if ma.is_masked(masked_means):
-            print("Means array still contains masked values")
-            return cls.min_max_clip_version_4(file_data, number_dropped_values - 1)
+            console("Means array still contains masked values", 6)
+            return cls.min_max_clip_version_4(file_data, number_dropped_values - 1, console)
         else:
             return masked_means.round()
 
@@ -402,13 +409,13 @@ class ImageMath:
     #   the entire matrix.
 
     @classmethod
-    def min_max_clip_version_5(cls, file_data: ndarray, number_dropped_values: int, progress: bool = True):
-        print(f"Using min-max clip version 5:  masked-array matrix operation with column repair")
+    def min_max_clip_version_5(cls, file_data: ndarray, number_dropped_values: int, console, progress: bool = True):
+        console(f"Using min-max clip version 5:  masked-array matrix operation with column repair", 5)
         masked_array = ma.MaskedArray(file_data)
         drop_counter = 1
         while drop_counter <= number_dropped_values:
             if progress:
-                print(f"  Iteration {drop_counter} of {number_dropped_values}.")
+                console(f"Iteration {drop_counter} of {number_dropped_values}.", 6)
             drop_counter += 1
             # Find the minimums in all columns.  This will give a 2d matrix the same size as the images
             # with the column-minimum in each position
@@ -419,22 +426,22 @@ class ImageMath:
             # we want to find all of them)
             masked_array = ma.masked_where(masked_array == minimum_values, masked_array)
             if progress:
-                print("      Masked minimums.")
+                console("Masked minimums.", 7)
 
             # Now find and mask the maximums, same approach
             maximum_values = masked_array.max(axis=0)
             masked_array = ma.masked_where(masked_array == maximum_values, masked_array)
             if progress:
-                print("      Masked maximums.")
+                console("Masked maximums.", 7)
 
         if progress:
-            print(f"  Calculating mean of remaining data.")
+            console(f"Calculating mean of remaining data.", 5)
         masked_means = numpy.mean(masked_array, axis=0)
         # If the means matrix contains any masked values, that means that in that column the clipping
         # eliminated *all* the data.  We will find the offending columns and re-calculate those with
         # fewer dropped extremes.  This should exactly reproduce the results of the cell-by-cell methods
         if ma.is_masked(masked_means):
-            print("Means array still contains masked values; reducing drops for those columns.")
+            console("Means array still contains masked values; reducing drops for those columns.", 5)
             #  Get the mask, and get a 2D matrix showing which columns were entirely masked
             the_mask = masked_array.mask
             eliminated_columns_map = ndarray.all(the_mask, axis=0)
@@ -442,13 +449,13 @@ class ImageMath:
             x_coordinates = masked_coordinates[0]
             y_coordinates = masked_coordinates[1]
             assert len(x_coordinates) == len(y_coordinates)
-            print(f"{len(x_coordinates)} columns need repair.")
+            console(f"{len(x_coordinates)} columns need repair.", 6)
             for index in range(len(x_coordinates)):
                 print(".", end="\n" if (index > 0) and (index % 50 == 0) else "")
                 column_x = x_coordinates[index]
                 column_y = y_coordinates[index]
                 column = file_data[:, column_x, column_y]
-                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, number_dropped_values - 1))
+                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, number_dropped_values - 1, console))
                 masked_means[column_x, column_y] = min_max_clipped_mean
             print("")
             # We've replaced the problematic columns, now the mean should calculate cleanly
@@ -487,16 +494,16 @@ class ImageMath:
 
     @classmethod
     def combine_sigma_clip(cls, file_names: [str], sigma_threshold: float,
-                           calibrator: Calibrator) -> ndarray:
-        print("Combine by sigma-clipped mean")
+                           calibrator: Calibrator, console) -> ndarray:
+        console("Combine by sigma-clipped mean", 5)
         sample_file = RmFitsUtil.make_file_descriptor(file_names[0])
         file_data = numpy.asarray(RmFitsUtil.read_all_files_data(file_names))
         file_data = calibrator.calibrate_images(file_data, sample_file)
-        print("  Calculating unclipped means")
+        console("Calculating unclipped means", 6)
         column_means = numpy.mean(file_data, axis=0)
-        print("  Calculating standard deviations")
+        console("Calculating standard deviations", 6)
         column_stdevs = numpy.std(file_data, axis=0)
-        print("  Calculating z-scores")
+        console("Calculating z-scores", 6)
         # Now what we'd like to do is just:
         #    z_scores = abs(file_data - column_means) / column_stdevs
         # Unfortunately, standard deviations can be zero, so that simplistic
@@ -508,17 +515,17 @@ class ImageMath:
         column_stdevs[column_stdevs == 0.0] = sys.float_info.max
         z_scores = abs(file_data - column_means) / column_stdevs
 
-        print("  Eliminated data outside threshold")
+        console("Eliminated data outside threshold", 6)
         exceeds_threshold = z_scores > sigma_threshold
         # Calculate and display how much data we are ignoring
         dimensions = exceeds_threshold.shape
         total_pixels = dimensions[0] * dimensions[1] * dimensions[2]
         number_masked = numpy.count_nonzero(exceeds_threshold)
         percentage_masked = 100.0 * number_masked / total_pixels
-        print(f"    Discarded {number_masked:,} pixels of {total_pixels:,} ({percentage_masked:.3f}% of data)")
+        console(f"Discarded {number_masked:,} pixels of {total_pixels:,} ({percentage_masked:.3f}% of data)", 7)
 
         masked_array = ma.masked_array(file_data, exceeds_threshold)
-        print("  Calculating adjusted means")
+        console("Calculating adjusted means", 6)
         masked_means = ma.mean(masked_array, axis=0)
 
         # # For testing, show the column info for a few columns
@@ -543,7 +550,7 @@ class ImageMath:
         # eliminated *all* the data.  We will find the offending columns and re-calculate those using
         # simple min-max clipping.
         if ma.is_masked(masked_means):
-            print("Means array still contains masked values; min-max clipping those columns.")
+            console("Means array still contains masked values; min-max clipping those columns.", 6)
             #  Get the mask, and get a 2D matrix showing which columns were entirely masked
             eliminated_columns_map = ndarray.all(exceeds_threshold, axis=0)
             masked_coordinates = numpy.where(eliminated_columns_map)
@@ -554,100 +561,66 @@ class ImageMath:
                 column_x = x_coordinates[index]
                 column_y = y_coordinates[index]
                 column = file_data[:, column_x, column_y]
-                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, 2))
+                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, 2, console))
                 masked_means[column_x, column_y] = min_max_clipped_mean
             # We've replaced the problematic columns, now the mean should calculate cleanly
             assert not ma.is_masked(masked_means)
         return masked_means.round().filled()
 
-    # Calibrate the given images using either a pedestal subtract
-    # or an image subtract (one of those is not None).  Return modified image
-    # array or "None" if  the calibration image is not the same
-    # dimensions as the file images
-    # @classmethod
-    # def calibrate_images(cls,
-    #                      calibration_type: int,
-    #                      file_data: [ndarray],
-    #                      pedestal_value: int,
-    #                      calibration_image: ndarray) -> [ndarray]:
-    #     result = file_data.copy()
-    #     if calibration_type == Constants.CALIBRATION_NONE:
-    #         pass
-    #     elif calibration_type == Constants.CALIBRATION_PEDESTAL:
-    #         assert pedestal_value is not None
-    #         print(f"Calibrating images with pedestal value {pedestal_value}")
-    #         assert calibration_image is None
-    #         for index in range(len(result)):
-    #             reduced_by_pedestal: ndarray = result[index] - pedestal_value
-    #             # reduced_by_pedestal[reduced_by_pedestal < 0] = 0
-    #             result[index] = reduced_by_pedestal.clip(0, 0xFFFF)
-    #     else:
-    #         assert calibration_type == Constants.CALIBRATION_FIXED_FILE \
-    #                or calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY
-    #         assert calibration_image is not None
-    #         print("Calibrating images with given calibration image")
-    #         (calibration_x, calibration_y) = calibration_image.shape
-    #         for index in range(len(result)):
-    #             (layer_x, layer_y) = result[index].shape
-    #             if (layer_x != calibration_x) or (layer_y != calibration_y):
-    #                 return None
-    #             difference = result[index] - calibration_image
-    #             result[index] = difference.clip(0, 0xFFFF)
-    #
-    #     return result
-
     @classmethod
     def combine_median(cls, file_names: [str],
-                       calibrator: Calibrator) -> ndarray:
+                       calibrator: Calibrator, console) -> ndarray:
         assert len(file_names) > 0  # Otherwise the combine button would have been disabled
+        console("Combine by simple Median", 5)
         file_data = RmFitsUtil.read_all_files_data(file_names)
         sample_file = RmFitsUtil.make_file_descriptor(file_names[0])
         file_data = calibrator.calibrate_images(file_data, sample_file)
         median_result = numpy.median(file_data, axis=0)
         return median_result
-        # Combine given files using "min-max clip"
-        # In the following explanation, "column" means all of the points at a given image (x,y) coordinate,
-        # across all the provided files.  Imagine that 20 images are given - then one "column" would be the 20 values
-        # at the (0,0) coordinate in all 20 images, the next column would be the 20 values from the images' (0,1)
-        # coordinates, and so on.  So for n x m sized images, there are n*m columns of 20 values each.
-        #
-        # This combination method uses a basic mean of the data, except each column is first pre-processed by
-        # removing all the points at the column's minimum value, and all the points at the column's maximum
-        # value.  This can be repeated more than once - the number of repetitions is given.  Then the remaining
-        # points in the column are combined with a simple mean.  The idea is that the min/max will remove dead and hot
-        # pixels, so the mean on the rest will not include those artifacts.
-        #
-        # Eliminating min and max values in a column, could, in rare circumstances, eliminate *all* the data in the
-        # column.  If that happens we reduce the number of dropped points for that column until data remains to mean.
 
-        # Note that, because the clipping eliminates points on a column-by-column basis, the number of points actually
-        # surviving for combination will vary.  There are simple slow ways, and complex fast ways, to handle this.
-        #
-        #   The following versions were all tried, in order, and timed, ending up at "optimization 5" which is the
-        #   one in use.  The other ones are left here for education or interest.
-        #
-        #   Optimization 0:     This initial version just loops over each image cell and calculates the mean of each column
-        #                       separately.  Slow, but it works and is easy to understand what's happening.
-        #   Optimization 1:     Keep the x,y loop but used masked array to calculate clipped mean on the column
-        #   Optimization 2:     Same as (1) but manually locates min and max values on a single pass thru column
-        #
-        #   Comment added after initial testing.  Surprised so far, method [0] still fastest by a long shot.
-        #                       The low cost of the very efficient quicksort allows the benefits of direct
-        #                       indexing for min and max values to swamp the results.
-        #
-        #   Optimization 3:     Use the sorted-array indexing of option (0) and the masked array of (1a).
-        #                       Result: 2nd-best.  Better than (1) or (2) but still doesn't beat (0)
-        #   Optimization 4:     Convert the entire 3-D structure to a masked array.  The masking logic is complex,
-        #                       but then the mean calculation is simple.  Most important, there is no
-        #                       nested loop visiting all n*m cells.  However, this algorithm gives a different result
-        #                       than the others in the case where *all* the values in a column are eliminated, because
-        #                       it recalculates the entire matrix with a smaller drop-quotient, rather than just that column
-        #   Optimization 5:     Like (4), but recalculates individual columns that fail through complete elimination,
-        #                       so generates identical results to options (0) through (3)
+    # Combine given files using "min-max clip"
+    # In the following explanation, "column" means all of the points at a given image (x,y) coordinate,
+    # across all the provided files.  Imagine that 20 images are given - then one "column" would be the 20 values
+    # at the (0,0) coordinate in all 20 images, the next column would be the 20 values from the images' (0,1)
+    # coordinates, and so on.  So for n x m sized images, there are n*m columns of 20 values each.
+    #
+    # This combination method uses a basic mean of the data, except each column is first pre-processed by
+    # removing all the points at the column's minimum value, and all the points at the column's maximum
+    # value.  This can be repeated more than once - the number of repetitions is given.  Then the remaining
+    # points in the column are combined with a simple mean.  The idea is that the min/max will remove dead and hot
+    # pixels, so the mean on the rest will not include those artifacts.
+    #
+    # Eliminating min and max values in a column, could, in rare circumstances, eliminate *all* the data in the
+    # column.  If that happens we reduce the number of dropped points for that column until data remains to mean.
+
+    # Note that, because the clipping eliminates points on a column-by-column basis, the number of points actually
+    # surviving for combination will vary.  There are simple slow ways, and complex fast ways, to handle this.
+    #
+    #   The following versions were all tried, in order, and timed, ending up at "optimization 5" which is the
+    #   one in use.  The other ones are left here for education or interest.
+    #
+    #   Optimization 0:     This initial version just loops over each image cell and calculates the mean of each column
+    #                       separately.  Slow, but it works and is easy to understand what's happening.
+    #   Optimization 1:     Keep the x,y loop but used masked array to calculate clipped mean on the column
+    #   Optimization 2:     Same as (1) but manually locates min and max values on a single pass thru column
+    #
+    #   Comment added after initial testing.  Surprised so far, method [0] still fastest by a long shot.
+    #                       The low cost of the very efficient quicksort allows the benefits of direct
+    #                       indexing for min and max values to swamp the results.
+    #
+    #   Optimization 3:     Use the sorted-array indexing of option (0) and the masked array of (1a).
+    #                       Result: 2nd-best.  Better than (1) or (2) but still doesn't beat (0)
+    #   Optimization 4:     Convert the entire 3-D structure to a masked array.  The masking logic is complex,
+    #                       but then the mean calculation is simple.  Most important, there is no
+    #                       nested loop visiting all n*m cells.  However, this algorithm gives a different result
+    #                       than the others in the case where *all* the values in a column are eliminated, because
+    #                       it recalculates the entire matrix with a smaller drop-quotient, rather than just that column
+    #   Optimization 5:     Like (4), but recalculates individual columns that fail through complete elimination,
+    #                       so generates identical results to options (0) through (3)
 
     @classmethod
     def combine_min_max_clip(cls, file_names: [str], number_dropped_values: int,
-                             calibrator: Calibrator) -> ndarray:
+                             calibrator: Calibrator, console) -> ndarray:
         """Combine FITS files in given list using min/max-clipped mean.
         Return an ndarray containing the combined data."""
         success: bool
@@ -708,24 +681,25 @@ class ImageMath:
         # return result0
         sample_image = file_data_list[0]
         (x_size, y_size) = sample_image.shape
-        result5 = cls.min_max_clip_version_5(file_data, number_dropped_values, progress=(x_size * y_size) > 2000000)
+        result5 = cls.min_max_clip_version_5(file_data, number_dropped_values, console,
+                                             progress=(x_size * y_size) > 2000000)
         as_ndarray = result5.filled()
         return as_ndarray
 
     @classmethod
-    def compare_results(cls, reference: ndarray, comparator: ndarray, version: str, dump=True):
+    def compare_results(cls, reference: ndarray, comparator: ndarray, version: str, console, dump=True):
         assert reference.shape == comparator.shape
         if numpy.array_equal(reference, comparator):
-            print(f"Version {version} results identical")
+            console(f"Version {version} results identical", 6)
         else:
-            print(f"Version {version} results are different")
+            console(f"Version {version} results are different", 6)
             if dump:
                 (rows, columns) = reference.shape
-                print("Reference array:")
+                console("Reference array:", 6)
                 for row_index in range(rows):
                     this_column = reference[row_index, ].tolist()
-                    print(str(this_column))
-                print(f"Version {version} array:")
+                    console(str(this_column), 7)
+                console(f"Version {version} array:", 6)
                 for row_index in range(rows):
                     this_column = comparator[row_index, ].tolist()
                     print(str(this_column))
@@ -734,8 +708,8 @@ class ImageMath:
     # across columns of each cell, one at a time.
     @classmethod
     def min_max_clip_version_0(cls, file_data: ndarray, number_dropped_values: int,
-                               progress_dots: bool) -> ndarray:
-        print(f"Using min-max clip version 0: simple slow algorithm")
+                               progress_dots: bool, console) -> ndarray:
+        console(f"Using min-max clip version 0: simple slow algorithm", 5)
         (x_dimension, y_dimension) = file_data[0].shape
         # Set up the output array and then fill the columns one at a time
         # We'll put a "dot" on the screen every "n" items as a progress indicator
@@ -745,7 +719,8 @@ class ImageMath:
         dots_printed = 0
         result = numpy.zeros(shape=(x_dimension, y_dimension))
         if progress_dots:
-            print(f"Processing {x_dimension * y_dimension:,} columns. Each blip below is {blip_every_column_count:,}.")
+            console(f"Processing {x_dimension * y_dimension:,} columns. "
+                    f"Each blip below is {blip_every_column_count:,}.", 6)
         for x_index in range(x_dimension):
             for y_index in range(y_dimension):
                 # Do the "dot" progress indicator
@@ -758,7 +733,7 @@ class ImageMath:
                         dots_printed = 0
                 # Fill in the processed mean at this column
                 column = file_data[:, x_index, y_index]
-                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, number_dropped_values))
+                min_max_clipped_mean: int = round(cls.calc_mm_clipped_mean(column, number_dropped_values, console))
                 result[x_index, y_index] = min_max_clipped_mean
         if dots_printed != 100:
             print("", flush=True)

@@ -4,6 +4,7 @@
 #
 
 import os
+from datetime import datetime
 
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QEvent, QModelIndex
@@ -69,9 +70,6 @@ class MainWindow(QMainWindow):
             self.ui.noPreClalibrationRB.setChecked(True)
         elif precalibration_option == Constants.CALIBRATION_AUTO_DIRECTORY:
             self.ui.autoPreCalibrationRB.setChecked(True)
-        elif precalibration_option == Constants.CALIBRATION_AUTO_DIRECTORY:
-            print("Auto precalibration STUB")
-            # todo Auto precalibration
         else:
             assert precalibration_option == Constants.CALIBRATION_PEDESTAL
             self.ui.fixedPedestalRB.setChecked(True)
@@ -546,14 +544,18 @@ class MainWindow(QMainWindow):
             if self._data_model.get_group_by_exposure() \
                     or self._data_model.get_group_by_size() \
                     or self._data_model.get_group_by_temperature():
-                remove_from_ui = FileCombiner.process_groups(self._data_model, selected_files, self.get_group_output_directory())
+                remove_from_ui = FileCombiner.process_groups(self._data_model, selected_files,
+                                                             self.get_group_output_directory(),
+                                                             self.console_output)
             else:
                 # Not grouped, producing a single output file. Get output file location
                 suggested_output_path = SharedUtils.create_output_path(selected_files[0],
                                                                        self._data_model.get_master_combine_method())
                 output_path = self.get_output_file(suggested_output_path)
                 if output_path is not None:
-                    remove_from_ui = FileCombiner.original_non_grouped_processing(selected_files, self._data_model, output_path)
+                    remove_from_ui = FileCombiner.original_non_grouped_processing(selected_files, self._data_model,
+                                                                                  output_path,
+                                                                                  self.console_output)
         except FileNotFoundError as exception:
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
@@ -617,3 +619,13 @@ class MainWindow(QMainWindow):
     def min_max_enough_files(self, num_selected: int) -> bool:
         return True if self._data_model.get_master_combine_method() != Constants.COMBINE_MINMAX \
             else num_selected > (2 * self._data_model.get_min_max_number_clipped_per_end())
+
+    # Callback method for combiner routines to produce console output.
+    # We use this so GUI and Command line version can handle console output differently
+    # In the GUI we'll put the lines into a console window, while the command will just print them directly
+
+    def console_output(self, message: str, indent_level: int = 1):
+        assert 0 < indent_level <= 10
+        indentation_string = " " * ((indent_level - 1) * Constants.CONSOLE_INDENTATION_SIZE)
+        time_string = datetime.now().strftime("%H:%M")
+        print("* " + time_string + ": " + indentation_string + message)
