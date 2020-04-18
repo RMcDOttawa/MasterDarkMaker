@@ -89,8 +89,7 @@ class SharedUtils:
     def dispose_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
 
         # Get folder name with special values substituted
-        actual_folder_name = SharedUtils.substitute_date_time_filter_in_string(sub_folder_name)
-        subfolder_located_directory = cls.make_name_a_subfolder(descriptors[0], actual_folder_name)
+        subfolder_located_directory = cls.make_name_a_subfolder(descriptors[0], sub_folder_name)
 
         # Create the folder if it doesn't already exist (and make sure we're not clobbering a file)
         if cls.ensure_directory_exists(subfolder_located_directory):

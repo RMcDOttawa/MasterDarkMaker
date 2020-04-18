@@ -16,11 +16,12 @@ from SharedUtils import SharedUtils
 class FileCombiner:
 
     # Process one set of files.  Output to the given path, if provided.  If not provided, prompt the user for it.
+    # Return a list of files to be removed from the UI window (files that have been processed and moved)
     @classmethod
     def original_non_grouped_processing(cls, selected_files: [FileDescriptor],
                                         data_model: DataModel,
                                         output_file: str
-                                        ):
+                                        ) -> [FileDescriptor]:
         # We'll use the first file in the list as a sample for things like image size
         assert len(selected_files) > 0
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
@@ -34,7 +35,11 @@ class FileCombiner:
 
                 # Do the combination
                 FileCombiner.combine_files(selected_files, data_model, filter_name, output_file)
-                # Optionally do something with the original input files
+                # Files are combined.  Put away the inputs?
+                # Return list of any that were moved, in case the UI needs to be adjusted
+                return cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                                                          data_model.get_disposition_subfolder_name(),
+                                                          selected_files)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
@@ -42,13 +47,18 @@ class FileCombiner:
 
     #
     #   Process the given selected files in groups by size, exposure, or temperature (or any combination)
+    #   Return a list of files to be removed from the UI window (files that have been processed and moved)
     #
     #   Exceptions thrown:
     #       NoGroupOutputDirectory      Output directory does not exist and unable to create it
     @classmethod
-    def process_groups(cls, data_model: DataModel, selected_files: [FileDescriptor], output_directory: str):
+    def process_groups(cls, data_model: DataModel, selected_files: [FileDescriptor], output_directory: str)\
+            -> [FileDescriptor]:
+        files_to_remove_from_ui: [FileDescriptor] = []
         exposure_tolerance = data_model.get_exposure_group_tolerance()
         temperature_tolerance = data_model.get_temperature_group_tolerance()
+        disposition_folder = data_model.get_disposition_subfolder_name()
+        substituted_folder_name = SharedUtils.substitute_date_time_filter_in_string(disposition_folder)
         print("Process groups into output directory: " + output_directory)
         if not SharedUtils.ensure_directory_exists(output_directory):
             raise MasterMakerExceptions.NoGroupOutputDirectory(output_directory)
@@ -85,10 +95,14 @@ class FileCombiner:
                                 print(f"         Processing one temperature group: "
                                       f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}")
                                 # Now we have a list of descriptors, grouped as appropriate, to process
-                                cls.process_one_group(data_model, temperature_group, output_directory,
-                                                       data_model.get_master_combine_method())
+                                files_to_remove_from_ui += cls.process_one_group(data_model, temperature_group,
+                                                                                 output_directory,
+                                                                                 data_model.get_master_combine_method(),
+                                                                                 substituted_folder_name)
+        return files_to_remove_from_ui
 
     # Process one group of files, output to the given directory
+    #   Return a list of files to be removed from the UI window (files that have been processed and moved)
     #
     #   Exceptions thrown:
     #       NotAllDarkFrames        The given files are not all dark frames
@@ -98,7 +112,8 @@ class FileCombiner:
                           data_model: DataModel,
                           descriptor_list: [FileDescriptor],
                           output_directory: str,
-                          combine_method: int):
+                          combine_method: int,
+                          disposition_folder_name) -> [FileDescriptor]:
         # todo process_one_group
         # Descriptive message to the console
         assert len(descriptor_list) > 0
@@ -124,10 +139,31 @@ class FileCombiner:
 
                 # Do the combination
                 cls.combine_files(descriptor_list, data_model, filter_name, output_file,)
+                # Files are combined.  Put away the inputs?
+                # Return list of any that were moved, in case the UI needs to be adjusted
+                return cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                                                          disposition_folder_name,
+                                                          descriptor_list)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
             raise MasterMakerExceptions.IncompatibleSizes
+
+    # Move the given files if the given disposition type requests it.
+    # Return a list of any files that were moved so the UI can be adjusted if necessary
+    @classmethod
+    def handle_input_files_disposition(cls,
+                                       disposition_type: int,
+                                       sub_folder_name: str,
+                                       descriptors: [FileDescriptor]) -> [FileDescriptor]:
+        if disposition_type == Constants.INPUT_DISPOSITION_NOTHING:
+            # User doesn't want us to do anything with the input files
+            return []
+        else:
+            assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
+            # User wants us to move the input files into a sub-folder
+            SharedUtils.dispose_files_to_sub_folder(descriptors, sub_folder_name)
+            return descriptors
 
     # Determine if all the files in the list are of the given type
     @classmethod

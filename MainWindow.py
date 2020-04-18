@@ -324,7 +324,7 @@ class MainWindow(QMainWindow):
         new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
         valid = new_number is not None
         if valid:
-            self._data_model.set_exposure_group_tolerance(new_number)
+            self._data_model.set_exposure_group_tolerance(new_number / 100.0)
         SharedUtils.background_validity_color(self.ui.exposureGroupTolerance, valid)
         self._field_validity[self.ui.exposureGroupTolerance] = valid
 
@@ -334,7 +334,7 @@ class MainWindow(QMainWindow):
         new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
         valid = new_number is not None
         if valid:
-            self._data_model.set_temperature_group_tolerance(new_number)
+            self._data_model.set_temperature_group_tolerance(new_number / 100.0)
         SharedUtils.background_validity_color(self.ui.temperatureGroupTolerance, valid)
         self._field_validity[self.ui.temperatureGroupTolerance] = valid
 
@@ -526,24 +526,34 @@ class MainWindow(QMainWindow):
     #   Any errors come back here as exceptions for reporting in GUI fashion.
     #
     def combine_selected_clicked(self):
+        # Run the "editing finished" methods on all the inputs in case they have typed
+        # something but not hit tab or return to commit it - they will expect what they
+        # see to be what gets processed
+        self.exposure_group_tolerance_changed()
+        self.min_max_drop_changed()
+        self.minimum_group_size_changed()
+        self.pedestal_amount_changed()
+        self.sigma_threshold_changed()
+        self.sub_folder_name_changed()
+        self.temperature_group_tolerance_changed()
+
         # Get the list of selected files
         selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
         assert len(selected_files) > 0  # Or else the button would have been disabled
+        remove_from_ui: [FileDescriptor] = []
         try:
             # Are we using grouped processing?
             if self._data_model.get_group_by_exposure() \
                     or self._data_model.get_group_by_size() \
                     or self._data_model.get_group_by_temperature():
-                FileCombiner.process_groups(self._data_model, selected_files, self.get_group_output_directory())
+                remove_from_ui = FileCombiner.process_groups(self._data_model, selected_files, self.get_group_output_directory())
             else:
                 # Not grouped, producing a single output file. Get output file location
                 suggested_output_path = SharedUtils.create_output_path(selected_files[0],
                                                                        self._data_model.get_master_combine_method())
                 output_path = self.get_output_file(suggested_output_path)
                 if output_path is not None:
-                    FileCombiner.original_non_grouped_processing(selected_files, self._data_model, output_path)
-            # Files are combined.  Put away the inputs?
-            self.handle_input_files_disposition(selected_files)
+                    remove_from_ui = FileCombiner.original_non_grouped_processing(selected_files, self._data_model, output_path)
         except FileNotFoundError as exception:
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
@@ -573,6 +583,9 @@ class MainWindow(QMainWindow):
                               f"\"{exception.filename}\","
                               f" cannot be written or replaced: \"permission error\"")
 
+        # Remove moved files from the table since those paths are no longer valid
+        self._table_model.remove_files(remove_from_ui)
+
     def get_group_output_directory(self) -> str:
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.DirectoryOnly)
@@ -596,20 +609,6 @@ class MainWindow(QMainWindow):
         (file_name, _) = dialog.getSaveFileName(parent=None, caption="Master File", directory=suggested_file_path,
                                                 filter="FITS files (*.FIT)")
         return None if len(file_name.strip()) == 0 else file_name
-
-    # We're done combining files.  The user may want us to do something with the original input files
-    def handle_input_files_disposition(self, descriptors: [FileDescriptor]):
-        disposition_type = self._data_model.get_input_file_disposition()
-        if disposition_type == Constants.INPUT_DISPOSITION_NOTHING:
-            # User doesn't want us to do anything with the input files
-            pass
-        else:
-            assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
-            # User wants us to move the input files into a sub-folder
-            SharedUtils.dispose_files_to_sub_folder(descriptors, self._data_model.get_disposition_subfolder_name())
-            # Remove the files from the table since those paths are no longer valid
-            self._table_model.remove_files(descriptors)
-            self.ui.filesTable.scrollToTop()
 
     # Determine if there are enough files selected for the Min-Max algorithm
     # If that algorithm isn't selected, then return True

@@ -491,7 +491,6 @@ class ImageMath:
         print("Combine by sigma-clipped mean")
         sample_file = RmFitsUtil.make_file_descriptor(file_names[0])
         file_data = numpy.asarray(RmFitsUtil.read_all_files_data(file_names))
-        print("Pre-calibrating frames")
         file_data = calibrator.calibrate_images(file_data, sample_file)
         print("  Calculating unclipped means")
         column_means = numpy.mean(file_data, axis=0)

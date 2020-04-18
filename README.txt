@@ -16,23 +16,31 @@ Options
     -g   or --gui               Force gui interface even though command line used
 
     Precalibration options: if none given, uses what is set in GUI preferences
-    -np  or --noprecal          No precalibration of input files
-    -p   or --pedestal <n>      Precalibrate by subtracting pedestal value <n>
-    -b   or --bias <path>       Precalibrate by subtracting bias file <path>
+    -np  or --noprecal              No precalibration of input files
+    -p   or --pedestal <n>          Precalibrate by subtracting pedestal value <n>
+    -a   or --auto <dir>            Precalibrate by with best bias file in given directory
 
     Combination algorithm:  if none, uses GUI preferences
-    -m   or --mean              Combine files with simple mean
-    -n   or --median            Combine files with simple median
-    -mm  or --minmax <n>        Min-max clipping of <n> values, then mean
-    -s   or --sigma <n>         Sigma clipping values greater than z-score <n> then mean
+    -m   or --mean                  Combine files with simple mean
+    -n   or --median                Combine files with simple median
+    -mm  or --minmax <n>            Min-max clipping of <n> values, then mean
+    -s   or --sigma <n>             Sigma clipping values greater than z-score <n> then mean
 
-    -v   or --moveinputs <dir>  After successful processing, move input files to directory
+    -v   or --moveinputs <dir>      After successful processing, move input files to directory
 
-    -t   or --ignoretype        Ignore the internal FITS file type (flat, bias, etc)
+    -t   or --ignoretype            Ignore the internal FITS file type (flat, bias, etc)
     
-    -o   or --output <path>		Output file to this location (default: with input files)
+    -o   or --output <path>		    Output file to this location (default: with input files,
+                                    used only if no "group" options are chosen)
+
+    -gs  or --groupsize             Group files by size (dimensions and binning)
+    -ge  or --groupexposure <%>     Group files by exposure, within given % tolerance
+    -gt  or --grouptemperature <%>  Group files by temperature, within given % tolerance
+    -mg  or --minimumgroup <n>      Ignore groups with fewer than <n> files
+    -od  or --outputdirectory <d>   Directory to receive grouped master files
 
 Examples:
 
 MasterDarkMaker --noprecal *.fits
-MasterDarkMaker -b ./masters/masterbias.fits -s 2.0 *.fits
+MasterDarkMaker -p 100 -s 2.0 *.fits
+MasterDarkMaker -a ./bias-library -gs -ge 5 -od ./output-directory
