@@ -56,29 +56,36 @@ class CombineThreadWorker(QObject):
                                                                               self._output_path,
                                                                               console)
         except FileNotFoundError as exception:
+            # todo test FileNotFoundError exception
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
+            # todo test NoGroupOutputDirectory exception
             self.error_dialog("Group Directory Missing",
                               f"The specified output directory \"{exception.get_directory_name()}\""
                               f" does not exist and could not be created.")
         except MasterMakerExceptions.NotAllDarkFrames:
+            # todo test NotAllDarkFrames exception
             self.error_dialog("The selected files are not all Dark Frames",
                               "If you know the files are dark frames, they may not have proper FITS data "
                               "internally. Check the \"Ignore FITS file type\" box to proceed anyway.")
         except MasterMakerExceptions.IncompatibleSizes:
+            # todo test IncompatibleSizes exception
             self.error_dialog("The selected files can't be combined",
                               "To be combined into a master file, the files must have identical X and Y "
                               "dimensions, and identical Binning values.")
         except MasterMakerExceptions.NoAutoCalibrationDirectory as exception:
+            # todo test NoAutoCalibrationDirectory exception
             self.error_dialog("Auto Calibration Directory Missing",
                               f"The specified directory for auto-calibration files, "
                               f"\"{exception.get_directory_name()}\","
                               f" does not exist or could not be read.")
         except MasterMakerExceptions.NoSuitableAutoBias:
+            # todo test NoSuitableAutoBias exception
             self.error_dialog("No matching calibration file",
                               "No bias or dark file of appropriate size could be found in the provided "
                               "calibration file directory.")
         except PermissionError as exception:
+            # todo test PermissionError exception
             self.error_dialog("Unable to write file",
                               f"The specified output file, "
                               f"\"{exception.filename}\","
@@ -103,3 +110,5 @@ class CombineThreadWorker(QObject):
     #
     def error_dialog(self, message: str):
         self.console_callback("*** ERROR *** " + message)
+
+    # todo implement polling for cancel flag in (remember) controller

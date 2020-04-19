@@ -29,6 +29,9 @@ class Preferences(QSettings):
     # Main window size - so last window resizing is remembered
     MAIN_WINDOW_SIZE = "main_window_size"
 
+    # Console window size
+    CONSOLE_WINDOW_SIZE = "console_window_size"
+
     # What kind of precalibration is done to images before combining
     # Gives an integer from the constants class CALIBRATION_
     IMAGE_PRE_CALIBRATION = "image_pre_calibration"
@@ -127,6 +130,14 @@ class Preferences(QSettings):
 
     def set_main_window_size(self, size: QSize):
         self.setValue(self.MAIN_WINDOW_SIZE, size)
+
+    # Console window size when resized
+
+    def get_console_window_size(self) -> QSize:
+        return self.value(self.CONSOLE_WINDOW_SIZE, defaultValue=None)
+
+    def set_console_window_size(self, size: QSize):
+        self.setValue(self.CONSOLE_WINDOW_SIZE, size)
 
     # Pre-calibration method
 

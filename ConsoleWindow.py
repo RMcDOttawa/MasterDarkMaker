@@ -3,28 +3,34 @@
 #   (In the command-line version such messages are simply written to standard output)
 #
 from PyQt5 import uic
-from PyQt5.QtCore import QThread, QMutex
+from PyQt5.QtCore import QThread, QMutex, QObject, QEvent
 from PyQt5.QtWidgets import QDialog, QListWidgetItem
 
 from CombineThreadWorker import CombineThreadWorker
 from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from MultiOsUtil import MultiOsUtil
+from Preferences import Preferences
 
 
 class ConsoleWindow(QDialog):
-    def __init__(self, data_model: DataModel, descriptors: [FileDescriptor], output_path: str):
+    def __init__(self, preferences: Preferences, data_model: DataModel, descriptors: [FileDescriptor], output_path: str):
         print("ConsoleWindow/init entered")
         QDialog.__init__(self)
         self._data_model = data_model
         self._descriptors = descriptors
         self._output_path = output_path
+        self._preferences = preferences
         # Mutex to serialize signal handling from thread
         self._signal_mutex = QMutex()
         self.ui = uic.loadUi(MultiOsUtil.path_for_file_in_program_directory("ConsoleWindow.ui"))
 
-        self.buttons_active_state(False)
+        # If a window size is saved, set the window size
+        window_size = self._preferences.get_console_window_size()
+        if window_size is not None:
+            self.ui.resize(window_size)
 
+        self.buttons_active_state(False)
 
         # Create thread to run the processing
         self._worker_object = CombineThreadWorker(self._data_model, descriptors, output_path)
@@ -50,11 +56,19 @@ class ConsoleWindow(QDialog):
         self._qthread.start()
         print("ConsoleWindow/init exits")
 
+    def set_up_ui(self):
+        self.ui.installEventFilter(self)
 
+    # Catch window resizing so we can record the changed size
+
+    def eventFilter(self, triggering_object: QObject, event: QEvent) -> bool:
+        """Event filter, looking for window resize events so we can remember the new size"""
+        if event.type() == QEvent.Resize:
+            window_size = event.size()
+            self._preferences.set_console_window_size(window_size)
+        return False  # Didn't handle event
 
     def worker_thread_finished(self):
-        print("worker_thread_finished")
-        # todo worker_thread_finished
         self.buttons_active_state(False)
 
     def add_to_console(self, message: str):
@@ -71,3 +85,7 @@ class ConsoleWindow(QDialog):
         self.ui.cancelButton.setEnabled(active)
         self.ui.closeButton.setEnabled(not active)
 
+    # todo catch window resize and remember size in preferences
+    # todo catch window move and remember position in preferences
+    # todo implement close button
+    # todo implement Cancel button - set cancel flag in (create) thread controller

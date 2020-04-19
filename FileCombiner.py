@@ -136,7 +136,6 @@ class FileCombiner:
                           combine_method: int,
                           disposition_folder_name,
                           console: Console) -> [FileDescriptor]:
-        # todo process_one_group
         assert len(descriptor_list) > 0
         sample_file: FileDescriptor = descriptor_list[0]
         binning = sample_file.get_binning()
