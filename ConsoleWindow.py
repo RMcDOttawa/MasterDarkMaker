@@ -14,7 +14,10 @@ from Preferences import Preferences
 
 
 class ConsoleWindow(QDialog):
-    def __init__(self, preferences: Preferences, data_model: DataModel, descriptors: [FileDescriptor], output_path: str):
+    def __init__(self, preferences: Preferences,
+                 data_model: DataModel,
+                 descriptors: [FileDescriptor],
+                 output_path: str):
         print("ConsoleWindow/init entered")
         QDialog.__init__(self)
         self._data_model = data_model
@@ -30,6 +33,10 @@ class ConsoleWindow(QDialog):
         if window_size is not None:
             self.ui.resize(window_size)
 
+        # Responders
+        self.ui.cancelButton.clicked.connect(self.cancel_button_clicked)
+        self.ui.closeButton.clicked.connect(self.close_button_clicked)
+
         self.buttons_active_state(False)
 
         # Create thread to run the processing
@@ -43,10 +50,8 @@ class ConsoleWindow(QDialog):
         self._qthread.started.connect(self._worker_object.run_combination_session)
 
         # Have the worker finished signal tell the thread to quit
-        self._worker_object.finished.connect(self._qthread.quit)
-
-        # Receive signal when the thread has finished
-        self._qthread.finished.connect(self.worker_thread_finished)
+        # self._worker_object.finished.connect(self._qthread.quit)
+        self._worker_object.finished.connect(self.worker_thread_finished)
 
         # Other signals of interest
         self._worker_object.console_line.connect(self.add_to_console)
@@ -69,6 +74,7 @@ class ConsoleWindow(QDialog):
         return False  # Didn't handle event
 
     def worker_thread_finished(self):
+        self._qthread.quit()
         self.buttons_active_state(False)
 
     def add_to_console(self, message: str):
@@ -85,7 +91,9 @@ class ConsoleWindow(QDialog):
         self.ui.cancelButton.setEnabled(active)
         self.ui.closeButton.setEnabled(not active)
 
-    # todo catch window resize and remember size in preferences
-    # todo catch window move and remember position in preferences
-    # todo implement close button
-    # todo implement Cancel button - set cancel flag in (create) thread controller
+    def cancel_button_clicked(self):
+        print("cancel_button_clicked")
+        # todo implement Cancel button - set cancel flag in (create) thread controller
+
+    def close_button_clicked(self):
+        self.ui.close()
