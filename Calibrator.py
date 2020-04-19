@@ -11,6 +11,7 @@ from Constants import Constants
 from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from RmFitsUtil import RmFitsUtil
+from SessionController import SessionController
 from SharedUtils import SharedUtils
 
 
@@ -21,31 +22,49 @@ class Calibrator:
     def __init__(self, data_model: DataModel):
         self._data_model = data_model
 
-    def calibrate_images(self, file_data: [ndarray], sample_file: FileDescriptor, console: Console) -> [ndarray]:
+    def calibrate_images(self, file_data: [ndarray],
+                         sample_file: FileDescriptor,
+                         console: Console,
+                         session_controller: SessionController) -> [ndarray]:
         calibration_type = self._data_model.get_precalibration_type()
         if calibration_type == Constants.CALIBRATION_NONE:
             return file_data
         elif calibration_type == Constants.CALIBRATION_PEDESTAL:
-            return self.calibrate_with_pedestal(file_data, self._data_model.get_precalibration_pedestal())
+            return self.calibrate_with_pedestal(file_data,
+                                                self._data_model.get_precalibration_pedestal(),
+                                                session_controller)
         elif calibration_type == Constants.CALIBRATION_FIXED_FILE:
-            return self.calibrate_with_file(file_data, self._data_model.get_precalibration_fixed_path())
+            return self.calibrate_with_file(file_data,
+                                            self._data_model.get_precalibration_fixed_path(),
+                                            session_controller)
         else:
             assert calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY
-            return self.calibrate_with_auto_directory(file_data, self._data_model.get_precalibration_auto_directory(),
-                                                      sample_file, console)
+            return self.calibrate_with_auto_directory(file_data,
+                                                      self._data_model.get_precalibration_auto_directory(),
+                                                      sample_file,
+                                                      console,
+                                                      session_controller)
 
-    def calibrate_with_pedestal(self, file_data: [ndarray], pedestal: int) -> [ndarray]:
+    def calibrate_with_pedestal(self,
+                                file_data: [ndarray],
+                                pedestal: int,
+                                session_controller: SessionController) -> [ndarray]:
         result = file_data.copy()
         for index in range(len(result)):
+            if session_controller.thread_cancelled():
+                break
             reduced_by_pedestal: ndarray = result[index] - pedestal
             result[index] = reduced_by_pedestal.clip(0, 0xFFFF)
         return result
 
-    def calibrate_with_file(self, file_data: [ndarray], calibration_file_path: str) -> [ndarray]:
+    def calibrate_with_file(self, file_data: [ndarray], calibration_file_path: str,
+                                session_controller: SessionController) -> [ndarray]:
         result = file_data.copy()
         calibration_image = RmFitsUtil.fits_data_from_path(calibration_file_path)
         (calibration_x, calibration_y) = calibration_image.shape
         for index in range(len(result)):
+            if session_controller.thread_cancelled():
+                break
             (layer_x, layer_y) = result[index].shape
             if (layer_x != calibration_x) or (layer_y != calibration_y):
                 raise MasterMakerExceptions.IncompatibleSizes
@@ -54,9 +73,14 @@ class Calibrator:
         return result
 
     def calibrate_with_auto_directory(self, file_data: [ndarray], auto_directory_path: str,
-                                      sample_file: FileDescriptor, console: Console) -> [ndarray]:
-        calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file, console)
-        return self.calibrate_with_file(file_data, calibration_file)
+                                      sample_file: FileDescriptor, console: Console,
+                                session_controller: SessionController) -> [ndarray]:
+        calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file, console,
+                                                          session_controller)
+        if session_controller.thread_running():
+            return self.calibrate_with_file(file_data, calibration_file, session_controller)
+        else:
+            return None
 
     #
     # Get the best matched calibration file in the auto directory
@@ -66,21 +90,27 @@ class Calibrator:
     #       NoSuitableAutoBias
 
     @classmethod
-    def get_best_calibration_file(cls, directory_path: str, sample_file: FileDescriptor, console: Console) -> str:
+    def get_best_calibration_file(cls, directory_path: str, sample_file: FileDescriptor, console: Console,
+                                                          session_controller: SessionController) -> str:
         # Get all calibration files in the given directory
         all_descriptors = cls.all_descriptors_from_directory(directory_path)
+        if session_controller.thread_cancelled():
+            return None
         if len(all_descriptors) == 0:
             # No files in that directory, raise exception
             raise MasterMakerExceptions.AutoCalibrationDirectoryEmpty(directory_path)
 
         # Get the subset that are the correct size and binning
         correct_size = cls.filter_to_correct_size(all_descriptors, sample_file)
+        if session_controller.thread_cancelled():
+            return None
         if len(correct_size) == 0:
             # No files in that directory are the correct size
             raise MasterMakerExceptions.NoSuitableAutoBias
 
         # From the correct-sized files, find the one closest to the sample file temperature
-        closest_match = cls.closest_temperature_match(correct_size, sample_file.get_temperature(), console)
+        closest_match = cls.closest_temperature_match(correct_size, sample_file.get_temperature(),
+                                                      console)
         return closest_match.get_absolute_path()
 
     @classmethod

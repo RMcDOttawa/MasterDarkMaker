@@ -11,6 +11,7 @@ from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from MultiOsUtil import MultiOsUtil
 from Preferences import Preferences
+from SessionController import SessionController
 
 
 class ConsoleWindow(QDialog):
@@ -40,7 +41,8 @@ class ConsoleWindow(QDialog):
         self.buttons_active_state(False)
 
         # Create thread to run the processing
-        self._worker_object = CombineThreadWorker(self._data_model, descriptors, output_path)
+        self._session_controller: SessionController = SessionController()
+        self._worker_object = CombineThreadWorker(self._data_model, descriptors, output_path, self._session_controller)
 
         # Create and run the processing thread
         self._qthread = QThread()
@@ -92,8 +94,8 @@ class ConsoleWindow(QDialog):
         self.ui.closeButton.setEnabled(not active)
 
     def cancel_button_clicked(self):
-        print("cancel_button_clicked")
-        # todo implement Cancel button - set cancel flag in (create) thread controller
+        self.add_to_console("Cancelling....")
+        self._session_controller.cancel_thread()
 
     def close_button_clicked(self):
         self.ui.close()

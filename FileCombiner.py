@@ -11,49 +11,51 @@ from DataModel import DataModel
 from FileDescriptor import FileDescriptor
 from ImageMath import ImageMath
 from RmFitsUtil import RmFitsUtil
+from SessionController import SessionController
 from SharedUtils import SharedUtils
 
 
 class FileCombiner:
 
     # Process one set of files.  Output to the given path, if provided.  If not provided, prompt the user for it.
-    # Return a list of files to be removed from the UI window (files that have been processed and moved)
     @classmethod
     def original_non_grouped_processing(cls, selected_files: [FileDescriptor],
                                         data_model: DataModel,
                                         output_file: str,
-                                        console: Console) -> [FileDescriptor]:
+                                        console: Console,
+                                        session_controller: SessionController):
         console.push_level()
         console.message("Using single-file processing", +1)
         # We'll use the first file in the list as a sample for things like image size
         assert len(selected_files) > 0
+        result = None
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if FileCombiner.all_compatible_sizes(selected_files):
-            if data_model.get_ignore_file_type() \
-                    or FileCombiner.all_of_type(selected_files, FileDescriptor.FILE_TYPE_DARK):
+            if session_controller.thread_running() and (data_model.get_ignore_file_type()
+                                                        or FileCombiner.all_of_type(selected_files,
+                                                                                    FileDescriptor.FILE_TYPE_DARK)):
                 # Get (most common) filter name in the set
                 # Since these are darks, the filter is meaningless, but we need the value
                 # for the shared "create file" routine
                 filter_name = SharedUtils.most_common_filter_name(selected_files)
 
                 # Do the combination
-                FileCombiner.combine_files(selected_files, data_model, filter_name, output_file, console)
+                FileCombiner.combine_files(selected_files, data_model, filter_name, output_file, console, session_controller)
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
-                result = cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
-                                                          data_model.get_disposition_subfolder_name(),
-                                                          selected_files)
+                if session_controller.thread_running():
+                    cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                                                       data_model.get_disposition_subfolder_name(),
+                                                       selected_files)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
             raise MasterMakerExceptions.IncompatibleSizes
         console.message("Combining complete", 0)
         console.pop_level()
-        return result
 
     #
     #   Process the given selected files in groups by size, exposure, or temperature (or any combination)
-    #   Return a list of files to be removed from the UI window (files that have been processed and moved)
     #
     #   Exceptions thrown:
     #       NoGroupOutputDirectory      Output directory does not exist and unable to create it
@@ -61,9 +63,9 @@ class FileCombiner:
     def process_groups(cls, data_model: DataModel,
                        selected_files: [FileDescriptor],
                        output_directory: str,
-                       console: Console) -> [FileDescriptor]:
+                       console: Console,
+                       session_controller: SessionController):
         console.push_level()
-        files_to_remove_from_ui: [FileDescriptor] = []
         exposure_tolerance = data_model.get_exposure_group_tolerance()
         temperature_tolerance = data_model.get_temperature_group_tolerance()
         disposition_folder = data_model.get_disposition_subfolder_name()
@@ -77,6 +79,8 @@ class FileCombiner:
         #  Process size groups, or all sizes if not grouping
         groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
         for size_group in groups_by_size:
+            if session_controller.thread_cancelled():
+                return
             console.push_level()
             if len(size_group) < minimum_group_size:
                 console.message(f"Ignoring one size group: {len(size_group)} "
@@ -89,6 +93,8 @@ class FileCombiner:
                                                                          data_model.get_group_by_exposure(),
                                                                          exposure_tolerance)
                 for exposure_group in groups_by_exposure:
+                    if session_controller.thread_cancelled():
+                        return
                     console.push_level()
                     if len(exposure_group) < minimum_group_size:
                         console.message(f"Ignoring one exposure group: {len(exposure_group)} "
@@ -102,6 +108,8 @@ class FileCombiner:
                                                                    data_model.get_group_by_temperature(),
                                                                    temperature_tolerance)
                         for temperature_group in groups_by_temperature:
+                            if session_controller.thread_cancelled():
+                                return
                             console.push_level()
                             if len(temperature_group) < minimum_group_size:
                                 console.message(f"Ignoring one temperature group: "
@@ -110,20 +118,19 @@ class FileCombiner:
                                 console.message(f"Processing one temperature group: "
                                         f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
-                                files_to_remove_from_ui += cls.process_one_group(data_model, temperature_group,
-                                                                                 output_directory,
-                                                                                 data_model.get_master_combine_method(),
-                                                                                 substituted_folder_name,
-                                                                                 console)
+                                cls.process_one_group(data_model, temperature_group,
+                                                      output_directory,
+                                                      data_model.get_master_combine_method(),
+                                                      substituted_folder_name,
+                                                      console, session_controller)
                             console.pop_level()
                     console.pop_level()
             console.pop_level()
         console.message("Group combining complete", 0)
         console.pop_level()
-        return files_to_remove_from_ui
+        return
 
     # Process one group of files, output to the given directory
-    #   Return a list of files to be removed from the UI window (files that have been processed and moved)
     #
     #   Exceptions thrown:
     #       NotAllDarkFrames        The given files are not all dark frames
@@ -135,7 +142,8 @@ class FileCombiner:
                           output_directory: str,
                           combine_method: int,
                           disposition_folder_name,
-                          console: Console) -> [FileDescriptor]:
+                          console: Console,
+                          session_controller: SessionController):
         assert len(descriptor_list) > 0
         sample_file: FileDescriptor = descriptor_list[0]
         binning = sample_file.get_binning()
@@ -159,18 +167,20 @@ class FileCombiner:
                 filter_name = SharedUtils.most_common_filter_name(descriptor_list)
 
                 # Do the combination
-                cls.combine_files(descriptor_list, data_model, filter_name, output_file, console)
+                cls.combine_files(descriptor_list, data_model, filter_name, output_file, console, session_controller)
+                if session_controller.thread_cancelled():
+                    return None
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
-                result = cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
-                                                          disposition_folder_name,
-                                                          descriptor_list)
+                cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                                                   disposition_folder_name,
+                                                   descriptor_list)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
             raise MasterMakerExceptions.IncompatibleSizes
         console.pop_level()
-        return result
+        return
 
     # Move the given files if the given disposition type requests it.
     # Return a list of any files that were moved so the UI can be adjusted if necessary
@@ -178,7 +188,7 @@ class FileCombiner:
     def handle_input_files_disposition(cls,
                                        disposition_type: int,
                                        sub_folder_name: str,
-                                       descriptors: [FileDescriptor]) -> [FileDescriptor]:
+                                       descriptors: [FileDescriptor]):
         if disposition_type == Constants.INPUT_DISPOSITION_NOTHING:
             # User doesn't want us to do anything with the input files
             return []
@@ -186,7 +196,6 @@ class FileCombiner:
             assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
             # User wants us to move the input files into a sub-folder
             SharedUtils.dispose_files_to_sub_folder(descriptors, sub_folder_name)
-            return descriptors
 
     # Determine if all the files in the list are of the given type
     @classmethod
@@ -334,9 +343,9 @@ class FileCombiner:
                       data_model: DataModel,
                       filter_name: str,
                       output_path: str,
-                      console: Console):
+                      console: Console,
+                      session_controller: SessionController):
         console.push_level()
-        stack_size = console.get_stack_size()
         substituted_file_name = SharedUtils.substitute_date_time_filter_in_string(output_path)
         file_names = [d.get_absolute_path() for d in input_files]
         combine_method = data_model.get_master_combine_method()
@@ -346,39 +355,42 @@ class FileCombiner:
         binning: int = input_files[0].get_binning()
         (mean_exposure, mean_temperature) = ImageMath.mean_exposure_and_temperature(input_files)
         if combine_method == Constants.COMBINE_MEAN:
-            mean_data = ImageMath.combine_mean(file_names, calibrator, console)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 "Master Dark MEAN combined")
+            mean_data = ImageMath.combine_mean(file_names, calibrator, console, session_controller)
+            if session_controller.thread_running():
+                RmFitsUtil.create_combined_fits_file(substituted_file_name, mean_data,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
+                                                     "Master Dark MEAN combined")
         elif combine_method == Constants.COMBINE_MEDIAN:
-            median_data = ImageMath.combine_median(file_names, calibrator, console)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 "Master Dark MEDIAN combined")
+            median_data = ImageMath.combine_median(file_names, calibrator, console, session_controller)
+            if session_controller.thread_running():
+                RmFitsUtil.create_combined_fits_file(substituted_file_name, median_data,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
+                                                     "Master Dark MEDIAN combined")
         elif combine_method == Constants.COMBINE_MINMAX:
             number_dropped_points = data_model.get_min_max_number_clipped_per_end()
             min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
-                                                                   calibrator, console)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 f"Master Dark Min/Max Clipped "
-                                                 f"(drop {number_dropped_points}) Mean combined")
+                                                                   calibrator, console, session_controller)
+            if session_controller.thread_running():
+                RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
+                                                     f"Master Dark Min/Max Clipped "
+                                                     f"(drop {number_dropped_points}) Mean combined")
         else:
             assert combine_method == Constants.COMBINE_SIGMA_CLIP
             sigma_threshold = data_model.get_sigma_clip_threshold()
             sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
-                                                               calibrator, console)
-            RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
-                                                 FileDescriptor.FILE_TYPE_DARK,
-                                                 "Dark Frame",
-                                                 mean_exposure, mean_temperature, filter_name, binning,
-                                                 f"Master Dark Sigma Clipped "
-                                                 f"(threshold {sigma_threshold}) Mean combined")
-        assert stack_size == console.get_stack_size()
+                                                               calibrator, console, session_controller)
+            if session_controller.thread_running():
+                RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
+                                                     FileDescriptor.FILE_TYPE_DARK,
+                                                     "Dark Frame",
+                                                     mean_exposure, mean_temperature, filter_name, binning,
+                                                     f"Master Dark Sigma Clipped "
+                                                     f"(threshold {sigma_threshold}) Mean combined")
         console.pop_level()

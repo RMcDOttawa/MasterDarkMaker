@@ -16,6 +16,7 @@ from ConsoleCallback import ConsoleCallback
 from DataModel import DataModel
 from FileCombiner import FileCombiner
 from FileDescriptor import FileDescriptor
+from SessionController import SessionController
 from SharedUtils import SharedUtils
 
 
@@ -26,11 +27,15 @@ class CombineThreadWorker(QObject):
     finished = pyqtSignal()             # Tell interested parties that we are finished
     console_line = pyqtSignal(str)      # Add a line to the console object in the UI
 
-    def __init__(self, data_model: DataModel, descriptors: [FileDescriptor], output_path: str):
+    def __init__(self, data_model: DataModel,
+                 descriptors: [FileDescriptor],
+                 output_path: str,
+                 session_controller: SessionController):
         QObject.__init__(self)
         self._data_model = data_model
         self._descriptors = descriptors
         self._output_path = output_path
+        self._session_controller = session_controller
 
     def run_combination_session(self):
         # Create a console output object.  This is passed in to the various math routines
@@ -47,14 +52,14 @@ class CombineThreadWorker(QObject):
             if self._data_model.get_group_by_exposure() \
                     or self._data_model.get_group_by_size() \
                     or self._data_model.get_group_by_temperature():
-                remove_from_ui = FileCombiner.process_groups(self._data_model, self._descriptors,
+                FileCombiner.process_groups(self._data_model, self._descriptors,
                                                              self._output_path,
-                                                             console)
+                                                             console, self._session_controller)
             else:
                 # Not grouped, producing a single output file. Get output file location
-                remove_from_ui = FileCombiner.original_non_grouped_processing(self._descriptors, self._data_model,
+                FileCombiner.original_non_grouped_processing(self._descriptors, self._data_model,
                                                                               self._output_path,
-                                                                              console)
+                                                                              console, self._session_controller)
         except FileNotFoundError as exception:
             # todo test FileNotFoundError exception
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
@@ -90,10 +95,10 @@ class CombineThreadWorker(QObject):
                               f"The specified output file, "
                               f"\"{exception.filename}\","
                               f" cannot be written or replaced: \"permission error\"")
-        #
-        # # # Remove moved files from the table since those paths are no longer valid
-        # # self._table_model.remove_files(remove_from_ui)
-        console.verify_done()
+        if self._session_controller.thread_cancelled():
+            self.console_callback("*** Session cancelled ***")
+        else:
+            console.verify_done()
 
         self.finished.emit()
 
