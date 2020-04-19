@@ -11,8 +11,12 @@ from time import sleep
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
+import MasterMakerExceptions
 from ConsoleCallback import ConsoleCallback
 from DataModel import DataModel
+from FileCombiner import FileCombiner
+from FileDescriptor import FileDescriptor
+from SharedUtils import SharedUtils
 
 
 class CombineThreadWorker(QObject):
@@ -22,11 +26,11 @@ class CombineThreadWorker(QObject):
     finished = pyqtSignal()             # Tell interested parties that we are finished
     console_line = pyqtSignal(str)      # Add a line to the console object in the UI
 
-    def __init__(self, data_model: DataModel):
+    def __init__(self, data_model: DataModel, descriptors: [FileDescriptor], output_path: str):
         QObject.__init__(self)
         self._data_model = data_model
-        # Create a console object that accepts console output to a local method
-        # as a callback.  That will then emit it for the UI to pick up.
+        self._descriptors = descriptors
+        self._output_path = output_path
 
     def run_combination_session(self):
         # Create a console output object.  This is passed in to the various math routines
@@ -35,13 +39,55 @@ class CombineThreadWorker(QObject):
         # progress lines to the standard system output when being run from the command line
         console = ConsoleCallback(self.console_callback)
 
-        console.message("Starting session", 1)
+        console.message("Starting session", 0)
+
         # Do actual work
-        console.message("Simulating some work", 1)
-        for i in range(20):
-            sleep(1)
-            console.message(f"Step {i+1}", +1, temp=True)
-        console.message("Finishing", 1)
+        try:
+            # Are we using grouped processing?
+            if self._data_model.get_group_by_exposure() \
+                    or self._data_model.get_group_by_size() \
+                    or self._data_model.get_group_by_temperature():
+                remove_from_ui = FileCombiner.process_groups(self._data_model, self._descriptors,
+                                                             self._output_path,
+                                                             console)
+            else:
+                # Not grouped, producing a single output file. Get output file location
+                remove_from_ui = FileCombiner.original_non_grouped_processing(self._descriptors, self._data_model,
+                                                                              self._output_path,
+                                                                              console)
+        except FileNotFoundError as exception:
+            self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
+        except MasterMakerExceptions.NoGroupOutputDirectory as exception:
+            self.error_dialog("Group Directory Missing",
+                              f"The specified output directory \"{exception.get_directory_name()}\""
+                              f" does not exist and could not be created.")
+        except MasterMakerExceptions.NotAllDarkFrames:
+            self.error_dialog("The selected files are not all Dark Frames",
+                              "If you know the files are dark frames, they may not have proper FITS data "
+                              "internally. Check the \"Ignore FITS file type\" box to proceed anyway.")
+        except MasterMakerExceptions.IncompatibleSizes:
+            self.error_dialog("The selected files can't be combined",
+                              "To be combined into a master file, the files must have identical X and Y "
+                              "dimensions, and identical Binning values.")
+        except MasterMakerExceptions.NoAutoCalibrationDirectory as exception:
+            self.error_dialog("Auto Calibration Directory Missing",
+                              f"The specified directory for auto-calibration files, "
+                              f"\"{exception.get_directory_name()}\","
+                              f" does not exist or could not be read.")
+        except MasterMakerExceptions.NoSuitableAutoBias:
+            self.error_dialog("No matching calibration file",
+                              "No bias or dark file of appropriate size could be found in the provided "
+                              "calibration file directory.")
+        except PermissionError as exception:
+            self.error_dialog("Unable to write file",
+                              f"The specified output file, "
+                              f"\"{exception.filename}\","
+                              f" cannot be written or replaced: \"permission error\"")
+        #
+        # # # Remove moved files from the table since those paths are no longer valid
+        # # self._table_model.remove_files(remove_from_ui)
+        console.verify_done()
+
         self.finished.emit()
 
     #
@@ -51,3 +97,9 @@ class CombineThreadWorker(QObject):
     #
     def console_callback(self, message: str):
         self.console_line.emit(message)
+
+    #
+    #   Error message from an exception.  Put it on the console
+    #
+    def error_dialog(self, message: str):
+        self.console_callback("*** ERROR *** " + message)

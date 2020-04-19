@@ -380,19 +380,19 @@ class MainWindow(QMainWindow):
                 self.error_dialog("File Not Found", f"File \"{exception.filename}\" was not found or not readable")
         self.enable_buttons()
 
-    def error_dialog(self, brief_message: str, long_message: str, detailed_text: str = ""):
-        dialog = QMessageBox()
-        dialog.setText(brief_message)
-        if len(long_message) > 0:
-            if not long_message.endswith("."):
-                long_message += "."
-        dialog.setInformativeText(long_message)
-        if len(detailed_text) > 0:
-            dialog.setDetailedText(detailed_text)
-        dialog.setIcon(QMessageBox.Critical)
-        dialog.setStandardButtons(QMessageBox.Ok)
-        dialog.setDefaultButton(QMessageBox.Ok)
-        dialog.exec_()
+    # def error_dialog(self, brief_message: str, long_message: str, detailed_text: str = ""):
+    #     dialog = QMessageBox()
+    #     dialog.setText(brief_message)
+    #     if len(long_message) > 0:
+    #         if not long_message.endswith("."):
+    #             long_message += "."
+    #     dialog.setInformativeText(long_message)
+    #     if len(detailed_text) > 0:
+    #         dialog.setDetailedText(detailed_text)
+    #     dialog.setIcon(QMessageBox.Critical)
+    #     dialog.setStandardButtons(QMessageBox.Ok)
+    #     dialog.setDefaultButton(QMessageBox.Ok)
+    #     dialog.exec_()
 
     def table_selection_changed(self):
         """Rows selected in the file table have changed; check for button enablement"""
@@ -533,12 +533,16 @@ class MainWindow(QMainWindow):
             # Get the list of selected files
             selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
             assert len(selected_files) > 0  # Or else the button would have been disabled
-            # remove_from_ui: [FileDescriptor] = []
-            # Open console window, which will create and run the worker thread
-            console_window: ConsoleWindow = ConsoleWindow(self._data_model, selected_files)
-            console_window.ui.exec_()
-            # We get here when the worker task has finished or been cancelled, and the console window closed.
-            print("Session thread has ended")
+
+            # If we're doing groups, get the output directory;  If we're doing a single
+            # output file, get the path
+            output_path = self.get_appropriate_output_path(selected_files[0])
+            if output_path is not None:
+                # Open console window, which will create and run the worker thread
+                console_window: ConsoleWindow = ConsoleWindow(self._data_model, selected_files, output_path)
+                console_window.ui.exec_()
+                # We get here when the worker task has finished or been cancelled, and the console window closed.
+                print("Session thread has ended")
         else:
             # Something in the input field commit was invalid; if they had hit return
             # the Combine button would have been disabled and we would never have come here.
@@ -591,4 +595,18 @@ class MainWindow(QMainWindow):
     def min_max_enough_files(self, num_selected: int) -> bool:
         return True if self._data_model.get_master_combine_method() != Constants.COMBINE_MINMAX \
             else num_selected > (2 * self._data_model.get_min_max_number_clipped_per_end())
+
+    #
+    #   Get output path.  This is the directory to receive multiple files if we are group processing,
+    #   or the full path of a single file if not
+    #
+
+    def get_appropriate_output_path(self, sample_file: FileDescriptor):
+        if self._data_model.get_group_by_exposure() \
+                or self._data_model.get_group_by_size() \
+                or self._data_model.get_group_by_temperature():
+            return self.get_group_output_directory()
+        else:
+            return self.get_output_file(SharedUtils.create_output_path(sample_file,
+                                                                       self._data_model.get_master_combine_method()))
 
