@@ -18,7 +18,8 @@ class Console:
 
     #
     #   Put a message on the console.
-    #   Change the indentation level by the given increment.
+    #   Change the indentation level by the given increment, which can only be
+    #	+1, -1, or 0 (i.e. indent, outdent, or no-dent)
     #   If temp=True, reset it immediately after
     #
     def message(self, message: str, level_change: int, temp: bool=False):
@@ -26,7 +27,9 @@ class Console:
         self._message_level += level_change
         indent_string = " " * ((self._message_level - 1) * Constants.CONSOLE_INDENTATION_SIZE)
         time_string = datetime.now().strftime("%H:%M:%S")
-        print(time_string + " " + indent_string + message)
+        # The following must be implemented in a subclass. That subclass decides where to actually
+        # put the console line:  a window, the system standard output, etc
+        self.output_message(time_string + " " + indent_string + message)
         if temp:
             self._message_level -= level_change
 

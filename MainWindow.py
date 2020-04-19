@@ -8,11 +8,13 @@ from datetime import datetime
 from typing import Optional
 
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, QEvent, QModelIndex
+from PyQt5.QtCore import QObject, QEvent, QModelIndex, QThread
 from PyQt5.QtWidgets import QMainWindow, QDialog, QHeaderView, QFileDialog, QMessageBox
 
 import MasterMakerExceptions
+from CombineThreadWorker import CombineThreadWorker
 from Console import Console
+from ConsoleWindow import ConsoleWindow
 from Constants import Constants
 from DataModel import DataModel
 from FileCombiner import FileCombiner
@@ -522,14 +524,32 @@ class MainWindow(QMainWindow):
         return all_fields_good
 
     #
-    #   This is the "main program" of the actual combination of files into a master, for the GUI version
-    #   We farm the work out to other classes that can be reused by the command-line version.
-    #   Any errors come back here as exceptions for reporting in GUI fashion.
+    #   The user has clicked "Combine", which is the "go ahead and do the work" button.
+    #   The actual work is done as a thread hanging under a console window.  So all we do here
+    #   is create and run the console window.
     #
     def combine_selected_clicked(self):
-        # Run the "editing finished" methods on all the inputs in case they have typed
-        # something but not hit tab or return to commit it - they will expect what they
-        # see to be what gets processed
+        if self.commit_fields_continue():
+            # Get the list of selected files
+            selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
+            assert len(selected_files) > 0  # Or else the button would have been disabled
+            # remove_from_ui: [FileDescriptor] = []
+            # Open console window, which will create and run the worker thread
+            console_window: ConsoleWindow = ConsoleWindow(self._data_model, selected_files)
+            console_window.ui.exec_()
+            # We get here when the worker task has finished or been cancelled, and the console window closed.
+            print("Session thread has ended")
+        else:
+            # Something in the input field commit was invalid; if they had hit return
+            # the Combine button would have been disabled and we would never have come here.
+            # So we'll exit now to encourage them to fix the error.
+            pass
+
+    # Run the "editing finished" methods on all the inputs in case they have typed
+    # something but not hit tab or return to commit it - they will expect what they
+    # see to be what gets processed.  Then re-check if the Commit button is still enabled.
+
+    def commit_fields_continue(self) -> bool:
         self.exposure_group_tolerance_changed()
         self.min_max_drop_changed()
         self.minimum_group_size_changed()
@@ -537,62 +557,8 @@ class MainWindow(QMainWindow):
         self.sigma_threshold_changed()
         self.sub_folder_name_changed()
         self.temperature_group_tolerance_changed()
-
-        console = Console()
-
-        # Get the list of selected files
-        selected_files: [FileDescriptor] = self.get_selected_file_descriptors()
-        assert len(selected_files) > 0  # Or else the button would have been disabled
-        remove_from_ui: [FileDescriptor] = []
-        try:
-            # Are we using grouped processing?
-            if self._data_model.get_group_by_exposure() \
-                    or self._data_model.get_group_by_size() \
-                    or self._data_model.get_group_by_temperature():
-                remove_from_ui = FileCombiner.process_groups(self._data_model, selected_files,
-                                                             self.get_group_output_directory(),
-                                                             console)
-            else:
-                # Not grouped, producing a single output file. Get output file location
-                suggested_output_path = SharedUtils.create_output_path(selected_files[0],
-                                                                       self._data_model.get_master_combine_method())
-                output_path = self.get_output_file(suggested_output_path)
-                if output_path is not None:
-                    remove_from_ui = FileCombiner.original_non_grouped_processing(selected_files, self._data_model,
-                                                                                  output_path,
-                                                                                  console)
-        except FileNotFoundError as exception:
-            self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
-        except MasterMakerExceptions.NoGroupOutputDirectory as exception:
-            self.error_dialog("Group Directory Missing",
-                              f"The specified output directory \"{exception.get_directory_name()}\""
-                              f" does not exist and could not be created.")
-        except MasterMakerExceptions.NotAllDarkFrames:
-            self.error_dialog("The selected files are not all Dark Frames",
-                              "If you know the files are dark frames, they may not have proper FITS data "
-                              "internally. Check the \"Ignore FITS file type\" box to proceed anyway.")
-        except MasterMakerExceptions.IncompatibleSizes:
-            self.error_dialog("The selected files can't be combined",
-                              "To be combined into a master file, the files must have identical X and Y "
-                              "dimensions, and identical Binning values.")
-        except MasterMakerExceptions.NoAutoCalibrationDirectory as exception:
-            self.error_dialog("Auto Calibration Directory Missing",
-                              f"The specified directory for auto-calibration files, "
-                              f"\"{exception.get_directory_name()}\","
-                              f" does not exist or could not be read.")
-        except MasterMakerExceptions.NoSuitableAutoBias:
-            self.error_dialog("No matching calibration file",
-                              "No bias or dark file of appropriate size could be found in the provided "
-                              "calibration file directory.")
-        except PermissionError as exception:
-            self.error_dialog("Unable to write file",
-                              f"The specified output file, "
-                              f"\"{exception.filename}\","
-                              f" cannot be written or replaced: \"permission error\"")
-
-        # Remove moved files from the table since those paths are no longer valid
-        self._table_model.remove_files(remove_from_ui)
-        console.verify_done()
+        self.enable_buttons()
+        return self.ui.combineSelectedButton.isEnabled()
 
     def get_group_output_directory(self) -> str:
         dialog = QFileDialog()
