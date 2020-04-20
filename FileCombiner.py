@@ -122,11 +122,11 @@ class FileCombiner:
                             if len(temperature_group) < minimum_group_size:
                                 if group_by_temperature:
                                     console.message(f"Ignoring one temperature group: "
-                                            f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
+                                            f"{len(temperature_group)} files at temp near {temperature_group[0].get_temperature()}", +1)
                             else:
                                 if group_by_temperature:
                                     console.message(f"Processing one temperature group: "
-                                            f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
+                                            f"{len(temperature_group)} files at temp near {temperature_group[0].get_temperature()}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 cls.process_one_group(data_model, temperature_group,
                                                       output_directory,

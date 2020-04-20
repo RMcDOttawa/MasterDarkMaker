@@ -212,9 +212,9 @@ class SharedUtils:
             if second_value == 0.0:
                 return True
             else:
-                percent_difference = difference / second_value
+                percent_difference = difference / abs(second_value)
         else:
-            percent_difference = difference / first_value
+            percent_difference = difference / abs(first_value)
         return percent_difference <= tolerance
 
     @classmethod
