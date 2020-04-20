@@ -102,7 +102,7 @@ class SharedUtils:
     @classmethod
     def make_name_a_subfolder(cls, sample_input_file: FileDescriptor, sub_directory_name: str) -> str:
         parent_path = os.path.dirname(sample_input_file.get_absolute_path())
-        return parent_path + "/" + sub_directory_name
+        return os.path.join(parent_path, sub_directory_name)
 
     # Make sure the given directory exists, as a directory.
     #   - No non-directory file of that name (fail if so)
@@ -192,13 +192,13 @@ class SharedUtils:
     def unique_destination_file(cls, directory_path: str, file_name: str) -> str:
         unique_counter = 0
 
-        destination_path = directory_path + "/" + file_name
+        destination_path = os.path.join(directory_path, file_name)
         while os.path.exists(destination_path):
             unique_counter += 1
             if unique_counter > 5000:
                 print("Unable to find a unique file name after 5000 tries.")
                 sys.exit(1)
-            destination_path = directory_path + "/" + str(unique_counter) + "-" + file_name
+            destination_path = os.path.join(directory_path, str(unique_counter) + "-" + file_name)
 
         return destination_path
 
@@ -222,7 +222,7 @@ class SharedUtils:
         contents = os.listdir(directory_path)
         result_list: [str] = []
         for entry in contents:
-            full_path = directory_path + "/" + entry
+            full_path = os.path.join(directory_path, entry)
             if os.path.isfile(full_path):  # Ignore subdirectories
                 name_lower = full_path.lower()
                 if name_lower.endswith(".fit") or name_lower.endswith(".fits"):  # Only FITS files

@@ -9,6 +9,7 @@ from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QEvent, QModelIndex, QThread
+from PyQt5.QtGui import QResizeEvent, QMoveEvent
 from PyQt5.QtWidgets import QMainWindow, QDialog, QHeaderView, QFileDialog, QMessageBox
 
 import MasterMakerExceptions
@@ -106,6 +107,11 @@ class MainWindow(QMainWindow):
         if window_size is not None:
             self.ui.resize(window_size)
 
+        # If window position is saved, set the window position
+        window_position = self._preferences.get_main_window_position()
+        if window_position is not None:
+            self.ui.move(window_position)
+
         self.enable_fields()
         self.enable_buttons()
 
@@ -186,9 +192,12 @@ class MainWindow(QMainWindow):
 
     def eventFilter(self, triggering_object: QObject, event: QEvent) -> bool:
         """Event filter, looking for window resize events so we can remember the new size"""
-        if event.type() == QEvent.Resize:
+        if isinstance(event,QResizeEvent):
             window_size = event.size()
             self._preferences.set_main_window_size(window_size)
+        elif isinstance(event,QMoveEvent):
+            new_position = event.pos()
+            self._preferences.set_main_window_position(new_position)
         return False  # Didn't handle event
 
     # "Ignore file type" button clicked.  Tell the data model the new value.
@@ -380,19 +389,19 @@ class MainWindow(QMainWindow):
                 self.error_dialog("File Not Found", f"File \"{exception.filename}\" was not found or not readable")
         self.enable_buttons()
 
-    # def error_dialog(self, brief_message: str, long_message: str, detailed_text: str = ""):
-    #     dialog = QMessageBox()
-    #     dialog.setText(brief_message)
-    #     if len(long_message) > 0:
-    #         if not long_message.endswith("."):
-    #             long_message += "."
-    #     dialog.setInformativeText(long_message)
-    #     if len(detailed_text) > 0:
-    #         dialog.setDetailedText(detailed_text)
-    #     dialog.setIcon(QMessageBox.Critical)
-    #     dialog.setStandardButtons(QMessageBox.Ok)
-    #     dialog.setDefaultButton(QMessageBox.Ok)
-    #     dialog.exec_()
+    def error_dialog(self, brief_message: str, long_message: str, detailed_text: str = ""):
+        dialog = QMessageBox()
+        dialog.setText(brief_message)
+        if len(long_message) > 0:
+            if not long_message.endswith("."):
+                long_message += "."
+        dialog.setInformativeText(long_message)
+        if len(detailed_text) > 0:
+            dialog.setDetailedText(detailed_text)
+        dialog.setIcon(QMessageBox.Critical)
+        dialog.setStandardButtons(QMessageBox.Ok)
+        dialog.setDefaultButton(QMessageBox.Ok)
+        dialog.exec_()
 
     def table_selection_changed(self):
         """Rows selected in the file table have changed; check for button enablement"""
@@ -545,7 +554,7 @@ class MainWindow(QMainWindow):
                 console_window.set_up_ui()
                 console_window.ui.exec_()
                 # We get here when the worker task has finished or been cancelled, and the console window closed.
-                print("Session thread has ended")
+
         else:
             # Something in the input field commit was invalid; if they had hit return
             # the Combine button would have been disabled and we would never have come here.

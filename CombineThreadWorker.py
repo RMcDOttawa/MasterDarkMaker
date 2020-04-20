@@ -61,7 +61,6 @@ class CombineThreadWorker(QObject):
                                                                               self._output_path,
                                                                               console, self._session_controller)
         except FileNotFoundError as exception:
-            # todo test FileNotFoundError exception
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
             # todo test NoGroupOutputDirectory exception
@@ -97,8 +96,6 @@ class CombineThreadWorker(QObject):
                               f" cannot be written or replaced: \"permission error\"")
         if self._session_controller.thread_cancelled():
             self.console_callback("*** Session cancelled ***")
-        else:
-            console.verify_done()
 
         self.finished.emit()
 
@@ -113,7 +110,5 @@ class CombineThreadWorker(QObject):
     #
     #   Error message from an exception.  Put it on the console
     #
-    def error_dialog(self, message: str):
-        self.console_callback("*** ERROR *** " + message)
-
-    # todo implement polling for cancel flag in (remember) controller
+    def error_dialog(self, short_message: str, long_message: str):
+        self.console_callback("*** ERROR *** " + short_message + ": " + long_message)

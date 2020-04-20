@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QSettings, QSize
+from PyQt5.QtCore import QSettings, QSize, QPoint
 
 from Constants import Constants
 
@@ -26,11 +26,13 @@ class Preferences(QSettings):
     # Folder name to move input files if DISPOSITION is SUBFOLDER
     DISPOSITION_SUBFOLDER_NAME = "disposition_subfolder_name"
 
-    # Main window size - so last window resizing is remembered
+    # Main window size and position - so last window move or resizing is remembered
     MAIN_WINDOW_SIZE = "main_window_size"
+    MAIN_WINDOW_POSITION = "main_window_position"
 
     # Console window size
     CONSOLE_WINDOW_SIZE = "console_window_size"
+    CONSOLE_WINDOW_POSITION = "console_window_position"
 
     # What kind of precalibration is done to images before combining
     # Gives an integer from the constants class CALIBRATION_
@@ -131,6 +133,14 @@ class Preferences(QSettings):
     def set_main_window_size(self, size: QSize):
         self.setValue(self.MAIN_WINDOW_SIZE, size)
 
+    # Main window position when moved
+
+    def get_main_window_position(self) -> QPoint:
+        return self.value(self.MAIN_WINDOW_POSITION, defaultValue=None)
+
+    def set_main_window_position(self, position: QPoint):
+        self.setValue(self.MAIN_WINDOW_POSITION, position)
+
     # Console window size when resized
 
     def get_console_window_size(self) -> QSize:
@@ -138,6 +148,14 @@ class Preferences(QSettings):
 
     def set_console_window_size(self, size: QSize):
         self.setValue(self.CONSOLE_WINDOW_SIZE, size)
+
+    # Console window position when moved
+
+    def get_console_window_position(self) -> QPoint:
+        return self.value(self.CONSOLE_WINDOW_POSITION, defaultValue=None)
+
+    def set_console_window_position(self, position: QPoint):
+        self.setValue(self.CONSOLE_WINDOW_POSITION, position)
 
     # Pre-calibration method
 

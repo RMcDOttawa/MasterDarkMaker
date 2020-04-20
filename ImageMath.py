@@ -438,7 +438,7 @@ class ImageMath:
             if session_controller.thread_cancelled():
                 return None
             console.push_level()
-            console.message(f"Iteration {drop_counter} of {number_dropped_values}.", +1, temp=True)
+            console.message(f"Iteration {drop_counter} of {number_dropped_values}.", +1)
             drop_counter += 1
             # Find the minimums in all columns.  This will give a 2d matrix the same size as the images
             # with the column-minimum in each position
@@ -478,8 +478,11 @@ class ImageMath:
             x_coordinates = masked_coordinates[0]
             y_coordinates = masked_coordinates[1]
             assert len(x_coordinates) == len(y_coordinates)
-            console.message(f"{len(x_coordinates)} columns need repair.", +1)
-            for index in range(len(x_coordinates)):
+            repairs = len(x_coordinates)
+            cp = "s" if repairs > 1 else ""
+            np = "" if repairs > 1 else "s"
+            console.message(f"{repairs} column{cp} need{np} repair.", +1)
+            for index in range(repairs):
                 if session_controller.thread_cancelled():
                     return None
                 # print(".", end="\n" if (index > 0) and (index % 50 == 0) else "")

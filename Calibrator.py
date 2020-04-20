@@ -32,10 +32,12 @@ class Calibrator:
         elif calibration_type == Constants.CALIBRATION_PEDESTAL:
             return self.calibrate_with_pedestal(file_data,
                                                 self._data_model.get_precalibration_pedestal(),
+                                                console,
                                                 session_controller)
         elif calibration_type == Constants.CALIBRATION_FIXED_FILE:
             return self.calibrate_with_file(file_data,
                                             self._data_model.get_precalibration_fixed_path(),
+                                            console,
                                             session_controller)
         else:
             assert calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY
@@ -48,8 +50,10 @@ class Calibrator:
     def calibrate_with_pedestal(self,
                                 file_data: [ndarray],
                                 pedestal: int,
+                                console: Console,
                                 session_controller: SessionController) -> [ndarray]:
         result = file_data.copy()
+        console.message(f"Calibrate with pedestal = {pedestal}", 0)
         for index in range(len(result)):
             if session_controller.thread_cancelled():
                 break
@@ -57,8 +61,9 @@ class Calibrator:
             result[index] = reduced_by_pedestal.clip(0, 0xFFFF)
         return result
 
-    def calibrate_with_file(self, file_data: [ndarray], calibration_file_path: str,
+    def calibrate_with_file(self, file_data: [ndarray], calibration_file_path: str, console: Console,
                                 session_controller: SessionController) -> [ndarray]:
+        console.message(f"Calibrate with file: {calibration_file_path}", 0)
         result = file_data.copy()
         calibration_image = RmFitsUtil.fits_data_from_path(calibration_file_path)
         (calibration_x, calibration_y) = calibration_image.shape
@@ -75,10 +80,11 @@ class Calibrator:
     def calibrate_with_auto_directory(self, file_data: [ndarray], auto_directory_path: str,
                                       sample_file: FileDescriptor, console: Console,
                                 session_controller: SessionController) -> [ndarray]:
+        console.message(f"Selecting best calibration file from {auto_directory_path}", 0)
         calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file, console,
                                                           session_controller)
         if session_controller.thread_running():
-            return self.calibrate_with_file(file_data, calibration_file, session_controller)
+            return self.calibrate_with_file(file_data, calibration_file, console, session_controller)
         else:
             return None
 
@@ -135,7 +141,7 @@ class Calibrator:
     def closest_temperature_match(cls, descriptors: [FileDescriptor],
                                   target_temperature: float,
                                   console: Console) -> FileDescriptor:
-        best_file_so_far: FileDescriptor = FileDescriptor()
+        best_file_so_far: FileDescriptor = FileDescriptor("dummy-not-used")
         best_difference_so_far = sys.float_info.max
         for descriptor in descriptors:
             this_difference = abs(descriptor.get_temperature() - target_temperature)
@@ -143,6 +149,6 @@ class Calibrator:
                 best_difference_so_far = this_difference
                 best_file_so_far = descriptor
         assert best_file_so_far is not None
-        console.message(f"Selected calibration file {best_file_so_far.get_name()} "
-                        f"at temperature {best_file_so_far.get_temperature()}", +1, temp=True)
+        # console.message(f"Selected calibration file {best_file_so_far.get_name()} "
+        #                 f"at temperature {best_file_so_far.get_temperature()}", +1, temp=True)
         return best_file_so_far

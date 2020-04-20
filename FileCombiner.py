@@ -78,16 +78,22 @@ class FileCombiner:
 
         #  Process size groups, or all sizes if not grouping
         groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
+        group_by_size = data_model.get_group_by_size()
+        group_by_exposure = data_model.get_group_by_exposure()
+        group_by_temperature = data_model.get_group_by_temperature()
         for size_group in groups_by_size:
             if session_controller.thread_cancelled():
                 return
             console.push_level()
+            # Message about this group only if this grouping was requested
             if len(size_group) < minimum_group_size:
-                console.message(f"Ignoring one size group: {len(size_group)} "
-                                f"files sized {size_group[0].get_size_key()}", +1)
+                if group_by_size:
+                    console.message(f"Ignoring one size group: {len(size_group)} "
+                                    f"files sized {size_group[0].get_size_key()}", +1)
             else:
-                console.message(f"Processing one size group: {len(size_group)} "
-                                f"files sized {size_group[0].get_size_key()}", +1)
+                if group_by_size:
+                    console.message(f"Processing one size group: {len(size_group)} "
+                                    f"files sized {size_group[0].get_size_key()}", +1)
                 # Within this size group, process exposure groups, or all exposures if not grouping
                 groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
                                                                          data_model.get_group_by_exposure(),
@@ -97,11 +103,13 @@ class FileCombiner:
                         return
                     console.push_level()
                     if len(exposure_group) < minimum_group_size:
-                        console.message(f"Ignoring one exposure group: {len(exposure_group)} "
-                                f"files exposed {size_group[0].get_exposure()}", +1)
+                        if group_by_exposure:
+                            console.message(f"Ignoring one exposure group: {len(exposure_group)} "
+                                    f"files exposed {exposure_group[0].get_exposure()}", +1)
                     else:
-                        console.message(f"Processing one exposure group: {len(exposure_group)} "
-                                f"files exposed {size_group[0].get_exposure()}", +1)
+                        if group_by_exposure:
+                            console.message(f"Processing one exposure group: {len(exposure_group)} "
+                                    f"files exposed {exposure_group[0].get_exposure()}", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
                             FileCombiner.get_groups_by_temperature(exposure_group,
@@ -112,11 +120,13 @@ class FileCombiner:
                                 return
                             console.push_level()
                             if len(temperature_group) < minimum_group_size:
-                                console.message(f"Ignoring one temperature group: "
-                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
+                                if group_by_temperature:
+                                    console.message(f"Ignoring one temperature group: "
+                                            f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
                             else:
-                                console.message(f"Processing one temperature group: "
-                                        f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
+                                if group_by_temperature:
+                                    console.message(f"Processing one temperature group: "
+                                            f"{len(temperature_group)} files at temp {size_group[0].get_temperature()}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 cls.process_one_group(data_model, temperature_group,
                                                       output_directory,
@@ -146,12 +156,8 @@ class FileCombiner:
                           session_controller: SessionController):
         assert len(descriptor_list) > 0
         sample_file: FileDescriptor = descriptor_list[0]
-        binning = sample_file.get_binning()
-        exposure = sample_file.get_exposure()
-        temperature = sample_file.get_temperature()
         console.push_level()
-        console.message(f"Processing {len(descriptor_list)} files binned {binning} x {binning}, "
-                f"{exposure} seconds at {temperature} degrees.", +1)
+        cls.describe_group(data_model, len(descriptor_list), sample_file, console)
 
         # Make up a file name for this group's output, into the given directory
         file_name = SharedUtils.get_file_name_portion(combine_method, sample_file)
@@ -394,3 +400,21 @@ class FileCombiner:
                                                      f"Master Dark Sigma Clipped "
                                                      f"(threshold {sigma_threshold}) Mean combined")
         console.pop_level()
+
+    @classmethod
+    def describe_group(cls, data_model: DataModel, number_files: int, sample_file: FileDescriptor, console: Console):
+        binning = sample_file.get_binning()
+        exposure = sample_file.get_exposure()
+        temperature = sample_file.get_temperature()
+        processing_message = ""
+        if data_model.get_group_by_size():
+            processing_message += f"binned {binning} x {binning}"
+        if data_model.get_group_by_exposure():
+            if len(processing_message) > 0:
+                processing_message += ","
+            processing_message += f" exposed {exposure} seconds"
+        if data_model.get_group_by_temperature():
+            if len(processing_message) > 0:
+                processing_message += ","
+            processing_message += f" at {temperature} degrees."
+        console.message(f"Processing {number_files} files {processing_message}", +1)

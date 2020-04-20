@@ -4,6 +4,7 @@
 #
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, QMutex, QObject, QEvent
+from PyQt5.QtGui import QResizeEvent, QMoveEvent, QCloseEvent
 from PyQt5.QtWidgets import QDialog, QListWidgetItem
 
 from CombineThreadWorker import CombineThreadWorker
@@ -19,7 +20,6 @@ class ConsoleWindow(QDialog):
                  data_model: DataModel,
                  descriptors: [FileDescriptor],
                  output_path: str):
-        print("ConsoleWindow/init entered")
         QDialog.__init__(self)
         self._data_model = data_model
         self._descriptors = descriptors
@@ -33,6 +33,11 @@ class ConsoleWindow(QDialog):
         window_size = self._preferences.get_console_window_size()
         if window_size is not None:
             self.ui.resize(window_size)
+
+        # If a window position is saved, set the window position
+        # window_position = self._preferences.get_console_window_position()
+        # if window_position is not None:
+        #     self.ui.move(window_position)
 
         # Responders
         self.ui.cancelButton.clicked.connect(self.cancel_button_clicked)
@@ -58,10 +63,9 @@ class ConsoleWindow(QDialog):
         # Other signals of interest
         self._worker_object.console_line.connect(self.add_to_console)
 
-        print("About to start worker thread")
+        # Properly enable buttons (cancel and close) and start the worker thread
         self.buttons_active_state(True)
         self._qthread.start()
-        print("ConsoleWindow/init exits")
 
     def set_up_ui(self):
         self.ui.installEventFilter(self)
@@ -70,9 +74,12 @@ class ConsoleWindow(QDialog):
 
     def eventFilter(self, triggering_object: QObject, event: QEvent) -> bool:
         """Event filter, looking for window resize events so we can remember the new size"""
-        if event.type() == QEvent.Resize:
+        if isinstance(event,QResizeEvent):
             window_size = event.size()
             self._preferences.set_console_window_size(window_size)
+        # elif isinstance(event,QMoveEvent):
+        #     new_position = event.pos()
+        #     self._preferences.set_console_window_position(new_position)
         return False  # Didn't handle event
 
     def worker_thread_finished(self):
@@ -99,3 +106,4 @@ class ConsoleWindow(QDialog):
 
     def close_button_clicked(self):
         self.ui.close()
+
