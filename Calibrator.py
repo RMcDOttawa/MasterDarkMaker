@@ -99,13 +99,14 @@ class Calibrator:
     def get_best_calibration_file(self, directory_path: str, sample_file: FileDescriptor, console: Console,
                                                           session_controller: SessionController) -> str:
         # Get all calibration files in the given directory
-        all_descriptors = self.all_descriptors_from_directory(directory_path)
+        all_descriptors = self.all_descriptors_from_directory(directory_path,
+                                                              self._data_model.get_auto_directory_recursive())
         if session_controller.thread_cancelled():
             return None
         if len(all_descriptors) == 0:
             # No files in that directory, raise exception
             raise MasterMakerExceptions.AutoCalibrationDirectoryEmpty(directory_path)
-        # todo Filter to Bias files if option and give exception if none
+        # Filter to Bias files if option and give exception if none
         if self._data_model.get_auto_directory_bias_only():
             all_descriptors = list((d for d in all_descriptors if d.get_type() == FileDescriptor.FILE_TYPE_BIAS))
             if len(all_descriptors) == 0:
@@ -124,9 +125,9 @@ class Calibrator:
                                                       console)
         return closest_match.get_absolute_path()
 
-    def all_descriptors_from_directory(self, directory_path: str) -> [FileDescriptor]:
-        # todo pick up and use recursive flag
-        paths: [str] = SharedUtils.files_in_directory(directory_path)
+    def all_descriptors_from_directory(self, directory_path: str,
+                                       recursive: bool) -> [FileDescriptor]:
+        paths: [str] = SharedUtils.files_in_directory(directory_path, recursive)
         descriptors = RmFitsUtil.make_file_descriptions(paths)
         return descriptors
 

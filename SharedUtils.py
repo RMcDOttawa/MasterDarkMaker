@@ -4,6 +4,7 @@
 import os
 import shutil
 import sys
+import glob
 from datetime import datetime
 
 from PyQt5.QtCore import Qt
@@ -218,13 +219,16 @@ class SharedUtils:
         return percent_difference <= tolerance
 
     @classmethod
-    def files_in_directory(cls, directory_path: str) -> [str]:
-        contents = os.listdir(directory_path)
-        result_list: [str] = []
-        for entry in contents:
-            full_path = os.path.join(directory_path, entry)
-            if os.path.isfile(full_path):  # Ignore subdirectories
-                name_lower = full_path.lower()
-                if name_lower.endswith(".fit") or name_lower.endswith(".fits"):  # Only FITS files
-                    result_list.append(full_path)
-        return result_list
+    def files_in_directory(cls, directory_path: str, recursive: bool) -> [str]:
+        search_string = os.path.join(directory_path, "**")
+        all_files = glob.glob(search_string, recursive=recursive)
+        result_list = (f for f in all_files if f.lower().endswith(".fit") or f.lower().endswith(".fits"))
+        # contents = os.listdir(directory_path)
+        # result_list: [str] = []
+        # for entry in contents:
+        #     full_path = os.path.join(directory_path, entry)
+        #     if os.path.isfile(full_path):  # Ignore subdirectories
+        #         name_lower = full_path.lower()
+        #         if name_lower.endswith(".fit") or name_lower.endswith(".fits"):  # Only FITS files
+        #             result_list.append(full_path)
+        return list(result_list)

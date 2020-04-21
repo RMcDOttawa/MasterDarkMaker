@@ -61,5 +61,3 @@ else:
     # We're operating in pure command-line mode
     command_line_handler = CommandLineHandler(args, data_model)
     command_line_handler.execute()
-
-# todo recursive directory option for calibration files: for filename in glob.iglob(root_dir + '**/*.txt', recursive=True)
