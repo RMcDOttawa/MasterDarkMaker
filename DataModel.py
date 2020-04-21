@@ -25,6 +25,8 @@ class DataModel:
         self._precalibration_pedestal: int = preferences.get_precalibration_pedestal()
         self._precalibration_fixed_path: str = preferences.get_precalibration_fixed_path()
         self._precalibration_auto_directory: str = preferences.get_precalibration_auto_directory()
+        self._auto_directory_recursive: bool = preferences.get_auto_directory_recursive()
+        self._auto_directory_bias_only: bool = preferences.get_auto_directory_bias_only()
         self._group_by_size: bool = preferences.get_group_by_size()
         self._group_by_exposure: bool = preferences.get_group_by_exposure()
         self._group_by_temperature: bool = preferences.get_group_by_temperature()
@@ -154,6 +156,18 @@ class DataModel:
 
     def set_group_by_temperature(self, is_grouped: bool):
         self._group_by_temperature = is_grouped
+
+    def get_auto_directory_recursive(self) -> bool:
+        return self._auto_directory_recursive
+
+    def set_auto_directory_recursive(self, is_recursive: bool):
+        self._auto_directory_recursive = is_recursive
+
+    def get_auto_directory_bias_only(self) -> bool:
+        return self._auto_directory_bias_only
+
+    def set_auto_directory_bias_only(self, bias_only: bool):
+        self._auto_directory_bias_only = bias_only
 
     # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
 

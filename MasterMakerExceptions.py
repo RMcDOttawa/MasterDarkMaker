@@ -57,3 +57,7 @@ class AutoCalibrationDirectoryEmpty(Exception):
 
     def get_directory_name(self) -> str:
         return self._directory_name
+
+
+class AutoCalibrationNoBiasFiles(Exception):
+    pass

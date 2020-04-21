@@ -43,6 +43,10 @@ class Preferences(QSettings):
     PRE_CALIBRATION_FILE = "pre_calibration_file"
     # File path to auto bias directory
     PRE_CALIBRATION_AUTO_DIRECTORY = "pre_calibration_auto_directory"
+    # Should auto-directory (for bias) recursively search sub-directories too?
+    AUTO_DIRECTORY_RECURSIVE = "auto_directory_recursive"
+    # Should auto-directory restrict files considered to only BIAS files?
+    AUTO_DIRECTORY_BIAS_ONLY = "auto_directory_bias_only"
 
     # Are we processing multiple file sets at once using grouping?
     GROUP_BY_SIZE = "group_by_size"
@@ -197,6 +201,22 @@ class Preferences(QSettings):
 
     def set_precalibration_auto_directory(self, path: str):
         self.setValue(self.PRE_CALIBRATION_AUTO_DIRECTORY, path)
+
+    # Should auto-directory (for bias) recursively search sub-directories too?
+
+    def get_auto_directory_recursive(self) -> bool:
+        return self.value(self.AUTO_DIRECTORY_RECURSIVE, defaultValue=True)
+
+    def set_auto_directory_recursive(self, path: bool):
+        self.setValue(self.AUTO_DIRECTORY_RECURSIVE, path)
+
+    # Should auto-directory restrict files considered to only BIAS files?
+
+    def get_auto_directory_bias_only(self) -> bool:
+        return self.value(self.AUTO_DIRECTORY_BIAS_ONLY, defaultValue=True)
+
+    def set_auto_directory_bias_only(self, path: bool):
+        self.setValue(self.AUTO_DIRECTORY_BIAS_ONLY, path)
 
     # Are we processing multiple file sets at once using grouping?
 

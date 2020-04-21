@@ -93,6 +93,10 @@ class CombineThreadWorker(QObject):
                               f"The specified output file, "
                               f"\"{exception.filename}\","
                               f" cannot be written or replaced: \"permission error\"")
+        except MasterMakerExceptions.AutoCalibrationNoBiasFiles:
+            self.error_dialog("No Bias Files",
+                              f"The auto-directory does not contain any Bias files")
+
         if self._session_controller.thread_cancelled():
             self.console_callback("*** Session cancelled ***")
 

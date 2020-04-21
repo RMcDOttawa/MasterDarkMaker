@@ -96,20 +96,23 @@ class Calibrator:
     #   Exceptions thrown:
     #       NoSuitableAutoBias
 
-    @classmethod
-    def get_best_calibration_file(cls, directory_path: str, sample_file: FileDescriptor, console: Console,
+    def get_best_calibration_file(self, directory_path: str, sample_file: FileDescriptor, console: Console,
                                                           session_controller: SessionController) -> str:
         # Get all calibration files in the given directory
-        all_descriptors = cls.all_descriptors_from_directory(directory_path)
+        all_descriptors = self.all_descriptors_from_directory(directory_path)
         if session_controller.thread_cancelled():
             return None
         if len(all_descriptors) == 0:
             # No files in that directory, raise exception
             raise MasterMakerExceptions.AutoCalibrationDirectoryEmpty(directory_path)
-        # todo filter to Bias files if option and give exception if none
+        # todo Filter to Bias files if option and give exception if none
+        if self._data_model.get_auto_directory_bias_only():
+            all_descriptors = list((d for d in all_descriptors if d.get_type() == FileDescriptor.FILE_TYPE_BIAS))
+            if len(all_descriptors) == 0:
+                raise MasterMakerExceptions.AutoCalibrationNoBiasFiles
 
         # Get the subset that are the correct size and binning
-        correct_size = cls.filter_to_correct_size(all_descriptors, sample_file)
+        correct_size = self.filter_to_correct_size(all_descriptors, sample_file)
         if session_controller.thread_cancelled():
             return None
         if len(correct_size) == 0:
@@ -117,18 +120,17 @@ class Calibrator:
             raise MasterMakerExceptions.NoSuitableAutoBias
 
         # From the correct-sized files, find the one closest to the sample file temperature
-        closest_match = cls.closest_temperature_match(correct_size, sample_file.get_temperature(),
+        closest_match = self.closest_temperature_match(correct_size, sample_file.get_temperature(),
                                                       console)
         return closest_match.get_absolute_path()
 
-    @classmethod
-    def all_descriptors_from_directory(cls, directory_path: str) -> [FileDescriptor]:
+    def all_descriptors_from_directory(self, directory_path: str) -> [FileDescriptor]:
+        # todo pick up and use recursive flag
         paths: [str] = SharedUtils.files_in_directory(directory_path)
         descriptors = RmFitsUtil.make_file_descriptions(paths)
         return descriptors
 
-    @classmethod
-    def filter_to_correct_size(cls, all_descriptors: [FileDescriptor], sample_file: FileDescriptor) -> [FileDescriptor]:
+    def filter_to_correct_size(self, all_descriptors: [FileDescriptor], sample_file: FileDescriptor) -> [FileDescriptor]:
         x_dimension = sample_file.get_x_dimension()
         y_dimension = sample_file.get_y_dimension()
         binning = sample_file.get_binning()
@@ -139,8 +141,7 @@ class Calibrator:
                     and d.get_binning() == binning]
         return filtered
 
-    @classmethod
-    def closest_temperature_match(cls, descriptors: [FileDescriptor],
+    def closest_temperature_match(self, descriptors: [FileDescriptor],
                                   target_temperature: float,
                                   console: Console) -> FileDescriptor:
         best_file_so_far: FileDescriptor = FileDescriptor("dummy-not-used")

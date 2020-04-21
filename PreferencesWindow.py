@@ -65,6 +65,9 @@ class PreferencesWindow(QDialog):
         self.ui.precalibrationPathDisplay.setText(os.path.basename(preferences.get_precalibration_fixed_path()))
         self.ui.autoDirectoryName.setText(os.path.basename(preferences.get_precalibration_auto_directory()))
 
+        self.ui.autoRecursive.setChecked(preferences.get_auto_directory_recursive())
+        self.ui.autoBiasOnly.setChecked(preferences.get_auto_directory_bias_only())
+
         # Grouping information
         self.ui.groupBySizeCB.setChecked(preferences.get_group_by_size())
         self.ui.groupByExposureCB.setChecked(preferences.get_group_by_exposure())
@@ -97,6 +100,9 @@ class PreferencesWindow(QDialog):
         self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
         self.ui.ignoreSmallGroupsCB.clicked.connect(self.ignore_small_groups_clicked)
 
+        self.ui.autoRecursive.clicked.connect(self.auto_recursive_clicked)
+        self.ui.autoBiasOnly.clicked.connect(self.auto_bias_only_clicked)
+
         self.ui.closeButton.clicked.connect(self.close_button_clicked)
 
         # Input fields
@@ -126,6 +132,14 @@ class PreferencesWindow(QDialog):
 
     def group_by_temperature_clicked(self):
         self._preferences.set_group_by_temperature(self.ui.groupByTemperatureCB.isChecked())
+        self.enableFields()
+
+    def auto_recursive_clicked(self):
+        self._preferences.set_auto_directory_recursive(self.ui.autoRecursive.isChecked())
+        self.enableFields()
+
+    def auto_bias_only_clicked(self):
+        self._preferences.set_auto_directory_bias_only(self.ui.autoBiasOnly.isChecked())
         self.enableFields()
 
     def ignore_small_groups_clicked(self):

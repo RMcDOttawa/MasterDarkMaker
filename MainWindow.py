@@ -83,6 +83,9 @@ class MainWindow(QMainWindow):
         self.ui.precalibrationPathDisplay.setText(os.path.basename(data_model.get_precalibration_fixed_path()))
         self.ui.autoDirectoryName.setText(os.path.basename(data_model.get_precalibration_auto_directory()))
 
+        self.ui.autoRecursive.setChecked(data_model.get_auto_directory_recursive())
+        self.ui.autoBiasOnly.setChecked(data_model.get_auto_directory_bias_only())
+
         # Grouping boxes and parameters
 
         self.ui.groupBySizeCB.setChecked(data_model.get_group_by_size())
@@ -164,6 +167,8 @@ class MainWindow(QMainWindow):
         self.ui.selectPreCalFile.clicked.connect(self.select_precalibration_file_clicked)
         self.ui.setAutoDirectory.clicked.connect(self.select_auto_calibration_directory_clicked)
         self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
+        self.ui.autoRecursive.clicked.connect(self.auto_recursive_clicked)
+        self.ui.autoBiasOnly.clicked.connect(self.auto_bias_only_clicked)
 
         # Grouping controls
         self.ui.groupBySizeCB.clicked.connect(self.group_by_size_clicked)
@@ -256,6 +261,16 @@ class MainWindow(QMainWindow):
 
     def ignore_small_groups_clicked(self):
         self._data_model.set_ignore_groups_fewer_than(self.ui.ignoreSmallGroupsCB.isChecked())
+        self.enable_fields()
+        self.enable_buttons()
+
+    def auto_recursive_clicked(self):
+        self._data_model.set_auto_directory_recursive(self.ui.autoRecursive.isChecked())
+        self.enable_fields()
+        self.enable_buttons()
+
+    def auto_bias_only_clicked(self):
+        self._data_model.set_auto_directory_bias_only(self.ui.autoBiasOnly.isChecked())
         self.enable_fields()
         self.enable_buttons()
 
@@ -454,6 +469,9 @@ class MainWindow(QMainWindow):
         self.ui.setAutoDirectory.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
         self.ui.minimumGroupSize.setEnabled(self._data_model.get_ignore_groups_fewer_than())
 
+        self.ui.autoRecursive.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
+        self.ui.autoBiasOnly.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
+
         # "combineSelectedButton" is enabled only if
         #   - No text fields are in error state
         #   - At least one row in the file table is selected
@@ -635,6 +653,12 @@ class MainWindow(QMainWindow):
         if precal_type == Constants.CALIBRATION_FIXED_FILE:
             precal_option_2 = os.path.basename(self._data_model.get_precalibration_fixed_path())
         elif precal_type == Constants.CALIBRATION_AUTO_DIRECTORY:
+            precal_parts = ["Auto"]
+            if self._data_model.get_auto_directory_recursive():
+                precal_parts.append("Recursive")
+            if self._data_model.get_auto_directory_bias_only():
+                precal_parts.append("Bias")
+            precal_type_string = ", ".join(precal_parts)
             precal_option_2 = os.path.basename(self._data_model.get_precalibration_auto_directory())
         elif precal_type == Constants.CALIBRATION_PEDESTAL:
             precal_type_string += f" {self._data_model.get_precalibration_pedestal()}"
@@ -652,20 +676,18 @@ class MainWindow(QMainWindow):
         self.ui.methodInfo1.setText(method_string)
         self.ui.methodInfo2.setText(method_string_2)
 
-        group_string = "Size" if self._data_model.get_group_by_size() else ""
+        group_parts = []
+        if self._data_model.get_group_by_size():
+            group_parts.append("Size")
         if self._data_model.get_group_by_exposure():
-            if group_string != "":
-                group_string += ", "
-            group_string += "Exposure"
+            group_parts.append("Exposure")
         if self._data_model.get_group_by_temperature():
-            if group_string != "":
-                group_string += ", "
-            group_string += "Temp"
+            group_parts.append("Temp")
         if self._data_model.get_ignore_groups_fewer_than():
             ignore = f"Min group size {self._data_model.get_minimum_group_size()}"
         else:
             ignore = ""
-        self.ui.groupInfo1.setText(group_string)
+        self.ui.groupInfo1.setText("" if len(group_parts) == 0 else ", ".join(group_parts))
         self.ui.groupInfo2.setText(ignore)
 
         if self._data_model.get_input_file_disposition() == Constants.INPUT_DISPOSITION_NOTHING:
