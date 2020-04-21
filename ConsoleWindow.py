@@ -34,12 +34,7 @@ class ConsoleWindow(QDialog):
         if window_size is not None:
             self.ui.resize(window_size)
 
-        # If a window position is saved, set the window position
-        # window_position = self._preferences.get_console_window_position()
-        # if window_position is not None:
-        #     self.ui.move(window_position)
-
-        # Responders
+         # Responders
         self.ui.cancelButton.clicked.connect(self.cancel_button_clicked)
         self.ui.closeButton.clicked.connect(self.close_button_clicked)
 

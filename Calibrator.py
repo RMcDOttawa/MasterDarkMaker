@@ -89,7 +89,8 @@ class Calibrator:
             return None
 
     #
-    # Get the best matched calibration file in the auto directory
+    # Get the best matched calibration file in the auto directory.  Only BIAS files
+    # of the correct size will be selected
     # If no suitable file, raise exception
     #
     #   Exceptions thrown:
@@ -105,6 +106,7 @@ class Calibrator:
         if len(all_descriptors) == 0:
             # No files in that directory, raise exception
             raise MasterMakerExceptions.AutoCalibrationDirectoryEmpty(directory_path)
+        # todo filter to Bias files if option and give exception if none
 
         # Get the subset that are the correct size and binning
         correct_size = cls.filter_to_correct_size(all_descriptors, sample_file)

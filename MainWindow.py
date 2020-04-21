@@ -100,17 +100,15 @@ class MainWindow(QMainWindow):
         # Columns should resize to best fit their contents
         self.ui.filesTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
+        # Write a summary, in the main tab, of the settings from the options tab (and data model)
+        self.fill_options_readout()
+
         self.connect_responders()
 
         # If a window size is saved, set the window size
         window_size = self._preferences.get_main_window_size()
         if window_size is not None:
             self.ui.resize(window_size)
-
-        # If window position is saved, set the window position
-        window_position = self._preferences.get_main_window_position()
-        if window_position is not None:
-            self.ui.move(window_position)
 
         self.enable_fields()
         self.enable_buttons()
@@ -181,6 +179,9 @@ class MainWindow(QMainWindow):
         tiny_font.setPointSize(10)
         self.ui.precalibrationPathDisplay.setFont(tiny_font)
         self.ui.autoDirectoryName.setFont(tiny_font)
+
+        # Detect changes to the tab view
+        self.ui.tabWidget.currentChanged.connect(self.tab_changed)
 
     # Certain initialization must be done after "__init__" is finished.
     def set_up_ui(self):
@@ -406,7 +407,8 @@ class MainWindow(QMainWindow):
     def table_selection_changed(self):
         """Rows selected in the file table have changed; check for button enablement"""
         selected = self.ui.filesTable.selectionModel().selectedRows()
-        self.ui.selectedLabel.setText(f"{len(selected)} rows selected")
+        row_or_rows = "row" if len(selected) == 1 else "rows"
+        self.ui.selectedLabel.setText(f"{len(selected)} {row_or_rows} selected")
         self.enable_buttons()
         self.enable_fields()
 
@@ -622,3 +624,57 @@ class MainWindow(QMainWindow):
             return self.get_output_file(SharedUtils.create_output_path(sample_file,
                                                                        self._data_model.get_master_combine_method()))
 
+    #
+    #   Fill in the text fields in the main pane that summarize the settings
+    #
+    def fill_options_readout(self):
+
+        precal_type = self._data_model.get_precalibration_type()
+        precal_type_string = f"{Constants.calibration_string(self._data_model.get_precalibration_type())}"
+        precal_option_2 = ""
+        if precal_type == Constants.CALIBRATION_FIXED_FILE:
+            precal_option_2 = os.path.basename(self._data_model.get_precalibration_fixed_path())
+        elif precal_type == Constants.CALIBRATION_AUTO_DIRECTORY:
+            precal_option_2 = os.path.basename(self._data_model.get_precalibration_auto_directory())
+        elif precal_type == Constants.CALIBRATION_PEDESTAL:
+            precal_type_string += f" {self._data_model.get_precalibration_pedestal()}"
+            precal_option_2 = ""
+        self.ui.preCalInfo1.setText(precal_type_string)
+        self.ui.preCalInfo2.setText(precal_option_2)
+
+        method = self._data_model.get_master_combine_method()
+        method_string = Constants.combine_method_string(method)
+        if method == Constants.COMBINE_MINMAX:
+            method_string += f": drop {self._data_model.get_min_max_number_clipped_per_end()}"
+        elif method == Constants.COMBINE_SIGMA_CLIP:
+            method_string += f": z = {self._data_model.get_sigma_clip_threshold()}"
+        method_string_2 = "Ignore FITS file type" if self._data_model.get_ignore_file_type() else ""
+        self.ui.methodInfo1.setText(method_string)
+        self.ui.methodInfo2.setText(method_string_2)
+
+        group_string = "Size" if self._data_model.get_group_by_size() else ""
+        if self._data_model.get_group_by_exposure():
+            if group_string != "":
+                group_string += ", "
+            group_string += "Exposure"
+        if self._data_model.get_group_by_temperature():
+            if group_string != "":
+                group_string += ", "
+            group_string += "Temp"
+        if self._data_model.get_ignore_groups_fewer_than():
+            ignore = f"Min group size {self._data_model.get_minimum_group_size()}"
+        else:
+            ignore = ""
+        self.ui.groupInfo1.setText(group_string)
+        self.ui.groupInfo2.setText(ignore)
+
+        if self._data_model.get_input_file_disposition() == Constants.INPUT_DISPOSITION_NOTHING:
+            self.ui.dispositionInfo1.setText("")
+        else:
+            self.ui.dispositionInfo1.setText(self._data_model.get_disposition_subfolder_name())
+
+    #
+    #   The tab view has changed. Re-generate the options summary
+    #
+    def tab_changed(self):
+        self.fill_options_readout()
