@@ -85,17 +85,35 @@ class SharedUtils:
     # Move the processed input files to a sub-folder with the given name (after substituting
     # special markers in the folder name).  If the folder exists, just use it.  If it doesn't
     # exist, create it.
+    #
+    # @classmethod
+    # def dispose_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
+    #
+    #     # Get folder name with special values substituted
+    #     subfolder_located_directory = cls.make_name_a_subfolder(descriptors[0], sub_folder_name)
+    #
+    #     # Create the folder if it doesn't already exist (and make sure we're not clobbering a file)
+    #     if cls.ensure_directory_exists(subfolder_located_directory):
+    #         # Move the files to that folder
+    #         cls.move_files_to_sub_folder(descriptors, subfolder_located_directory)
+
+    # Above method to do all files in a list is deprecated.  Instead we do a single file and
+    # return a "success" indicator
 
     @classmethod
-    def dispose_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
-
-        # Get folder name with special values substituted
-        subfolder_located_directory = cls.make_name_a_subfolder(descriptors[0], sub_folder_name)
+    def dispose_one_file_to_sub_folder(cls, descriptor, sub_folder_name) -> bool:
+        success = False
+    # Get folder name with special values substituted
+        subfolder_located_directory = cls.make_name_a_subfolder(descriptor, sub_folder_name)
 
         # Create the folder if it doesn't already exist (and make sure we're not clobbering a file)
         if cls.ensure_directory_exists(subfolder_located_directory):
-            # Move the files to that folder
-            cls.move_files_to_sub_folder(descriptors, subfolder_located_directory)
+            source_path = descriptor.get_absolute_path()
+            source_name = descriptor.get_name()
+            destination_path = cls.unique_destination_file(subfolder_located_directory, source_name)
+            result = shutil.move(source_path, destination_path)
+            success = result == destination_path
+        return success
 
     # Given a desired sub-directory name, make it a sub-directory of the location of the input files
     # by putting the path to a sample input file on the front of the name
@@ -177,14 +195,14 @@ class SharedUtils:
         return file_path
 
     # Move files to given sub-folder
-
-    @classmethod
-    def move_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
-        for descriptor in descriptors:
-            source_path = descriptor.get_absolute_path()
-            source_name = descriptor.get_name()
-            destination_path = cls.unique_destination_file(sub_folder_name, source_name)
-            shutil.move(source_path, destination_path)
+    #
+    # @classmethod
+    # def move_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
+    #     for descriptor in descriptors:
+    #         source_path = descriptor.get_absolute_path()
+    #         source_name = descriptor.get_name()
+    #         destination_path = cls.unique_destination_file(sub_folder_name, source_name)
+    #         shutil.move(source_path, destination_path)
 
     # In case the disposition directory already existed and has files in it, ensure the
     # given file would be unique in the directory, by appending a number to it if necessary

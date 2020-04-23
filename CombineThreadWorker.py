@@ -26,6 +26,7 @@ class CombineThreadWorker(QObject):
 
     finished = pyqtSignal()             # Tell interested parties that we are finished
     console_line = pyqtSignal(str)      # Add a line to the console object in the UI
+    remove_from_ui = pyqtSignal(str)    # Remove given file (full path) from the UI table
 
     def __init__(self, data_model: DataModel,
                  descriptors: [FileDescriptor],
@@ -45,6 +46,7 @@ class CombineThreadWorker(QObject):
         console = ConsoleCallback(self.console_callback)
 
         console.message("Starting session", 0)
+        file_combiner = FileCombiner(self.file_moved_callback)
 
         # Do actual work
         try:
@@ -52,12 +54,12 @@ class CombineThreadWorker(QObject):
             if self._data_model.get_group_by_exposure() \
                     or self._data_model.get_group_by_size() \
                     or self._data_model.get_group_by_temperature():
-                FileCombiner.process_groups(self._data_model, self._descriptors,
+                file_combiner.process_groups(self._data_model, self._descriptors,
                                                              self._output_path,
                                                              console, self._session_controller)
             else:
                 # Not grouped, producing a single output file. Get output file location
-                FileCombiner.original_non_grouped_processing(self._descriptors, self._data_model,
+                file_combiner.original_non_grouped_processing(self._descriptors, self._data_model,
                                                                               self._output_path,
                                                                               console, self._session_controller)
         except FileNotFoundError as exception:
@@ -115,3 +117,12 @@ class CombineThreadWorker(QObject):
     #
     def error_dialog(self, short_message: str, long_message: str):
         self.console_callback("*** ERROR *** " + short_message + ": " + long_message)
+
+    #
+    #   Method that is called back when a file is moved after being processed
+    #   Send this information back to the main task by emitting a signal.
+    #   This allows us to remove it from the user interface, since the path will no longer be valid
+    #
+
+    def file_moved_callback(self, file_moved_from_path: str):
+        self.remove_from_ui.emit(file_moved_from_path)

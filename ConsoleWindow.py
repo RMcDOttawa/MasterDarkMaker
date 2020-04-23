@@ -2,10 +2,12 @@
 #   Window containing a console pane, used to display output messages in the GUI version.
 #   (In the command-line version such messages are simply written to standard output)
 #
+from typing import Callable
+
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, QMutex, QObject, QEvent
 from PyQt5.QtGui import QResizeEvent, QMoveEvent, QCloseEvent
-from PyQt5.QtWidgets import QDialog, QListWidgetItem
+from PyQt5.QtWidgets import QDialog, QListWidgetItem, QMainWindow
 
 from CombineThreadWorker import CombineThreadWorker
 from DataModel import DataModel
@@ -16,11 +18,14 @@ from SessionController import SessionController
 
 
 class ConsoleWindow(QDialog):
-    def __init__(self, preferences: Preferences,
+    def __init__(self,
+                 preferences: Preferences,
                  data_model: DataModel,
                  descriptors: [FileDescriptor],
-                 output_path: str):
+                 output_path: str,
+                 disposed_callback: Callable[[str], None]):
         QDialog.__init__(self)
+        self._disposed_callback = disposed_callback
         self._data_model = data_model
         self._descriptors = descriptors
         self._output_path = output_path
@@ -57,6 +62,7 @@ class ConsoleWindow(QDialog):
 
         # Other signals of interest
         self._worker_object.console_line.connect(self.add_to_console)
+        self._worker_object.remove_from_ui.connect(self.remove_from_ui)
 
         # Properly enable buttons (cancel and close) and start the worker thread
         self.buttons_active_state(True)
@@ -102,3 +108,5 @@ class ConsoleWindow(QDialog):
     def close_button_clicked(self):
         self.ui.close()
 
+    def remove_from_ui(self, path_to_remove: str):
+        self._disposed_callback(path_to_remove)

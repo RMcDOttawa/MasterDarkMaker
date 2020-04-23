@@ -1,7 +1,8 @@
 #
-#   Static methods for combining FITS files using different algorithms
+#   Object for combining FITS files using different algorithms
 #
 from itertools import groupby
+from typing import Callable
 
 import MasterMakerExceptions
 from Calibrator import Calibrator
@@ -15,11 +16,14 @@ from SessionController import SessionController
 from SharedUtils import SharedUtils
 
 
-class FileCombiner:
+class FileCombiner :
+
+    def __init__(self, file_moved_callback: Callable[[str], None]):
+        self.callback_method = file_moved_callback
 
     # Process one set of files.  Output to the given path, if provided.  If not provided, prompt the user for it.
-    @classmethod
-    def original_non_grouped_processing(cls, selected_files: [FileDescriptor],
+    
+    def original_non_grouped_processing(self, selected_files: [FileDescriptor],
                                         data_model: DataModel,
                                         output_file: str,
                                         console: Console,
@@ -30,9 +34,9 @@ class FileCombiner:
         assert len(selected_files) > 0
         result = None
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
-        if FileCombiner.all_compatible_sizes(selected_files):
+        if self.all_compatible_sizes(selected_files):
             if session_controller.thread_running() and (data_model.get_ignore_file_type()
-                                                        or FileCombiner.all_of_type(selected_files,
+                                                        or self.all_of_type(selected_files,
                                                                                     FileDescriptor.FILE_TYPE_DARK)):
                 # Get (most common) filter name in the set
                 # Since these are darks, the filter is meaningless, but we need the value
@@ -40,13 +44,15 @@ class FileCombiner:
                 filter_name = SharedUtils.most_common_filter_name(selected_files)
 
                 # Do the combination
-                FileCombiner.combine_files(selected_files, data_model, filter_name, output_file, console, session_controller)
+                self.combine_files(selected_files, data_model, filter_name, output_file, console, session_controller)
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
                 if session_controller.thread_running():
-                    cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
-                                                       data_model.get_disposition_subfolder_name(),
-                                                       selected_files)
+                    substituted_folder_name = SharedUtils.substitute_date_time_filter_in_string(
+                        data_model.get_disposition_subfolder_name())
+                    self.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                                                        substituted_folder_name,
+                                                        selected_files)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
@@ -59,8 +65,8 @@ class FileCombiner:
     #
     #   Exceptions thrown:
     #       NoGroupOutputDirectory      Output directory does not exist and unable to create it
-    @classmethod
-    def process_groups(cls, data_model: DataModel,
+    
+    def process_groups(self, data_model: DataModel,
                        selected_files: [FileDescriptor],
                        output_directory: str,
                        console: Console,
@@ -77,7 +83,7 @@ class FileCombiner:
             if data_model.get_ignore_groups_fewer_than() else 0
 
         #  Process size groups, or all sizes if not grouping
-        groups_by_size = FileCombiner.get_groups_by_size(selected_files, data_model.get_group_by_size())
+        groups_by_size = self.get_groups_by_size(selected_files, data_model.get_group_by_size())
         group_by_size = data_model.get_group_by_size()
         group_by_exposure = data_model.get_group_by_exposure()
         group_by_temperature = data_model.get_group_by_temperature()
@@ -95,7 +101,7 @@ class FileCombiner:
                     console.message(f"Processing one size group: {len(size_group)} "
                                     f"files sized {size_group[0].get_size_key()}", +1)
                 # Within this size group, process exposure groups, or all exposures if not grouping
-                groups_by_exposure = FileCombiner.get_groups_by_exposure(size_group,
+                groups_by_exposure = self.get_groups_by_exposure(size_group,
                                                                          data_model.get_group_by_exposure(),
                                                                          exposure_tolerance)
                 for exposure_group in groups_by_exposure:
@@ -112,7 +118,7 @@ class FileCombiner:
                                     f"files exposed {exposure_group[0].get_exposure()}", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
-                            FileCombiner.get_groups_by_temperature(exposure_group,
+                            self.get_groups_by_temperature(exposure_group,
                                                                    data_model.get_group_by_temperature(),
                                                                    temperature_tolerance)
                         for temperature_group in groups_by_temperature:
@@ -128,7 +134,7 @@ class FileCombiner:
                                     console.message(f"Processing one temperature group: "
                                             f"{len(temperature_group)} files at temp near {temperature_group[0].get_temperature()}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
-                                cls.process_one_group(data_model, temperature_group,
+                                self.process_one_group(data_model, temperature_group,
                                                       output_directory,
                                                       data_model.get_master_combine_method(),
                                                       substituted_folder_name,
@@ -138,15 +144,14 @@ class FileCombiner:
             console.pop_level()
         console.message("Group combining complete", 0)
         console.pop_level()
-        return
 
     # Process one group of files, output to the given directory
     #
     #   Exceptions thrown:
     #       NotAllDarkFrames        The given files are not all dark frames
     #       IncompatibleSizes       The given files are not all the same dimensions
-    @classmethod
-    def process_one_group(cls,
+    
+    def process_one_group(self,
                           data_model: DataModel,
                           descriptor_list: [FileDescriptor],
                           output_directory: str,
@@ -157,28 +162,28 @@ class FileCombiner:
         assert len(descriptor_list) > 0
         sample_file: FileDescriptor = descriptor_list[0]
         console.push_level()
-        cls.describe_group(data_model, len(descriptor_list), sample_file, console)
+        self.describe_group(data_model, len(descriptor_list), sample_file, console)
 
         # Make up a file name for this group's output, into the given directory
         file_name = SharedUtils.get_file_name_portion(combine_method, sample_file)
         output_file = f"{output_directory}/{file_name}"
 
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
-        if cls.all_compatible_sizes(descriptor_list):
+        if self.all_compatible_sizes(descriptor_list):
             if data_model.get_ignore_file_type() \
-                    or cls.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
+                    or self.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
                 # Get (most common) filter name in the set
                 # Since these are darks, the filter is meaningless, but we need the value
                 # for the shared "create file" routine
                 filter_name = SharedUtils.most_common_filter_name(descriptor_list)
 
                 # Do the combination
-                cls.combine_files(descriptor_list, data_model, filter_name, output_file, console, session_controller)
+                self.combine_files(descriptor_list, data_model, filter_name, output_file, console, session_controller)
                 if session_controller.thread_cancelled():
                     return None
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
-                cls.handle_input_files_disposition(data_model.get_input_file_disposition(),
+                self.handle_input_files_disposition(data_model.get_input_file_disposition(),
                                                    disposition_folder_name,
                                                    descriptor_list)
             else:
@@ -186,12 +191,11 @@ class FileCombiner:
         else:
             raise MasterMakerExceptions.IncompatibleSizes
         console.pop_level()
-        return
 
     # Move the given files if the given disposition type requests it.
     # Return a list of any files that were moved so the UI can be adjusted if necessary
-    @classmethod
-    def handle_input_files_disposition(cls,
+    
+    def handle_input_files_disposition(self,
                                        disposition_type: int,
                                        sub_folder_name: str,
                                        descriptors: [FileDescriptor]):
@@ -201,11 +205,14 @@ class FileCombiner:
         else:
             assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
             # User wants us to move the input files into a sub-folder
-            SharedUtils.dispose_files_to_sub_folder(descriptors, sub_folder_name)
+            for descriptor in descriptors:
+                if SharedUtils.dispose_one_file_to_sub_folder(descriptor, sub_folder_name):
+                    # Successfully moved the file;  tell the user interface
+                    self.callback_method(descriptor.get_absolute_path())
 
     # Determine if all the files in the list are of the given type
-    @classmethod
-    def all_of_type(cls, selected_files: [FileDescriptor], type_code: int):
+    
+    def all_of_type(self, selected_files: [FileDescriptor], type_code: int):
         for descriptor in selected_files:
             if descriptor.get_type() != type_code:
                 return False
@@ -213,8 +220,8 @@ class FileCombiner:
 
     # Confirm that the given list of files are combinable by being compatible sizes
     # This means their x,y dimensions are the same and their binning is the same
-    @classmethod
-    def all_compatible_sizes(cls, selected_files: [FileDescriptor]):
+
+    def all_compatible_sizes(self, selected_files: [FileDescriptor]):
         if len(selected_files) == 0:
             return True
         (x_dimension, y_dimension) = selected_files[0].get_dimensions()
@@ -224,10 +231,11 @@ class FileCombiner:
             if this_x != x_dimension or this_y != y_dimension or descriptor.get_binning() != binning:
                 return False
         return True
+        return True
 
     # Determine if all the files in the list have the same filter name
-    @classmethod
-    def all_same_filter(cls, selected_files: [FileDescriptor]) -> bool:
+    
+    def all_same_filter(self, selected_files: [FileDescriptor]) -> bool:
         if len(selected_files) == 0:
             return True
         filter_name = selected_files[0].get_filter_name()
@@ -273,8 +281,7 @@ class FileCombiner:
     # Given list of file descriptors, return a list of lists, where each outer list is all the
     # file descriptors with the same size (dimensions and binning)
 
-    @classmethod
-    def get_groups_by_size(cls, selected_files: [FileDescriptor], is_grouped: bool) -> [[FileDescriptor]]:
+    def get_groups_by_size(self, selected_files: [FileDescriptor], is_grouped: bool) -> [[FileDescriptor]]:
         if is_grouped:
             descriptors_sorted = sorted(selected_files, key=FileDescriptor.get_size_key)
             descriptors_grouped = groupby(descriptors_sorted, FileDescriptor.get_size_key)
@@ -291,8 +298,7 @@ class FileCombiner:
     # Note that, because of the "tolerance" comparison, we need to process the list manually,
     # not with the "groupby" function.
 
-    @classmethod
-    def get_groups_by_exposure(cls,
+    def get_groups_by_exposure(self,
                                selected_files: [FileDescriptor],
                                is_grouped: bool,
                                tolerance: float) -> [[FileDescriptor]]:
@@ -319,8 +325,7 @@ class FileCombiner:
     # Note that, because of the "tolerance" comparison, we need to process the list manually,
     # not with the "groupby" function.
 
-    @classmethod
-    def get_groups_by_temperature(cls,
+    def get_groups_by_temperature(self,
                                   selected_files: [FileDescriptor],
                                   is_grouped: bool,
                                   tolerance: float) -> [[FileDescriptor]]:
@@ -344,8 +349,8 @@ class FileCombiner:
 
     # Combine the given files, output to the given output file
     # Use the combination algorithm given by the radio buttons on the main window
-    @classmethod
-    def combine_files(cls, input_files: [FileDescriptor],
+    
+    def combine_files(self, input_files: [FileDescriptor],
                       data_model: DataModel,
                       filter_name: str,
                       output_path: str,
@@ -401,8 +406,7 @@ class FileCombiner:
                                                      f"(threshold {sigma_threshold}) Mean combined")
         console.pop_level()
 
-    @classmethod
-    def describe_group(cls, data_model: DataModel, number_files: int, sample_file: FileDescriptor, console: Console):
+    def describe_group(self, data_model: DataModel, number_files: int, sample_file: FileDescriptor, console: Console):
         binning = sample_file.get_binning()
         exposure = sample_file.get_exposure()
         temperature = sample_file.get_temperature()

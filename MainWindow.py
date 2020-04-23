@@ -570,7 +570,7 @@ class MainWindow(QMainWindow):
                 # Open console window, which will create and run the worker thread
                 # todo implement callback to remove files from UI as they are moved
                 console_window: ConsoleWindow = ConsoleWindow(self._preferences, self._data_model,
-                                                              selected_files, output_path)
+                                                              selected_files, output_path, self.remove_from_ui)
                 console_window.set_up_ui()
                 console_window.ui.exec_()
                 # We get here when the worker task has finished or been cancelled, and the console window closed.
@@ -700,3 +700,6 @@ class MainWindow(QMainWindow):
     #
     def tab_changed(self):
         self.fill_options_readout()
+
+    def remove_from_ui(self, path_to_remove: str):
+        self._table_model.remove_file_path(path_to_remove)

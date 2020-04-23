@@ -155,3 +155,18 @@ class FitsFileTableModel(QAbstractTableModel):
                     del self._files_list[row_index]
                     self.endRemoveRows()
                     break
+
+    # Find and remove the file descriptor with the given absolute path name
+
+    def remove_file_path(self, path_to_remove):
+        # Get index in the list of this path
+        for row_index, descriptor in enumerate(self._files_list):
+            if descriptor.get_absolute_path() == path_to_remove:
+                # Found it, remove this row from the table model, telling the UI to update
+                model_index = self.createIndex(row_index, 0)
+                self.beginRemoveRows(model_index.parent(), row_index, row_index)
+                del self._files_list[row_index]
+                self.endRemoveRows()
+                break
+
+
