@@ -647,6 +647,8 @@ class MainWindow(QMainWindow):
     #
     def fill_options_readout(self):
 
+        # Precalibration type, if any
+
         precal_type = self._data_model.get_precalibration_type()
         precal_type_string = f"{Constants.calibration_string(self._data_model.get_precalibration_type())}"
         precal_option_2 = ""
@@ -666,6 +668,8 @@ class MainWindow(QMainWindow):
         self.ui.preCalInfo1.setText(precal_type_string)
         self.ui.preCalInfo2.setText(precal_option_2)
 
+        # Selected combination algorithm
+
         method = self._data_model.get_master_combine_method()
         method_string = Constants.combine_method_string(method)
         if method == Constants.COMBINE_MINMAX:
@@ -675,6 +679,8 @@ class MainWindow(QMainWindow):
         method_string_2 = "Ignore FITS file type" if self._data_model.get_ignore_file_type() else ""
         self.ui.methodInfo1.setText(method_string)
         self.ui.methodInfo2.setText(method_string_2)
+
+        # Grouping
 
         group_parts = []
         if self._data_model.get_group_by_size():
@@ -687,11 +693,13 @@ class MainWindow(QMainWindow):
             ignore = f"Min group size {self._data_model.get_minimum_group_size()}"
         else:
             ignore = ""
-        self.ui.groupInfo1.setText("" if len(group_parts) == 0 else ", ".join(group_parts))
+        self.ui.groupInfo1.setText("(none)" if len(group_parts) == 0 else ", ".join(group_parts))
         self.ui.groupInfo2.setText(ignore)
 
+        # File disposition
+
         if self._data_model.get_input_file_disposition() == Constants.INPUT_DISPOSITION_NOTHING:
-            self.ui.dispositionInfo1.setText("")
+            self.ui.dispositionInfo1.setText("(none)")
         else:
             self.ui.dispositionInfo1.setText(self._data_model.get_disposition_subfolder_name())
 
