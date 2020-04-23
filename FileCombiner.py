@@ -52,7 +52,7 @@ class FileCombiner :
                         data_model.get_disposition_subfolder_name())
                     self.handle_input_files_disposition(data_model.get_input_file_disposition(),
                                                         substituted_folder_name,
-                                                        selected_files)
+                                                        selected_files, console)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
@@ -185,7 +185,7 @@ class FileCombiner :
                 # Return list of any that were moved, in case the UI needs to be adjusted
                 self.handle_input_files_disposition(data_model.get_input_file_disposition(),
                                                    disposition_folder_name,
-                                                   descriptor_list)
+                                                   descriptor_list, console)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
@@ -198,12 +198,14 @@ class FileCombiner :
     def handle_input_files_disposition(self,
                                        disposition_type: int,
                                        sub_folder_name: str,
-                                       descriptors: [FileDescriptor]):
+                                       descriptors: [FileDescriptor],
+                                       console: Console):
         if disposition_type == Constants.INPUT_DISPOSITION_NOTHING:
             # User doesn't want us to do anything with the input files
             return []
         else:
             assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
+            console.message("Moving processed files to " + sub_folder_name, 0)
             # User wants us to move the input files into a sub-folder
             for descriptor in descriptors:
                 if SharedUtils.dispose_one_file_to_sub_folder(descriptor, sub_folder_name):
