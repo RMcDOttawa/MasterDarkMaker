@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8a3dfb4e-c16a-4fc4-afec-4adefc5c59d9" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="tabPane" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1aOsfPBuS14tWlw4xuGwCseArHL" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+  </component>
+  <component name="RunManager" selected="Python.GUI">
+    <configuration name="CmdLine" type="PythonConfigurationType" factoryName="Python">
+      <module name="MasterDarkMaker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/local/bin/python3.8" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MasterDarkMaker.py" />
+      <option name="PARAMETERS" value="-ge 10 -gt 5 -gs -od testoutput $USER_HOME$/Desktop/SmallTestDarks/DARK_1x1_5.000secs_0.00C00001068x.fit $USER_HOME$/Desktop/SmallTestDarks/DARK_1x1_5.000secs_0.00C00001069.fit $USER_HOME$/Desktop/SmallTestDarks/DARK_1x1_5.000secs_0.00C00001070.fit $USER_HOME$/Desktop/SmallTestDarks/DARK_1x1_5.000secs_0.00C00001071.fit" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="GUI" type="PythonConfigurationType" factoryName="Python">
+      <module name="MasterDarkMaker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/local/bin/python3.8" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MasterDarkMaker.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.CmdLine" />
+      <item itemvalue="Python.GUI" />
+    </list>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8a3dfb4e-c16a-4fc4-afec-4adefc5c59d9" name="Default Changelist" comment="" />
+      <created>1586618076131</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1586618076131</updated>
+      <workItem from="1586695010694" duration="2827000" />
+      <workItem from="1586826876774" duration="875000" />
+      <workItem from="1587079253509" duration="1880000" />
+      <workItem from="1587164714449" duration="1048000" />
+      <workItem from="1587174850486" duration="150000" />
+      <workItem from="1587257446970" duration="768000" />
+      <workItem from="1587335470817" duration="4491000" />
+      <workItem from="1587427319144" duration="2461000" />
+      <workItem from="1587429938998" duration="86000" />
+      <workItem from="1587509608857" duration="422000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial commit after cloning from MasterBiasMaker">
+      <created>1586653765392</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1586653765392</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Cloned-in code to add additional image attributes to FITS file">
+      <created>1586716523679</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1586716523679</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Informative message in tooltip if combine button is disabled, since there are many reasons that might be so">
+      <created>1586785742058</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1586785742058</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Minor changes after regression testing">
+      <created>1586793684412</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1586793684412</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Update manual">
+      <created>1586801312007</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1586801312007</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added # selected rows feedback to make selecting groups from a large list easier.">
+      <created>1586806166794</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1586806166794</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Started working on grouping feature.  Preferences data structure and UI done">
+      <created>1586809447586</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1586809447586</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Main window UI changed for group processing feature, split &quot;combine&quot; method into original and new processing">
+      <created>1586811344059</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1586811344059</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Combine button enablement allows different file sizes if &quot;group by size&quot; is selected">
+      <created>1586811678861</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1586811678861</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Gathered groups by size, exposure, and temperature; ready for combining">
+      <created>1586824479352</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1586824479352</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Completed drafting &quot;grouping&quot; feature, ready for extensive test">
+      <created>1586826380040</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1586826380040</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Snapshot before heading off on a side journey to reorganize code more aligned with MVC model is">
+      <created>1587049483410</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1587049483410</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Snapshot after introducing DataModel to store session data">
+      <created>1587061974301</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1587061974301</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Snapshot during reorg;  simplified code by using exceptions instead of returned success flags">
+      <created>1587129526839</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1587129526840</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Finished reorganizing into MVC model, simplified files and reduced code duplication in the GUI side of the application.  (More to do when ready to re-do the command-line side.)">
+      <created>1587139023246</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1587139023246</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Completed and tested grouping and auto-calibration">
+      <created>1587155433035</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1587155433036</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Defined preferences, data model, and UI for &quot;ignore groups fewer than n&quot; feature.  (Haven't implemented execution the feature yet.)">
+      <created>1587159711554</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1587159711554</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Implemented &quot;ignore groups with fewer than &lt;n&gt; elements&quot; feature">
+      <created>1587212398912</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1587212398912</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Implemented &quot;ignore groups with fewer than &lt;n&gt; elements&quot; feature">
+      <created>1587212414936</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1587212414936</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Moved generation of group output directory name so single directory is used for all groups">
+      <created>1587221639424</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1587221639424</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Change console print statements to a &quot;console&quot; method to allow redirecting">
+      <created>1587240426707</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1587240426707</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Changed-over file processing to new console method, automatically indenting nested messages to appropriate level">
+      <created>1587246529525</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1587246529525</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Snapshot during implementation of thread-based worker class.  Basic thread structure set up, and output to console window is working.">
+      <created>1587306128752</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1587306128752</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Finished basic move of processing functions into subthread, with output to console window.">
+      <created>1587308530913</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1587308530913</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Remember size when console window resized">
+      <created>1587316114650</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1587316114650</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Close button on console window implemented">
+      <created>1587316789090</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1587316789090</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Snapshot, flag-based thread cancel implemented, testing in progress">
+      <created>1587319610358</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1587319610358</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Converted path concatenations to use path.join instead of manual &quot;/&quot;">
+      <created>1587387071920</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1587387071920</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Tested all exception handling, fixed some minor issues">
+      <created>1587396118516</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1587396118516</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Fixed bug in grouping by temperature">
+      <created>1587401182823</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1587401182823</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Reorganized main window into two tabbed panes to reduce window size (was getting too big for small-screen laptops)">
+      <created>1587472912482</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1587472912482</updated>
+    </task>
+    <task id="LOCAL-00032" summary="&quot;Select only bias files&quot; option implemented for auto-bias selection">
+      <created>1587491417956</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1587491417956</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Implemented recursive option to traverse directory trees when looking for auto-selected bias files">
+      <created>1587511094300</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1587511094300</updated>
+    </task>
+    <task id="LOCAL-00034" summary="When using &quot;dispose to folder&quot; to move files after combination, changed to removing them from the user interface one at a time, not all at the end, to avoid the huge delay at the end of combination.">
+      <created>1587645250192</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1587645250192</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Add &quot;none&quot; where appropriate in the panel displaying the selected options on the main window">
+      <created>1587667367588</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1587667367588</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Add console message when moving completed files">
+      <created>1587667664878</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1587667664878</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Finished command line version">
+      <created>1587821011378</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1587821011378</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Code clean-up">
+      <created>1587822476829</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1587822476829</updated>
+    </task>
+    <task id="LOCAL-00039" summary="In prefs window, recursive and bias-only buttons should be enabled only when auto-directory is selected">
+      <created>1587823014162</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1587823014163</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Revise manual and fix bugs found while collecting screen shots (e.g. forgot to add consolewindow.ui to maker file)">
+      <created>1587827799919</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1587827799920</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="1" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_NEW_TODO" value="false" />
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Finished reorganizing into MVC model, simplified files and reduced code duplication in the GUI side of the application.  (More to do when ready to re-do the command-line side.)" />
+    <MESSAGE value="Completed and tested grouping and auto-calibration" />
+    <MESSAGE value="Defined preferences, data model, and UI for &quot;ignore groups fewer than n&quot; feature.  (Haven't implemented execution the feature yet.)" />
+    <MESSAGE value="Implemented &quot;ignore groups with fewer than &lt;n&gt; elements&quot; feature" />
+    <MESSAGE value="Moved generation of group output directory name so single directory is used for all groups" />
+    <MESSAGE value="Change console print statements to a &quot;console&quot; method to allow redirecting" />
+    <MESSAGE value="Changed-over file processing to new console method, automatically indenting nested messages to appropriate level" />
+    <MESSAGE value="Snapshot during implementation of thread-based worker class.  Basic thread structure set up, and output to console window is working." />
+    <MESSAGE value="Finished basic move of processing functions into subthread, with output to console window." />
+    <MESSAGE value="Remember size when console window resized" />
+    <MESSAGE value="Close button on console window implemented" />
+    <MESSAGE value="Snapshot, flag-based thread cancel implemented, testing in progress" />
+    <MESSAGE value="Converted path concatenations to use path.join instead of manual &quot;/&quot;" />
+    <MESSAGE value="Tested all exception handling, fixed some minor issues" />
+    <MESSAGE value="Fixed bug in grouping by temperature" />
+    <MESSAGE value="Reorganized main window into two tabbed panes to reduce window size (was getting too big for small-screen laptops)" />
+    <MESSAGE value="&quot;Select only bias files&quot; option implemented for auto-bias selection" />
+    <MESSAGE value="Implemented recursive option to traverse directory trees when looking for auto-selected bias files" />
+    <MESSAGE value="When using &quot;dispose to folder&quot; to move files after combination, changed to removing them from the user interface one at a time, not all at the end, to avoid the huge delay at the end of combination." />
+    <MESSAGE value="Add &quot;none&quot; where appropriate in the panel displaying the selected options on the main window" />
+    <MESSAGE value="Add console message when moving completed files" />
+    <MESSAGE value="Finished command line version" />
+    <MESSAGE value="Code clean-up" />
+    <MESSAGE value="In prefs window, recursive and bias-only buttons should be enabled only when auto-directory is selected" />
+    <MESSAGE value="Revise manual and fix bugs found while collecting screen shots (e.g. forgot to add consolewindow.ui to maker file)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Revise manual and fix bugs found while collecting screen shots (e.g. forgot to add consolewindow.ui to maker file)" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1587771480041">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732856854" />
+    <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587771480041" />
+    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1587822272505">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587240434912" />
+    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587822272505" />
+    <state x="397" y="76" key="CommitChangelistDialog2" timestamp="1587827799517">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139022923" />
+    <state x="0" y="76" key="CommitChangelistDialog2/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823013908" />
+    <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587827799517" />
+    <state x="0" y="76" key="CommitChangelistDialog2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587155408541" />
+    <state x="198" y="123" width="1342" height="784" key="DiffContextDialog" timestamp="1587511197679">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="198" y="123" width="1342" height="784" key="DiffContextDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587511197679" />
+    <state width="1500" height="248" key="GridCell.Tab.0.bottom" timestamp="1587827802778">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="163" key="GridCell.Tab.0.bottom/0.23.1440.827@0.23.1440.827" timestamp="1587430025118" />
+    <state width="1318" height="259" key="GridCell.Tab.0.bottom/0.23.1440.828@0.23.1440.828" timestamp="1587510064934" />
+    <state width="1318" height="163" key="GridCell.Tab.0.bottom/0.23.1440.830@0.23.1440.830" timestamp="1587342090177" />
+    <state width="1318" height="163" key="GridCell.Tab.0.bottom/0.23.1440.831@0.23.1440.831" timestamp="1587341250656" />
+    <state width="1500" height="237" key="GridCell.Tab.0.bottom/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153666" />
+    <state width="1500" height="248" key="GridCell.Tab.0.bottom/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023217" />
+    <state width="1034" height="234" key="GridCell.Tab.0.bottom/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826932" />
+    <state width="1500" height="248" key="GridCell.Tab.0.bottom/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587827802778" />
+    <state width="1500" height="198" key="GridCell.Tab.0.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587475489604" />
+    <state width="1500" height="248" key="GridCell.Tab.0.center" timestamp="1587827802777">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="163" key="GridCell.Tab.0.center/0.23.1440.827@0.23.1440.827" timestamp="1587430025117" />
+    <state width="1318" height="259" key="GridCell.Tab.0.center/0.23.1440.828@0.23.1440.828" timestamp="1587510064933" />
+    <state width="1318" height="163" key="GridCell.Tab.0.center/0.23.1440.830@0.23.1440.830" timestamp="1587342090176" />
+    <state width="1318" height="163" key="GridCell.Tab.0.center/0.23.1440.831@0.23.1440.831" timestamp="1587341250654" />
+    <state width="1500" height="237" key="GridCell.Tab.0.center/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153665" />
+    <state width="1500" height="248" key="GridCell.Tab.0.center/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023216" />
+    <state width="1034" height="234" key="GridCell.Tab.0.center/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826931" />
+    <state width="1500" height="248" key="GridCell.Tab.0.center/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587827802777" />
+    <state width="1500" height="198" key="GridCell.Tab.0.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587475489603" />
+    <state width="1500" height="248" key="GridCell.Tab.0.left" timestamp="1587827802776">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="163" key="GridCell.Tab.0.left/0.23.1440.827@0.23.1440.827" timestamp="1587430025116" />
+    <state width="1318" height="259" key="GridCell.Tab.0.left/0.23.1440.828@0.23.1440.828" timestamp="1587510064932" />
+    <state width="1318" height="163" key="GridCell.Tab.0.left/0.23.1440.830@0.23.1440.830" timestamp="1587342090175" />
+    <state width="1318" height="163" key="GridCell.Tab.0.left/0.23.1440.831@0.23.1440.831" timestamp="1587341250654" />
+    <state width="1500" height="237" key="GridCell.Tab.0.left/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153660" />
+    <state width="1500" height="248" key="GridCell.Tab.0.left/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023215" />
+    <state width="1034" height="234" key="GridCell.Tab.0.left/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826930" />
+    <state width="1500" height="248" key="GridCell.Tab.0.left/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587827802776" />
+    <state width="1500" height="198" key="GridCell.Tab.0.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587475489602" />
+    <state width="1500" height="248" key="GridCell.Tab.0.right" timestamp="1587827802777">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="163" key="GridCell.Tab.0.right/0.23.1440.827@0.23.1440.827" timestamp="1587430025117" />
+    <state width="1318" height="259" key="GridCell.Tab.0.right/0.23.1440.828@0.23.1440.828" timestamp="1587510064933" />
+    <state width="1318" height="163" key="GridCell.Tab.0.right/0.23.1440.830@0.23.1440.830" timestamp="1587342090176" />
+    <state width="1318" height="163" key="GridCell.Tab.0.right/0.23.1440.831@0.23.1440.831" timestamp="1587341250655" />
+    <state width="1500" height="237" key="GridCell.Tab.0.right/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153665" />
+    <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023216" />
+    <state width="1034" height="234" key="GridCell.Tab.0.right/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826931" />
+    <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587827802777" />
+    <state width="1500" height="198" key="GridCell.Tab.0.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587475489604" />
+    <state width="1500" height="372" key="GridCell.Tab.1.bottom" timestamp="1587772391383">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="259" key="GridCell.Tab.1.bottom/0.23.1440.827@0.23.1440.827" timestamp="1587429852067" />
+    <state width="1318" height="259" key="GridCell.Tab.1.bottom/0.23.1440.828@0.23.1440.828" timestamp="1587510064936" />
+    <state width="1500" height="264" key="GridCell.Tab.1.bottom/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1586871121935" />
+    <state width="1500" height="372" key="GridCell.Tab.1.bottom/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335195" />
+    <state width="1034" height="234" key="GridCell.Tab.1.bottom/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879064" />
+    <state width="1500" height="372" key="GridCell.Tab.1.bottom/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391383" />
+    <state width="1500" height="234" key="GridCell.Tab.1.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587155601095" />
+    <state width="1500" height="372" key="GridCell.Tab.1.center" timestamp="1587772391382">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="259" key="GridCell.Tab.1.center/0.23.1440.827@0.23.1440.827" timestamp="1587429852066" />
+    <state width="1318" height="259" key="GridCell.Tab.1.center/0.23.1440.828@0.23.1440.828" timestamp="1587510064935" />
+    <state width="1500" height="264" key="GridCell.Tab.1.center/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1586871121934" />
+    <state width="1500" height="372" key="GridCell.Tab.1.center/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335193" />
+    <state width="1034" height="234" key="GridCell.Tab.1.center/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879063" />
+    <state width="1500" height="372" key="GridCell.Tab.1.center/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391382" />
+    <state width="1500" height="234" key="GridCell.Tab.1.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587155601094" />
+    <state width="1500" height="372" key="GridCell.Tab.1.left" timestamp="1587772391381">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="259" key="GridCell.Tab.1.left/0.23.1440.827@0.23.1440.827" timestamp="1587429852065" />
+    <state width="1318" height="259" key="GridCell.Tab.1.left/0.23.1440.828@0.23.1440.828" timestamp="1587510064934" />
+    <state width="1500" height="264" key="GridCell.Tab.1.left/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1586871121933" />
+    <state width="1500" height="372" key="GridCell.Tab.1.left/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335193" />
+    <state width="1034" height="234" key="GridCell.Tab.1.left/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879062" />
+    <state width="1500" height="372" key="GridCell.Tab.1.left/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391381" />
+    <state width="1500" height="234" key="GridCell.Tab.1.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587155601093" />
+    <state width="1500" height="372" key="GridCell.Tab.1.right" timestamp="1587772391382">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state width="1318" height="259" key="GridCell.Tab.1.right/0.23.1440.827@0.23.1440.827" timestamp="1587429852067" />
+    <state width="1318" height="259" key="GridCell.Tab.1.right/0.23.1440.828@0.23.1440.828" timestamp="1587510064936" />
+    <state width="1500" height="264" key="GridCell.Tab.1.right/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1586871121934" />
+    <state width="1500" height="372" key="GridCell.Tab.1.right/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335194" />
+    <state width="1034" height="234" key="GridCell.Tab.1.right/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879063" />
+    <state width="1500" height="372" key="GridCell.Tab.1.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391382" />
+    <state width="1500" height="234" key="GridCell.Tab.1.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587155601094" />
+    <state x="518" y="210" key="RollbackChangesDialog" timestamp="1586653723077">
+      <screen x="0" y="23" width="1680" height="992" />
+    </state>
+    <state x="518" y="210" key="RollbackChangesDialog/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1586653723077" />
+    <state x="590" y="240" width="540" height="524" key="StructurePopup" timestamp="1587822936097">
+      <screen x="0" y="23" width="1680" height="992" />
+    </state>
+    <state x="506" y="204" width="537" height="437" key="StructurePopup/0.23.1440.827@0.23.1440.827" timestamp="1586827545115" />
+    <state x="590" y="240" width="540" height="524" key="StructurePopup/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587138784492" />
+    <state x="590" y="240" width="540" height="524" key="StructurePopup/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587822936097" />
+    <state x="337" y="307" width="540" height="526" key="StructurePopup/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587774671870" />
+    <state width="500" height="445" key="SwitcherDM" timestamp="1586701765899">
+      <screen x="0" y="23" width="1680" height="992" />
+    </state>
+    <state width="500" height="445" key="SwitcherDM/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1586701765899" />
+    <state x="487" y="262" key="Vcs.Push.Dialog.v2" timestamp="1587822508330">
+      <screen x="0" y="23" width="1680" height="992" />
+    </state>
+    <state x="487" y="262" key="Vcs.Push.Dialog.v2/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587822508330" />
+    <state x="487" y="262" key="Vcs.Push.Dialog.v2/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587401191804" />
+    <state x="487" y="262" key="Vcs.Push.Dialog.v2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1587155453952" />
+    <state x="198" y="123" width="1342" height="784" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1587344009229">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="198" y="123" width="1342" height="784" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587344009229" />
+    <state x="152" y="123" width="1342" height="784" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1587211784844">
+      <screen x="0" y="23" width="1680" height="992" />
+    </state>
+    <state x="152" y="123" width="1342" height="784" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587211784844" />
+    <state x="902" y="236" width="731" height="584" key="find.popup" timestamp="1587822109134">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="441" y="190" width="626" height="486" key="find.popup/0.23.1440.827@0.23.1440.827" timestamp="1586827324482" />
+    <state x="630" y="431" width="731" height="584" key="find.popup/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587597966048" />
+    <state x="902" y="236" width="731" height="584" key="find.popup/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587822109134" />
+    <state x="438" y="310" key="git4idea.merge.GitMergeDialog" timestamp="1587511169161">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="438" y="310" key="git4idea.merge.GitMergeDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587511169161" />
+    <state x="709" y="423" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1586793911935">
+      <screen x="0" y="23" width="1680" height="992" />
+    </state>
+    <state x="709" y="423" key="git4idea.remote.GitConfigureRemotesDialog/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1586793911935" />
+    <state x="473" y="204" width="782" height="812" key="search.everywhere.popup" timestamp="1587822337606">
+      <screen x="0" y="23" width="1680" height="993" />
+    </state>
+    <state x="405" y="174" width="670" height="676" key="search.everywhere.popup/0.23.1440.827@0.23.1440.827" timestamp="1586695483967" />
+    <state x="473" y="204" width="782" height="811" key="search.everywhere.popup/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1586825105707" />
+    <state x="473" y="204" width="782" height="812" key="search.everywhere.popup/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587822337606" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/CombineThreadWorker.py</url>
+          <line>61</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/CombineThreadWorker.py</url>
+          <line>60</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/CommandLineHandler.py</url>
+          <line>221</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/MasterDarkMaker$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1587827456273" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/MasterDarkMaker$CmdLine.coverage" NAME="CmdLine Coverage Results" MODIFIED="1587815946609" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>
