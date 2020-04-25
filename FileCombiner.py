@@ -387,8 +387,8 @@ class FileCombiner:
             number_dropped_points = data_model.get_min_max_number_clipped_per_end()
             min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
                                                                    calibrator, console, session_controller)
-            assert min_max_clipped_mean is not None
             if session_controller.thread_running():
+                assert min_max_clipped_mean is not None
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
                                                      FileDescriptor.FILE_TYPE_DARK,
                                                      "Dark Frame",
@@ -400,8 +400,8 @@ class FileCombiner:
             sigma_threshold = data_model.get_sigma_clip_threshold()
             sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
                                                                calibrator, console, session_controller)
-            assert sigma_clipped_mean is not None
             if session_controller.thread_running():
+                assert sigma_clipped_mean is not None
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
                                                      FileDescriptor.FILE_TYPE_DARK,
                                                      "Dark Frame",
