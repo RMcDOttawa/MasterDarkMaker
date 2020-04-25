@@ -9,7 +9,6 @@ class SessionController:
     def __init__(self):
         self._mutex = QMutex()
         self._thread_ok_to_run = True
-        self._show_adus = True
 
     def cancel_thread(self):
         """Set flag to cancel the controlled thread"""

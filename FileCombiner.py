@@ -34,9 +34,9 @@ class FileCombiner :
         assert len(selected_files) > 0
         result = None
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
-        if self.all_compatible_sizes(selected_files):
+        if FileCombiner.all_compatible_sizes(selected_files):
             if session_controller.thread_running() and (data_model.get_ignore_file_type()
-                                                        or self.all_of_type(selected_files,
+                                                        or FileCombiner.all_of_type(selected_files,
                                                                                     FileDescriptor.FILE_TYPE_DARK)):
                 # Get (most common) filter name in the set
                 # Since these are darks, the filter is meaningless, but we need the value
@@ -171,7 +171,7 @@ class FileCombiner :
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if self.all_compatible_sizes(descriptor_list):
             if data_model.get_ignore_file_type() \
-                    or self.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
+                    or FileCombiner.all_of_type(descriptor_list, FileDescriptor.FILE_TYPE_DARK):
                 # Get (most common) filter name in the set
                 # Since these are darks, the filter is meaningless, but we need the value
                 # for the shared "create file" routine
@@ -202,7 +202,7 @@ class FileCombiner :
                                        console: Console):
         if disposition_type == Constants.INPUT_DISPOSITION_NOTHING:
             # User doesn't want us to do anything with the input files
-            return []
+            return
         else:
             assert (disposition_type == Constants.INPUT_DISPOSITION_SUBFOLDER)
             console.message("Moving processed files to " + sub_folder_name, 0)
@@ -213,8 +213,9 @@ class FileCombiner :
                     self.callback_method(descriptor.get_absolute_path())
 
     # Determine if all the files in the list are of the given type
-    
-    def all_of_type(self, selected_files: [FileDescriptor], type_code: int):
+
+    @classmethod
+    def all_of_type(cls, selected_files: [FileDescriptor], type_code: int):
         for descriptor in selected_files:
             if descriptor.get_type() != type_code:
                 return False
@@ -223,7 +224,8 @@ class FileCombiner :
     # Confirm that the given list of files are combinable by being compatible sizes
     # This means their x,y dimensions are the same and their binning is the same
 
-    def all_compatible_sizes(self, selected_files: [FileDescriptor]):
+    @classmethod
+    def all_compatible_sizes(cls, selected_files: [FileDescriptor]):
         if len(selected_files) == 0:
             return True
         (x_dimension, y_dimension) = selected_files[0].get_dimensions()
@@ -232,7 +234,6 @@ class FileCombiner :
             (this_x, this_y) = descriptor.get_dimensions()
             if this_x != x_dimension or this_y != y_dimension or descriptor.get_binning() != binning:
                 return False
-        return True
         return True
 
     # Determine if all the files in the list have the same filter name

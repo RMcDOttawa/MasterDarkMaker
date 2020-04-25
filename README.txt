@@ -18,7 +18,10 @@ Options
     Precalibration options: if none given, uses what is set in GUI preferences
     -np  or --noprecal              No precalibration of input files
     -p   or --pedestal <n>          Precalibrate by subtracting pedestal value <n>
+    -b   or --bias <p>   			Use the given calibration bias file
     -a   or --auto <dir>            Precalibrate by with best bias file in given directory
+    -ar  or --autorecursive         Recursively include sub-directories in auto bias file search
+    -ab  or --autobias              Limit auto-selected files to Bias files only
 
     Combination algorithm:  if none, uses GUI preferences
     -m   or --mean                  Combine files with simple mean
@@ -43,4 +46,4 @@ Examples:
 
 MasterDarkMaker --noprecal *.fits
 MasterDarkMaker -p 100 -s 2.0 *.fits
-MasterDarkMaker -a ./bias-library -gs -ge 5 -od ./output-directory
+MasterDarkMaker -a ./bias-library -ar -s 2.0 -gs -ge 5 -gt 10 -od ./output-directory ./data/*.fits

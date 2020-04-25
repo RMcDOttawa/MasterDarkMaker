@@ -568,7 +568,6 @@ class MainWindow(QMainWindow):
             output_path = self.get_appropriate_output_path(selected_files[0])
             if output_path is not None:
                 # Open console window, which will create and run the worker thread
-                # todo implement callback to remove files from UI as they are moved
                 console_window: ConsoleWindow = ConsoleWindow(self._preferences, self._data_model,
                                                               selected_files, output_path, self.remove_from_ui)
                 console_window.set_up_ui()
