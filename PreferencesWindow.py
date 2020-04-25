@@ -296,6 +296,11 @@ class PreferencesWindow(QDialog):
         self.ui.temperatureGroupTolerance.setEnabled(self._preferences.get_group_by_temperature())
         self.ui.minimumGroupSize.setEnabled(self._preferences.get_ignore_groups_fewer_than())
 
+        calibration_type = self._preferences.get_precalibration_type()
+        self.ui.autoRecursive.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
+        self.ui.autoBiasOnly.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
+
+
     def close_button_clicked(self):
         """Close button has been clicked - close the preferences window"""
         # Lock-in any edits in progress in the text fields
