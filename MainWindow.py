@@ -4,17 +4,12 @@
 #
 
 import os
-from datetime import datetime
-from typing import Optional
 
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, QEvent, QModelIndex, QThread
+from PyQt5.QtCore import QObject, QEvent, QModelIndex
 from PyQt5.QtGui import QResizeEvent, QMoveEvent
 from PyQt5.QtWidgets import QMainWindow, QDialog, QHeaderView, QFileDialog, QMessageBox
 
-import MasterMakerExceptions
-from CombineThreadWorker import CombineThreadWorker
-from Console import Console
 from ConsoleWindow import ConsoleWindow
 from Constants import Constants
 from DataModel import DataModel
@@ -198,10 +193,10 @@ class MainWindow(QMainWindow):
 
     def eventFilter(self, triggering_object: QObject, event: QEvent) -> bool:
         """Event filter, looking for window resize events so we can remember the new size"""
-        if isinstance(event,QResizeEvent):
+        if isinstance(event, QResizeEvent):
             window_size = event.size()
             self._preferences.set_main_window_size(window_size)
-        elif isinstance(event,QMoveEvent):
+        elif isinstance(event, QMoveEvent):
             new_position = event.pos()
             self._preferences.set_main_window_position(new_position)
         return False  # Didn't handle event

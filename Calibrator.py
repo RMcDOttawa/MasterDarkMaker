@@ -2,6 +2,7 @@
 #   Class to handle calibration of images using specified method (including none)
 #
 import sys
+from typing import Optional
 
 from numpy import ndarray
 
@@ -79,10 +80,12 @@ class Calibrator:
 
     def calibrate_with_auto_directory(self, file_data: [ndarray], auto_directory_path: str,
                                       sample_file: FileDescriptor, console: Console,
-                                session_controller: SessionController) -> [ndarray]:
+                                      session_controller: SessionController) -> [ndarray]:
         console.message(f"Selecting best calibration file from {auto_directory_path}", 0)
-        calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file, console,
+        calibration_file = self.get_best_calibration_file(auto_directory_path, sample_file,
                                                           session_controller)
+        # Should never come back None because an exception will have handled failure
+        assert calibration_file is not None
         if session_controller.thread_running():
             return self.calibrate_with_file(file_data, calibration_file, console, session_controller)
         else:
@@ -96,8 +99,8 @@ class Calibrator:
     #   Exceptions thrown:
     #       NoSuitableAutoBias
 
-    def get_best_calibration_file(self, directory_path: str, sample_file: FileDescriptor, console: Console,
-                                                          session_controller: SessionController) -> str:
+    def get_best_calibration_file(self, directory_path: str, sample_file: FileDescriptor,
+                                                          session_controller: SessionController) -> Optional[str]:
         # Get all calibration files in the given directory
         all_descriptors = self.all_descriptors_from_directory(directory_path,
                                                               self._data_model.get_auto_directory_recursive())
@@ -121,8 +124,7 @@ class Calibrator:
             raise MasterMakerExceptions.NoSuitableAutoBias
 
         # From the correct-sized files, find the one closest to the sample file temperature
-        closest_match = self.closest_temperature_match(correct_size, sample_file.get_temperature(),
-                                                      console)
+        closest_match = self.closest_temperature_match(correct_size, sample_file.get_temperature())
         return closest_match.get_absolute_path()
 
     def all_descriptors_from_directory(self, directory_path: str,
@@ -131,7 +133,8 @@ class Calibrator:
         descriptors = RmFitsUtil.make_file_descriptions(paths)
         return descriptors
 
-    def filter_to_correct_size(self, all_descriptors: [FileDescriptor], sample_file: FileDescriptor) -> [FileDescriptor]:
+    def filter_to_correct_size(self, all_descriptors: [FileDescriptor], sample_file: FileDescriptor) \
+            -> [FileDescriptor]:
         x_dimension = sample_file.get_x_dimension()
         y_dimension = sample_file.get_y_dimension()
         binning = sample_file.get_binning()
@@ -143,8 +146,7 @@ class Calibrator:
         return filtered
 
     def closest_temperature_match(self, descriptors: [FileDescriptor],
-                                  target_temperature: float,
-                                  console: Console) -> FileDescriptor:
+                                  target_temperature: float) -> FileDescriptor:
         best_file_so_far: FileDescriptor = FileDescriptor("dummy-not-used")
         best_difference_so_far = sys.float_info.max
         for descriptor in descriptors:

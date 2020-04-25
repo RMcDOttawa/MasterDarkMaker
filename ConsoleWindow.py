@@ -6,8 +6,8 @@ from typing import Callable
 
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, QMutex, QObject, QEvent
-from PyQt5.QtGui import QResizeEvent, QMoveEvent, QCloseEvent
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QMainWindow
+from PyQt5.QtGui import QResizeEvent
+from PyQt5.QtWidgets import QDialog, QListWidgetItem
 
 from CombineThreadWorker import CombineThreadWorker
 from DataModel import DataModel
@@ -39,7 +39,7 @@ class ConsoleWindow(QDialog):
         if window_size is not None:
             self.ui.resize(window_size)
 
-         # Responders
+        # Responders
         self.ui.cancelButton.clicked.connect(self.cancel_button_clicked)
         self.ui.closeButton.clicked.connect(self.close_button_clicked)
 
@@ -75,7 +75,7 @@ class ConsoleWindow(QDialog):
 
     def eventFilter(self, triggering_object: QObject, event: QEvent) -> bool:
         """Event filter, looking for window resize events so we can remember the new size"""
-        if isinstance(event,QResizeEvent):
+        if isinstance(event, QResizeEvent):
             window_size = event.size()
             self._preferences.set_console_window_size(window_size)
         # elif isinstance(event,QMoveEvent):

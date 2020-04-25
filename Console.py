@@ -22,7 +22,7 @@ class Console:
     #	+1, -1, or 0 (i.e. indent, outdent, or no-dent)
     #   If temp=True, reset it immediately after
     #
-    def message(self, message: str, level_change: int, temp: bool=False):
+    def message(self, message: str, level_change: int, temp: bool = False):
         assert -1 <= level_change <= 1
         self._message_level += level_change
         indent_string = " " * ((self._message_level - 1) * Constants.CONSOLE_INDENTATION_SIZE)
@@ -50,3 +50,7 @@ class Console:
     #   Return the size of the stack, to help users track mismatched push/pop
     def get_stack_size(self):
         return len(self._message_level_stack)
+
+    def output_message(self, param):
+        print("pseudo-abstract class Console, message should not have been called")
+        assert False

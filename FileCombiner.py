@@ -16,7 +16,7 @@ from SessionController import SessionController
 from SharedUtils import SharedUtils
 
 
-class FileCombiner :
+class FileCombiner:
 
     def __init__(self, file_moved_callback: Callable[[str], None]):
         self.callback_method = file_moved_callback
@@ -32,7 +32,6 @@ class FileCombiner :
         console.message("Using single-file processing", +1)
         # We'll use the first file in the list as a sample for things like image size
         assert len(selected_files) > 0
-        result = None
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
         if FileCombiner.all_compatible_sizes(selected_files):
             if session_controller.thread_running() and (data_model.get_ignore_file_type()
@@ -111,11 +110,11 @@ class FileCombiner :
                     if len(exposure_group) < minimum_group_size:
                         if group_by_exposure:
                             console.message(f"Ignoring one exposure group: {len(exposure_group)} "
-                                    f"files exposed {exposure_group[0].get_exposure()}", +1)
+                                            f"files exposed {exposure_group[0].get_exposure()}", +1)
                     else:
                         if group_by_exposure:
                             console.message(f"Processing one exposure group: {len(exposure_group)} "
-                                    f"files exposed {exposure_group[0].get_exposure()}", +1)
+                                            f"files exposed {exposure_group[0].get_exposure()}", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
                             self.get_groups_by_temperature(exposure_group,
@@ -127,18 +126,18 @@ class FileCombiner :
                             console.push_level()
                             if len(temperature_group) < minimum_group_size:
                                 if group_by_temperature:
-                                    console.message(f"Ignoring one temperature group: "
-                                            f"{len(temperature_group)} files at temp near {temperature_group[0].get_temperature()}", +1)
+                                    console.message(f"Ignoring one temperature group: {len(temperature_group)} "
+                                                    f"files at temp near {temperature_group[0].get_temperature()}", +1)
                             else:
                                 if group_by_temperature:
-                                    console.message(f"Processing one temperature group: "
-                                            f"{len(temperature_group)} files at temp near {temperature_group[0].get_temperature()}", +1)
+                                    console.message(f"Processing one temperature group: {len(temperature_group)} "
+                                                    f"files at temp near {temperature_group[0].get_temperature()}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 self.process_one_group(data_model, temperature_group,
-                                                      output_directory,
-                                                      data_model.get_master_combine_method(),
-                                                      substituted_folder_name,
-                                                      console, session_controller)
+                                                       output_directory,
+                                                       data_model.get_master_combine_method(),
+                                                       substituted_folder_name,
+                                                       console, session_controller)
                             console.pop_level()
                     console.pop_level()
             console.pop_level()
@@ -184,8 +183,8 @@ class FileCombiner :
                 # Files are combined.  Put away the inputs?
                 # Return list of any that were moved, in case the UI needs to be adjusted
                 self.handle_input_files_disposition(data_model.get_input_file_disposition(),
-                                                   disposition_folder_name,
-                                                   descriptor_list, console)
+                                                    disposition_folder_name,
+                                                    descriptor_list, console)
             else:
                 raise MasterMakerExceptions.NotAllDarkFrames
         else:
@@ -388,6 +387,7 @@ class FileCombiner :
             number_dropped_points = data_model.get_min_max_number_clipped_per_end()
             min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
                                                                    calibrator, console, session_controller)
+            assert min_max_clipped_mean is not None
             if session_controller.thread_running():
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
                                                      FileDescriptor.FILE_TYPE_DARK,
@@ -400,6 +400,7 @@ class FileCombiner :
             sigma_threshold = data_model.get_sigma_clip_threshold()
             sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
                                                                calibrator, console, session_controller)
+            assert sigma_clipped_mean is not None
             if session_controller.thread_running():
                 RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
                                                      FileDescriptor.FILE_TYPE_DARK,

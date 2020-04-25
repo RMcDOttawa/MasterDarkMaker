@@ -5,9 +5,6 @@
 #   to stop a long-running process.  There is no good "thread cancel" signal in Python
 #   so the "cancel" is implemented by setting a flag which is periodically polled in this thread.
 #
-from datetime import time
-from threading import Thread
-from time import sleep
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -17,7 +14,6 @@ from DataModel import DataModel
 from FileCombiner import FileCombiner
 from FileDescriptor import FileDescriptor
 from SessionController import SessionController
-from SharedUtils import SharedUtils
 
 
 class CombineThreadWorker(QObject):

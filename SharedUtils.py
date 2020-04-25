@@ -194,16 +194,6 @@ class SharedUtils:
         file_path = f"{directory_prefix}/DARK-{method}-Groups-{date_time_string}"
         return file_path
 
-    # Move files to given sub-folder
-    #
-    # @classmethod
-    # def move_files_to_sub_folder(cls, descriptors: [FileDescriptor], sub_folder_name: str):
-    #     for descriptor in descriptors:
-    #         source_path = descriptor.get_absolute_path()
-    #         source_name = descriptor.get_name()
-    #         destination_path = cls.unique_destination_file(sub_folder_name, source_name)
-    #         shutil.move(source_path, destination_path)
-
     # In case the disposition directory already existed and has files in it, ensure the
     # given file would be unique in the directory, by appending a number to it if necessary
 

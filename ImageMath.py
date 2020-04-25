@@ -2,6 +2,7 @@
 #   Class to do the math on FITS images to combine them in various ways
 #
 import sys
+from typing import Optional
 
 import numpy
 from numpy import ma, array
@@ -529,7 +530,7 @@ class ImageMath:
     @classmethod
     def combine_sigma_clip(cls, file_names: [str], sigma_threshold: float,
                            calibrator: Calibrator, console: Console,
-                           session_controller: SessionController) -> ndarray:
+                           session_controller: SessionController) -> Optional[ndarray]:
         console.push_level()
         console.message("Combine by sigma-clipped mean", +1)
         result = None
@@ -609,7 +610,7 @@ class ImageMath:
     @classmethod
     def combine_median(cls, file_names: [str],
                        calibrator: Calibrator, console: Console,
-                     session_controller: SessionController) -> ndarray:
+                       session_controller: SessionController) -> ndarray:
         assert len(file_names) > 0  # Otherwise the combine button would have been disabled
         console.push_level()
         console.message("Combine by simple Median", +1)
@@ -666,11 +667,10 @@ class ImageMath:
     @classmethod
     def combine_min_max_clip(cls, file_names: [str], number_dropped_values: int,
                              calibrator: Calibrator, console: Console,
-                             session_controller: SessionController) -> ndarray:
+                             session_controller: SessionController) -> Optional[ndarray]:
         """Combine FITS files in given list using min/max-clipped mean.
         Return an ndarray containing the combined data."""
         success: bool
-        result = None
         assert len(file_names) > 0  # Otherwise the combine button would have been disabled
         # Get the data to be processed
         file_data_list: [ndarray] = RmFitsUtil.read_all_files_data(file_names)
@@ -729,8 +729,6 @@ class ImageMath:
         # cls.compare_results(result0, result5, "5")
         #
         # return result0
-        sample_image = file_data_list[0]
-        (x_size, y_size) = sample_image.shape
         result5 = cls.min_max_clip_version_5(file_data, number_dropped_values, console,
                                              session_controller)
         if session_controller.thread_cancelled():

@@ -1,6 +1,8 @@
 <component name="ProjectDictionaryState">
   <dictionary name="richard">
     <words>
+      <w>autobias</w>
+      <w>autorecursive</w>
       <w>ccdsoft</w>
       <w>classmethod</w>
       <w>combinable</w>
@@ -8,11 +10,20 @@
       <w>enablement</w>
       <w>exptime</w>
       <w>groupby</w>
+      <w>groupexposure</w>
+      <w>groupsize</w>
+      <w>grouptemperature</w>
       <w>hdul</w>
+      <w>ignoretype</w>
       <w>imagetyp</w>
+      <w>minimumgroup</w>
+      <w>moveinputs</w>
       <w>naxis</w>
       <w>ndarray</w>
       <w>ndarrays</w>
+      <w>noprecal</w>
+      <w>outdent</w>
+      <w>outputdirectory</w>
       <w>picttype</w>
       <w>precal</w>
       <w>precalibrate</w>

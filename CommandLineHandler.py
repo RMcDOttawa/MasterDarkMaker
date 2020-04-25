@@ -6,8 +6,6 @@
 import os
 from datetime import datetime
 
-import numpy
-
 import MasterMakerExceptions
 from ConsoleSimplePrint import ConsoleSimplePrint
 from Constants import Constants
@@ -16,7 +14,6 @@ from FileCombiner import FileCombiner
 from FileDescriptor import FileDescriptor
 from RmFitsUtil import RmFitsUtil
 from SessionController import SessionController
-from SharedUtils import SharedUtils
 
 
 class CommandLineHandler:
@@ -183,11 +180,10 @@ class CommandLineHandler:
                 valid = False
 
         # If any of the grouping options are in use, then the output directory is mandatory
-        if self._data_model.get_group_by_temperature() \
-            or self._data_model.get_group_by_exposure() \
-            or self._data_model.get_group_by_size():
+        if self._data_model.get_group_by_temperature() or self._data_model.get_group_by_exposure() \
+                or self._data_model.get_group_by_size():
             if args.outputdirectory is None:
-                print("If any of the group-by options are used, then the outputdirectory option is mandatory")
+                print("If any of the group-by options are used, then the output directory option is mandatory")
                 valid = False
 
         return valid, output_path, file_names
