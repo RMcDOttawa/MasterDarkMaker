@@ -588,7 +588,7 @@ class MainWindow(QMainWindow):
         self.pedestal_amount_changed()
         self.sigma_threshold_changed()
         self.sub_folder_name_changed()
-        self.temperature_group_tolerance_changed()
+        self.temperature_group_bandwidth_changed()
         self.enable_buttons()
         return self.ui.combineSelectedButton.isEnabled()
 
