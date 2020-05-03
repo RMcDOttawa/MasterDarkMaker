@@ -211,10 +211,10 @@ class CommandLineHandler:
         # progress lines to the standard system output when being run from the command line
         console = ConsoleSimplePrint()
         console.message("Starting session", 0)
-        file_combiner = FileCombiner(self.file_moved_callback)
         # A "session controller" is necessary, but has an interesting effect only in the GUI version
         # In our command-line case we'll create it but its state will never change so it does nothing
         dummy_session_controller = SessionController()
+        file_combiner = FileCombiner(dummy_session_controller, self.file_moved_callback)
 
         # Do the file combination - two methods depending on whether we are processing by groups
         try:
@@ -224,12 +224,12 @@ class CommandLineHandler:
                     or self._data_model.get_group_by_temperature():
                 file_combiner.process_groups(self._data_model, descriptors,
                                              output_directory,
-                                             console, dummy_session_controller)
+                                             console)
             else:
                 # Not grouped, producing a single output file. Get output file location
                 file_combiner.original_non_grouped_processing(descriptors, self._data_model,
                                                               output_path,
-                                                              console, dummy_session_controller)
+                                                              console)
         except FileNotFoundError as exception:
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
@@ -266,6 +266,8 @@ class CommandLineHandler:
         except MasterMakerExceptions.AutoCalibrationNoBiasFiles:
             self.error_dialog("No Bias Files",
                               f"The auto-directory does not contain any Bias files")
+        except MasterMakerExceptions.SessionCancelled:
+            self.error_dialog("Session Cancelled", " (This should not be possible in the non-GUI version)")
 
     # Make output file name.
     # If file name is specified on command line, use that.

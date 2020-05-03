@@ -42,7 +42,7 @@ class CombineThreadWorker(QObject):
         console = ConsoleCallback(self.console_callback)
 
         console.message("Starting session", 0)
-        file_combiner = FileCombiner(self.file_moved_callback)
+        file_combiner = FileCombiner(self._session_controller, self.file_moved_callback)
 
         # Do actual work
         try:
@@ -52,12 +52,12 @@ class CombineThreadWorker(QObject):
                     or self._data_model.get_group_by_temperature():
                 file_combiner.process_groups(self._data_model, self._descriptors,
                                                              self._output_path,
-                                                             console, self._session_controller)
+                                                             console)
             else:
                 # Not grouped, producing a single output file. Get output file location
                 file_combiner.original_non_grouped_processing(self._descriptors, self._data_model,
                                                                               self._output_path,
-                                                                              console, self._session_controller)
+                                                                              console)
         except FileNotFoundError as exception:
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:
@@ -94,8 +94,7 @@ class CombineThreadWorker(QObject):
         except MasterMakerExceptions.AutoCalibrationNoBiasFiles:
             self.error_dialog("No Bias Files",
                               f"The auto-directory does not contain any Bias files")
-
-        if self._session_controller.thread_cancelled():
+        except MasterMakerExceptions.SessionCancelled:
             self.console_callback("*** Session cancelled ***")
 
         self.finished.emit()

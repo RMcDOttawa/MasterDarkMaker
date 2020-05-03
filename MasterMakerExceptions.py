@@ -61,3 +61,7 @@ class AutoCalibrationDirectoryEmpty(Exception):
 
 class AutoCalibrationNoBiasFiles(Exception):
     pass
+
+
+class SessionCancelled(Exception):
+    pass
