@@ -109,11 +109,11 @@ class FileCombiner:
                     if len(exposure_group) < minimum_group_size:
                         if group_by_exposure:
                             console.message(f"Ignoring one exposure group: {len(exposure_group)} "
-                                            f"files exposed near {mean_exposure}", +1)
+                                            f"files exposed at mean {mean_exposure} seconds", +1)
                     else:
                         if group_by_exposure:
                             console.message(f"Processing one exposure group: {len(exposure_group)} "
-                                            f"files exposed near {mean_exposure}", +1)
+                                            f"files exposed at mean {mean_exposure} seconds", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
                             self.get_groups_by_temperature(exposure_group,
@@ -127,11 +127,11 @@ class FileCombiner:
                             if len(temperature_group) < minimum_group_size:
                                 if group_by_temperature:
                                     console.message(f"Ignoring one temperature group: {len(temperature_group)} "
-                                                    f"files at temp near {mean_temperature}", +1)
+                                                    f"files with mean temperature {mean_temperature:.1f}", +1)
                             else:
                                 if group_by_temperature:
                                     console.message(f"Processing one temperature group: {len(temperature_group)} "
-                                                    f"files at temp near {mean_temperature}", +1)
+                                                    f"files with mean temperature {mean_temperature:.1f}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 self.process_one_group(data_model, temperature_group,
                                                        output_directory,
