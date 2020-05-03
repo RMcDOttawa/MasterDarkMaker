@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QVariant
+from PyQt5.QtWidgets import QTableView
 
 from FileDescriptor import FileDescriptor
 
@@ -19,11 +20,12 @@ from FileDescriptor import FileDescriptor
 class FitsFileTableModel(QAbstractTableModel):
     headings = ["Name", "Type", "Dimensions", "Binning", "Exp.", "Temp."]
 
-    def __init__(self, ignore_file_type: bool):
+    def __init__(self, table: QTableView, ignore_file_type: bool):
         """Constructor for empty fits file table model"""
         QAbstractTableModel.__init__(self)
         self._files_list: [FileDescriptor] = []
         self._ignore_file_type = ignore_file_type
+        self._table = table
 
     def set_ignore_file_type(self, ignore: bool):
         self._ignore_file_type = ignore
@@ -93,7 +95,7 @@ class FitsFileTableModel(QAbstractTableModel):
     # noinspection PyMethodOverriding
     def sort(self, column_index: int, sort_order: int):
         self.beginResetModel()
-        reverse_flag = sort_order == 1
+        reverse_flag = sort_order == Qt.DescendingOrder
         if column_index == 0:
             self._files_list = sorted(self._files_list,
                                       key=FileDescriptor.get_name,
@@ -119,6 +121,7 @@ class FitsFileTableModel(QAbstractTableModel):
                                       key=FileDescriptor.get_temperature,
                                       reverse=reverse_flag)
         self.endResetModel()
+        self._table.clearSelection()
 
     # We only allow the selection of files that are known to be FLAT frames.
     # Or, if the "ignore file type" flag is on, then we allow the selection of any files

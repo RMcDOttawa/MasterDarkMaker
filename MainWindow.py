@@ -5,6 +5,7 @@
 
 import os
 
+import PyQt5
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QEvent, QModelIndex
 from PyQt5.QtGui import QResizeEvent, QMoveEvent
@@ -93,7 +94,7 @@ class MainWindow(QMainWindow):
         self.ui.minimumGroupSize.setText(str(data_model.get_minimum_group_size()))
 
         # Set up the file table
-        self._table_model = FitsFileTableModel(data_model.get_ignore_file_type())
+        self._table_model = FitsFileTableModel(self.ui.filesTable, data_model.get_ignore_file_type())
         self.ui.filesTable.setModel(self._table_model)
         # Columns should resize to best fit their contents
         self.ui.filesTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -396,6 +397,7 @@ class MainWindow(QMainWindow):
             try:
                 file_descriptions = RmFitsUtil.make_file_descriptions(file_names)
                 self._table_model.set_file_descriptors(file_descriptions)
+                self._table_model.sort(0, PyQt5.QtCore.Qt.AscendingOrder)  # Column 0, ascending order
             except FileNotFoundError as exception:
                 self.error_dialog("File Not Found", f"File \"{exception.filename}\" was not found or not readable")
         self.enable_buttons()

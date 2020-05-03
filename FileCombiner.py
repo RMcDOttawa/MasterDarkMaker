@@ -106,15 +106,16 @@ class FileCombiner:
                 for exposure_group in groups_by_exposure:
                     if session_controller.thread_cancelled():
                         return
+                    (mean_exposure, _) = ImageMath.mean_exposure_and_temperature(exposure_group)
                     console.push_level()
                     if len(exposure_group) < minimum_group_size:
                         if group_by_exposure:
                             console.message(f"Ignoring one exposure group: {len(exposure_group)} "
-                                            f"files exposed {exposure_group[0].get_exposure()}", +1)
+                                            f"files exposed near {mean_exposure}", +1)
                     else:
                         if group_by_exposure:
                             console.message(f"Processing one exposure group: {len(exposure_group)} "
-                                            f"files exposed {exposure_group[0].get_exposure()}", +1)
+                                            f"files exposed near {mean_exposure}", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
                             self.get_groups_by_temperature(exposure_group,
@@ -124,14 +125,16 @@ class FileCombiner:
                             if session_controller.thread_cancelled():
                                 return
                             console.push_level()
+                            (_, mean_temperature) = ImageMath.mean_exposure_and_temperature(
+                                temperature_group)
                             if len(temperature_group) < minimum_group_size:
                                 if group_by_temperature:
                                     console.message(f"Ignoring one temperature group: {len(temperature_group)} "
-                                                    f"files at temp near {temperature_group[0].get_temperature()}", +1)
+                                                    f"files at temp near {mean_temperature}", +1)
                             else:
                                 if group_by_temperature:
                                     console.message(f"Processing one temperature group: {len(temperature_group)} "
-                                                    f"files at temp near {temperature_group[0].get_temperature()}", +1)
+                                                    f"files at temp near {mean_temperature}", +1)
                                 # Now we have a list of descriptors, grouped as appropriate, to process
                                 self.process_one_group(data_model, temperature_group,
                                                        output_directory,
@@ -426,3 +429,5 @@ class FileCombiner:
                 processing_message += ","
             processing_message += f" at {temperature} degrees."
         console.message(f"Processing {number_files} files {processing_message}", +1)
+
+# todo Use exception to react to cancellation
