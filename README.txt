@@ -38,7 +38,7 @@ Options
 
     -gs  or --groupsize             Group files by size (dimensions and binning)
     -ge  or --groupexposure <%>     Group files by exposure, within given % tolerance
-    -gt  or --grouptemperature <%>  Group files by temperature, within given % tolerance
+    -gt  or --grouptemperature <w>  Group files by temperature, with given bandwidth
     -mg  or --minimumgroup <n>      Ignore groups with fewer than <n> files
     -od  or --outputdirectory <d>   Directory to receive grouped master files
 

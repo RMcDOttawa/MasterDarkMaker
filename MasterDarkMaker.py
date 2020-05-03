@@ -50,8 +50,8 @@ arg_parser.add_argument("-gs", "--groupsize", action="store_true",
                               help="Group files by size (dimensions and binning)")
 arg_parser.add_argument("-ge", "--groupexposure", type=float, metavar="<Group by exposure within tolerance>",
                               help="Group by exposure within given %% tolerance")
-arg_parser.add_argument("-gt", "--grouptemperature", type=float, metavar="<Group by temperature within tolerance>",
-                              help="Group by temperature within given %% tolerance")
+arg_parser.add_argument("-gt", "--grouptemperature", type=float, metavar="<Bandwidth>",
+                              help="Group by temperature with given bandwidth")
 arg_parser.add_argument("-mg", "--minimumgroup", type=int, metavar="<Minimum group size>",
                               help="Ignore groups smaller than given size")
 arg_parser.add_argument("-od", "--outputdirectory", type=str, metavar="Output directory",

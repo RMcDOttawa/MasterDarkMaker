@@ -15,10 +15,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a3dfb4e-c16a-4fc4-afec-4adefc5c59d9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/richard.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/richard.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FileCombiner.py" beforeDir="false" afterPath="$PROJECT_DIR$/FileCombiner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CommandLineHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/CommandLineHandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MasterDarkMaker.py" beforeDir="false" afterPath="$PROJECT_DIR$/MasterDarkMaker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.txt" beforeDir="false" afterPath="$PROJECT_DIR$/README.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -465,7 +464,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588532148843</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="MeanShift clustering for &quot;group by temperature&quot;, GUI side (command line still to be done)">
+      <created>1588532760878</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1588532760878</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -511,7 +517,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Snapshot during implementation of thread-based worker class.  Basic thread structure set up, and output to console window is working." />
     <MESSAGE value="Finished basic move of processing functions into subthread, with output to console window." />
     <MESSAGE value="Remember size when console window resized" />
     <MESSAGE value="Close button on console window implemented" />
@@ -536,7 +541,8 @@
     <MESSAGE value="Clarify mean temperature message in temperature group processing" />
     <MESSAGE value="Changed temperature group tolerance to bandwidth in Preferences" />
     <MESSAGE value="Changed temperature group tolerance to bandwidth in DataModel and main window" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed temperature group tolerance to bandwidth in DataModel and main window" />
+    <MESSAGE value="MeanShift clustering for &quot;group by temperature&quot;, GUI side (command line still to be done)" />
+    <option name="LAST_COMMIT_MESSAGE" value="MeanShift clustering for &quot;group by temperature&quot;, GUI side (command line still to be done)" />
   </component>
   <component name="WindowStateProjectService">
     <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1587771480041">
@@ -550,13 +556,13 @@
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587240434912" />
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587822272505" />
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588530580965" />
-    <state x="299" y="47" key="CommitChangelistDialog2" timestamp="1588532148701">
+    <state x="299" y="47" key="CommitChangelistDialog2" timestamp="1588532760716">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139022923" />
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587836538523" />
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587836496613" />
-    <state x="299" y="47" key="CommitChangelistDialog2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532148701" />
+    <state x="299" y="47" key="CommitChangelistDialog2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532760716" />
     <state x="198" y="123" width="1342" height="785" key="DiffContextDialog" timestamp="1588530452625">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
@@ -614,7 +620,7 @@
     <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587827802777" />
     <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
     <state width="1500" height="372" key="GridCell.Tab.0.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560901" />
-    <state width="1500" height="372" key="GridCell.Tab.1.bottom" timestamp="1588532560808">
+    <state width="1500" height="372" key="GridCell.Tab.1.bottom" timestamp="1588532605817">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="259" key="GridCell.Tab.1.bottom/0.23.1440.827@0.23.1440.827" timestamp="1587429852067" />
@@ -623,8 +629,8 @@
     <state width="1500" height="372" key="GridCell.Tab.1.bottom/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335195" />
     <state width="1034" height="234" key="GridCell.Tab.1.bottom/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879064" />
     <state width="1500" height="372" key="GridCell.Tab.1.bottom/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391383" />
-    <state width="1500" height="372" key="GridCell.Tab.1.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560808" />
-    <state width="1500" height="372" key="GridCell.Tab.1.center" timestamp="1588532560807">
+    <state width="1500" height="372" key="GridCell.Tab.1.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532605817" />
+    <state width="1500" height="372" key="GridCell.Tab.1.center" timestamp="1588532605816">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="259" key="GridCell.Tab.1.center/0.23.1440.827@0.23.1440.827" timestamp="1587429852066" />
@@ -633,8 +639,8 @@
     <state width="1500" height="372" key="GridCell.Tab.1.center/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335193" />
     <state width="1034" height="234" key="GridCell.Tab.1.center/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879063" />
     <state width="1500" height="372" key="GridCell.Tab.1.center/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391382" />
-    <state width="1500" height="372" key="GridCell.Tab.1.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560807" />
-    <state width="1500" height="372" key="GridCell.Tab.1.left" timestamp="1588532560806">
+    <state width="1500" height="372" key="GridCell.Tab.1.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532605816" />
+    <state width="1500" height="372" key="GridCell.Tab.1.left" timestamp="1588532605815">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="259" key="GridCell.Tab.1.left/0.23.1440.827@0.23.1440.827" timestamp="1587429852065" />
@@ -643,8 +649,8 @@
     <state width="1500" height="372" key="GridCell.Tab.1.left/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335193" />
     <state width="1034" height="234" key="GridCell.Tab.1.left/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879062" />
     <state width="1500" height="372" key="GridCell.Tab.1.left/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391381" />
-    <state width="1500" height="372" key="GridCell.Tab.1.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560806" />
-    <state width="1500" height="372" key="GridCell.Tab.1.right" timestamp="1588532560807">
+    <state width="1500" height="372" key="GridCell.Tab.1.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532605815" />
+    <state width="1500" height="372" key="GridCell.Tab.1.right" timestamp="1588532605816">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="259" key="GridCell.Tab.1.right/0.23.1440.827@0.23.1440.827" timestamp="1587429852067" />
@@ -653,7 +659,7 @@
     <state width="1500" height="372" key="GridCell.Tab.1.right/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732335194" />
     <state width="1034" height="234" key="GridCell.Tab.1.right/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218879063" />
     <state width="1500" height="372" key="GridCell.Tab.1.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587772391382" />
-    <state width="1500" height="372" key="GridCell.Tab.1.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560807" />
+    <state width="1500" height="372" key="GridCell.Tab.1.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532605816" />
     <state x="518" y="210" key="RollbackChangesDialog" timestamp="1586653723077">
       <screen x="0" y="23" width="1680" height="992" />
     </state>

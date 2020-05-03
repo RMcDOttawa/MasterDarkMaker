@@ -1,7 +1,7 @@
 ./MasterDarkMaker.py  \
 	-np \
 	-s 2 \
-	-gs -ge 5  \
-	-od ~/Desktop/testGroupsOut \
-	/Users/richard/Dropbox/dropbox/EWHO/Calibration\ Library/Gather\ -15/DARK*.fit
+	-gs -gt 2  \
+	-od ~/Desktop/test \
+	/Users/richard/DropBox/dropbox/EWHO/Application\ Development/DarkByTemp/*.fit
 	
