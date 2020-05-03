@@ -31,7 +31,7 @@ class DataModel:
         self._group_by_exposure: bool = preferences.get_group_by_exposure()
         self._group_by_temperature: bool = preferences.get_group_by_temperature()
         self._exposure_group_tolerance: float = preferences.get_exposure_group_tolerance()
-        self._temperature_group_tolerance: float = preferences.get_temperature_group_tolerance()
+        self._temperature_group_bandwidth: float = preferences.get_temperature_group_bandwidth()
         self._ignore_file_type: bool = False
         self._ignore_groups_fewer_than: bool = preferences.get_ignore_groups_fewer_than()
         self._minimum_group_size: int = preferences.get_minimum_group_size()
@@ -182,14 +182,14 @@ class DataModel:
 
     # How much, as a percentage, can temperatures vary before being considered a different group?
 
-    def get_temperature_group_tolerance(self) -> float:
-        percentage: float = self._temperature_group_tolerance
-        assert 0 <= percentage < 1
-        return percentage
+    def get_temperature_group_bandwidth(self) -> float:
+        bandwidth: float = self._temperature_group_bandwidth
+        assert 0.1 <= bandwidth <= 50
+        return bandwidth
 
-    def set_temperature_group_tolerance(self, percentage: float):
-        assert 0 <= percentage < 1
-        self._temperature_group_tolerance = percentage
+    def set_temperature_group_bandwidth(self, bandwidth: float):
+        assert 0.1 <= bandwidth <= 50
+        self._temperature_group_bandwidth = bandwidth
 
     def get_ignore_file_type(self) -> bool:
         return self._ignore_file_type

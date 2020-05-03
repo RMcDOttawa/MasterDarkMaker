@@ -57,7 +57,7 @@ class Preferences(QSettings):
     EXPOSURE_GROUP_TOLERANCE = "exposure_group_tolerance"
 
     # How much, as a percentage, can temperatures vary before being considered a different group?
-    TEMPERATURE_GROUP_TOLERANCE = "temperature_group_tolerance"
+    TEMPERATURE_GROUP_BANDWIDTH = "temperature_group_bandwidth"
 
     # Should we ignore small groups (probably haven't finished collecting them yet)?  How small
     IGNORE_GROUPS_FEWER_THAN = "ignore_groups_fewer_than"
@@ -249,16 +249,16 @@ class Preferences(QSettings):
         assert 0.0 <= percentage < 1.0
         self.setValue(self.EXPOSURE_GROUP_TOLERANCE, percentage)
 
-    # How much, as a percentage, can temperatures vary before being considered a different group?
+    # Bandwidth to use for clustering temperatures into groups
 
-    def get_temperature_group_tolerance(self) -> float:
-        percentage: float = float(self.value(self.TEMPERATURE_GROUP_TOLERANCE, defaultValue=0.10))
-        assert 0 <= percentage < 1
-        return percentage
+    def get_temperature_group_bandwidth(self) -> float:
+        bandwidth: float = float(self.value(self.TEMPERATURE_GROUP_BANDWIDTH, defaultValue=1.0))
+        assert 0.1 <= bandwidth <= 50.0
+        return bandwidth
 
-    def set_temperature_group_tolerance(self, percentage: float):
-        assert 0 <= percentage < 1
-        self.setValue(self.TEMPERATURE_GROUP_TOLERANCE, percentage)
+    def set_temperature_group_bandwidth(self, bandwidth: float):
+        assert 0.1 <= bandwidth <= 50.0
+        self.setValue(self.TEMPERATURE_GROUP_BANDWIDTH, bandwidth)
 
     # Should we ignore small groups (probably haven't finished collecting them yet)?  How small?
 
