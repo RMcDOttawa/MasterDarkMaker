@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.ui.groupByTemperatureCB.setChecked(data_model.get_group_by_temperature())
         self.ui.ignoreSmallGroupsCB.setChecked(data_model.get_ignore_groups_fewer_than())
 
-        self.ui.exposureGroupTolerance.setText(f"{data_model.get_exposure_group_bandwidth()}")
+        self.ui.exposureGroupBandwidth.setText(f"{data_model.get_exposure_group_bandwidth()}")
         self.ui.temperatureGroupBandwidth.setText(f"{data_model.get_temperature_group_bandwidth()}")
         self.ui.minimumGroupSize.setText(str(data_model.get_minimum_group_size()))
 
@@ -171,7 +171,7 @@ class MainWindow(QMainWindow):
         self.ui.groupByExposureCB.clicked.connect(self.group_by_exposure_clicked)
         self.ui.groupByTemperatureCB.clicked.connect(self.group_by_temperature_clicked)
         self.ui.ignoreSmallGroupsCB.clicked.connect(self.ignore_small_groups_clicked)
-        self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
+        self.ui.exposureGroupBandwidth.editingFinished.connect(self.exposure_group_bandwidth_changed)
         self.ui.temperatureGroupBandwidth.editingFinished.connect(self.temperature_group_bandwidth_changed)
         self.ui.minimumGroupSize.editingFinished.connect(self.minimum_group_size_changed)
 
@@ -342,18 +342,18 @@ class MainWindow(QMainWindow):
         self._field_validity[self.ui.subFolderName] = valid
         self.enable_buttons()
 
-    def exposure_group_tolerance_changed(self):
-        """User has entered value in exposure group tolerance field.  Validate and save"""
-        proposed_new_number: str = self.ui.exposureGroupTolerance.text()
-        new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
+    def exposure_group_bandwidth_changed(self):
+        """User has entered value in exposure group bandwidth field.  Validate and save"""
+        proposed_new_number: str = self.ui.exposureGroupBandwidth.text()
+        new_number = Validators.valid_float_in_range(proposed_new_number, 0.1, 50.0)
         valid = new_number is not None
         if valid:
-            self._data_model.set_exposure_group_tolerance(new_number / 100.0)
-        SharedUtils.background_validity_color(self.ui.exposureGroupTolerance, valid)
-        self._field_validity[self.ui.exposureGroupTolerance] = valid
+            self._data_model.set_exposure_group_bandwidth(new_number)
+        SharedUtils.background_validity_color(self.ui.exposureGroupBandwidth, valid)
+        self._field_validity[self.ui.exposureGroupBandwidth] = valid
 
     def temperature_group_bandwidth_changed(self):
-        """User has entered value in temperature group tolerance field.  Validate and save"""
+        """User has entered value in temperature group bandwidth field.  Validate and save"""
         proposed_new_number: str = self.ui.temperatureGroupBandwidth.text()
         new_number = Validators.valid_float_in_range(proposed_new_number, 0.1, 50)
         valid = new_number is not None
@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
                                          == Constants.INPUT_DISPOSITION_SUBFOLDER)
 
         # Grouping parameters go with their corresponding checkbox
-        self.ui.exposureGroupTolerance.setEnabled(self._data_model.get_group_by_exposure())
+        self.ui.exposureGroupBandwidth.setEnabled(self._data_model.get_group_by_exposure())
         self.ui.temperatureGroupBandwidth.setEnabled(self._data_model.get_group_by_temperature())
 
     # Open a file dialog to pick files to be processed

@@ -15,12 +15,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a3dfb4e-c16a-4fc4-afec-4adefc5c59d9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Preferences.py" beforeDir="false" afterPath="$PROJECT_DIR$/Preferences.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PreferencesWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/PreferencesWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PreferencesWindow.ui" beforeDir="false" afterPath="$PROJECT_DIR$/PreferencesWindow.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MainWindow.ui" beforeDir="false" afterPath="$PROJECT_DIR$/MainWindow.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,13 +133,6 @@
       <workItem from="1587429938998" duration="86000" />
       <workItem from="1587509608857" duration="422000" />
       <workItem from="1587852037759" duration="3000" />
-    </task>
-    <task id="LOCAL-00001" summary="Initial commit after cloning from MasterBiasMaker">
-      <created>1586653765392</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1586653765392</updated>
     </task>
     <task id="LOCAL-00002" summary="Cloned-in code to add additional image attributes to FITS file">
       <created>1586716523679</created>
@@ -481,7 +470,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588533106524</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="Exposure clustering: implemented preferences and some of data model (just enough to get preferences test to run)">
+      <created>1588599160898</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1588599160898</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -527,7 +523,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Remember size when console window resized" />
     <MESSAGE value="Close button on console window implemented" />
     <MESSAGE value="Snapshot, flag-based thread cancel implemented, testing in progress" />
     <MESSAGE value="Converted path concatenations to use path.join instead of manual &quot;/&quot;" />
@@ -552,7 +547,8 @@
     <MESSAGE value="Changed temperature group tolerance to bandwidth in DataModel and main window" />
     <MESSAGE value="MeanShift clustering for &quot;group by temperature&quot;, GUI side (command line still to be done)" />
     <MESSAGE value="MeanShift clustering for &quot;group by temperature&quot;, command-line side (all done)" />
-    <option name="LAST_COMMIT_MESSAGE" value="MeanShift clustering for &quot;group by temperature&quot;, command-line side (all done)" />
+    <MESSAGE value="Exposure clustering: implemented preferences and some of data model (just enough to get preferences test to run)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Exposure clustering: implemented preferences and some of data model (just enough to get preferences test to run)" />
   </component>
   <component name="WindowStateProjectService">
     <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1587771480041">
@@ -566,19 +562,19 @@
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587240434912" />
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587822272505" />
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588530580965" />
-    <state x="397" y="76" key="CommitChangelistDialog2" timestamp="1588533106363">
+    <state x="397" y="76" key="CommitChangelistDialog2" timestamp="1588599160644">
       <screen x="0" y="23" width="1680" height="993" />
     </state>
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139022923" />
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587836538523" />
-    <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588533106363" />
+    <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588599160644" />
     <state x="299" y="47" key="CommitChangelistDialog2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532760716" />
     <state x="198" y="123" width="1342" height="785" key="DiffContextDialog" timestamp="1588530452625">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state x="198" y="123" width="1342" height="784" key="DiffContextDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587511197679" />
     <state x="198" y="123" width="1342" height="785" key="DiffContextDialog/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588530452625" />
-    <state width="1500" height="187" key="GridCell.Tab.0.bottom" timestamp="1588598829774">
+    <state width="1500" height="187" key="GridCell.Tab.0.bottom" timestamp="1588599397076">
       <screen x="0" y="23" width="1680" height="993" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.bottom/0.23.1440.827@0.23.1440.827" timestamp="1587430025118" />
@@ -588,10 +584,10 @@
     <state width="1500" height="237" key="GridCell.Tab.0.bottom/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153666" />
     <state width="1500" height="248" key="GridCell.Tab.0.bottom/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023217" />
     <state width="1034" height="234" key="GridCell.Tab.0.bottom/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826932" />
-    <state width="1500" height="187" key="GridCell.Tab.0.bottom/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588598829774" />
+    <state width="1500" height="187" key="GridCell.Tab.0.bottom/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588599397076" />
     <state width="1500" height="248" key="GridCell.Tab.0.bottom/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
     <state width="1500" height="372" key="GridCell.Tab.0.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560901" />
-    <state width="1500" height="187" key="GridCell.Tab.0.center" timestamp="1588598829772">
+    <state width="1500" height="187" key="GridCell.Tab.0.center" timestamp="1588599397071">
       <screen x="0" y="23" width="1680" height="993" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.center/0.23.1440.827@0.23.1440.827" timestamp="1587430025117" />
@@ -601,10 +597,10 @@
     <state width="1500" height="237" key="GridCell.Tab.0.center/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153665" />
     <state width="1500" height="248" key="GridCell.Tab.0.center/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023216" />
     <state width="1034" height="234" key="GridCell.Tab.0.center/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826931" />
-    <state width="1500" height="187" key="GridCell.Tab.0.center/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588598829772" />
+    <state width="1500" height="187" key="GridCell.Tab.0.center/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588599397071" />
     <state width="1500" height="248" key="GridCell.Tab.0.center/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
     <state width="1500" height="372" key="GridCell.Tab.0.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560900" />
-    <state width="1500" height="187" key="GridCell.Tab.0.left" timestamp="1588598829772">
+    <state width="1500" height="187" key="GridCell.Tab.0.left" timestamp="1588599397065">
       <screen x="0" y="23" width="1680" height="993" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.left/0.23.1440.827@0.23.1440.827" timestamp="1587430025116" />
@@ -614,10 +610,10 @@
     <state width="1500" height="237" key="GridCell.Tab.0.left/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153660" />
     <state width="1500" height="248" key="GridCell.Tab.0.left/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023215" />
     <state width="1034" height="234" key="GridCell.Tab.0.left/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826930" />
-    <state width="1500" height="187" key="GridCell.Tab.0.left/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588598829772" />
+    <state width="1500" height="187" key="GridCell.Tab.0.left/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588599397065" />
     <state width="1500" height="248" key="GridCell.Tab.0.left/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769586" />
     <state width="1500" height="372" key="GridCell.Tab.0.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560899" />
-    <state width="1500" height="187" key="GridCell.Tab.0.right" timestamp="1588598829773">
+    <state width="1500" height="187" key="GridCell.Tab.0.right" timestamp="1588599397075">
       <screen x="0" y="23" width="1680" height="993" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.right/0.23.1440.827@0.23.1440.827" timestamp="1587430025117" />
@@ -627,7 +623,7 @@
     <state width="1500" height="237" key="GridCell.Tab.0.right/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139153665" />
     <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587823023216" />
     <state width="1034" height="234" key="GridCell.Tab.0.right/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826931" />
-    <state width="1500" height="187" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588598829773" />
+    <state width="1500" height="187" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588599397075" />
     <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
     <state width="1500" height="372" key="GridCell.Tab.0.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588532560901" />
     <state width="1500" height="372" key="GridCell.Tab.1.bottom" timestamp="1588548602560">
@@ -751,7 +747,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/MasterDarkMaker$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1588599102850" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/MasterDarkMaker$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1588599570434" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/MasterDarkMaker$CmdLine.coverage" NAME="CmdLine Coverage Results" MODIFIED="1587815946609" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
