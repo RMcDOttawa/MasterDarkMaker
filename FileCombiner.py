@@ -74,7 +74,7 @@ class FileCombiner:
                        output_directory: str,
                        console: Console):
         console.push_level()
-        exposure_tolerance = data_model.get_exposure_group_tolerance()
+        exposure_bandwidth = data_model.get_exposure_group_bandwidth()
         temperature_bandwidth = data_model.get_temperature_group_bandwidth()
         disposition_folder = data_model.get_disposition_subfolder_name()
         substituted_folder_name = SharedUtils.substitute_date_time_filter_in_string(disposition_folder)
@@ -104,7 +104,7 @@ class FileCombiner:
                 # Within this size group, process exposure groups, or all exposures if not grouping
                 groups_by_exposure = self.get_groups_by_exposure(size_group,
                                                                          data_model.get_group_by_exposure(),
-                                                                         exposure_tolerance)
+                                                                         exposure_bandwidth)
                 for exposure_group in groups_by_exposure:
                     self.check_cancellation()
                     (mean_exposure, _) = ImageMath.mean_exposure_and_temperature(exposure_group)
@@ -112,11 +112,11 @@ class FileCombiner:
                     if len(exposure_group) < minimum_group_size:
                         if group_by_exposure:
                             console.message(f"Ignoring one exposure group: {len(exposure_group)} "
-                                            f"files exposed at mean {mean_exposure} seconds", +1)
+                                            f"files exposed at mean {mean_exposure:.2f} seconds", +1)
                     else:
                         if group_by_exposure:
                             console.message(f"Processing one exposure group: {len(exposure_group)} "
-                                            f"files exposed at mean {mean_exposure} seconds", +1)
+                                            f"files exposed at mean {mean_exposure:.2f} seconds", +1)
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
                             self.get_groups_by_temperature(exposure_group,
@@ -300,28 +300,29 @@ class FileCombiner:
 
     # Given list of file descriptors, return a list of lists, where each outer list is all the
     # file descriptors with the same exposure within a given tolerance.
-    # Note that, because of the "tolerance" comparison, we need to process the list manually,
-    # not with the "groupby" function.
+    # Note that, because of the "tolerance" comparison, this is a clustering analysis, not
+    # a simple python "groupby", which assumes the values are exact.
+    #
+    # For this simple 1-dimensional clustering we can use the MeanShift function from
+    # the machine learning package, sklearn
 
     def get_groups_by_exposure(self,
                                selected_files: [FileDescriptor],
                                is_grouped: bool,
-                               tolerance: float) -> [[FileDescriptor]]:
+                               bandwidth: float) -> [[FileDescriptor]]:
         if is_grouped:
-            result: [[FileDescriptor]] = []
-            files_sorted: [FileDescriptor] = sorted(selected_files, key=FileDescriptor.get_exposure)
-            current_exposure: float = files_sorted[0].get_exposure()
-            current_list: [FileDescriptor] = []
-            for next_file in files_sorted:
-                this_exposure = next_file.get_exposure()
-                if SharedUtils.values_same_within_tolerance(current_exposure, this_exposure, tolerance):
-                    current_list.append(next_file)
-                else:
-                    result.append(current_list)
-                    current_list = [next_file]
-                    current_exposure = this_exposure
-            result.append(current_list)
-            return result
+            # We'll get the indices of the exposure clusters, then use those indices
+            # on the file descriptors
+            exposures: [float] = [file.get_exposure() for file in selected_files]
+            result_array: [[FileDescriptor]] = self.cluster_descriptors_by_values(bandwidth,
+                                                                                  exposures,
+                                                                                  selected_files)
+
+            # The groups array is in arbitrary order - determined by the clustering algorithm
+            # We'd like to have it in a predictable order.  Sort by first temperature in each group
+            result_array.sort(key=lambda g: g[0].get_exposure())
+            return result_array
+
         else:
             return [selected_files]   # One group with all the files
 
@@ -340,23 +341,10 @@ class FileCombiner:
         if is_grouped:
             # We'll get the indices of the temperature clusters, then use those indices
             # on the file descriptors
-            result_array: [[FileDescriptor]] = []
             temperatures: [float] = [file.get_temperature() for file in selected_files]
-            data_to_cluster = numpy.array(temperatures).reshape(-1, 1)
-            mean_shift = MeanShift(bandwidth=bandwidth)
-            mean_shift.fit(data_to_cluster)
-            arbitrary_cluster_labels = mean_shift.labels_
-            # cluster_labels is an array of integers, with each "cluster" having the same integer label
-            unique_labels = numpy.unique(arbitrary_cluster_labels)
-            # So if we gather the unique label values, that is gathering the clusters
-            for label in unique_labels:
-                # Flag the items in this cluster
-                cluster_membership: [bool] = arbitrary_cluster_labels == label
-                # Get the indices of the items in this cluster
-                member_indices: [int] = numpy.where(cluster_membership)[0].tolist()
-                # Get the descriptors in this cluster and add to the output array
-                this_cluster_descriptors: [FileDescriptor] = [selected_files[i] for i in member_indices]
-                result_array.append(this_cluster_descriptors)
+            result_array: [[FileDescriptor]] = self.cluster_descriptors_by_values(bandwidth,
+                                                                                  temperatures,
+                                                                                  selected_files)
 
             # The groups array is in arbitrary order - determined by the clustering algorithm
             # We'd like to have it in a predictable order.  Sort by first temperature in each group
@@ -365,6 +353,27 @@ class FileCombiner:
 
         else:
             return [selected_files]   # One group with all the files
+
+    # Do the actual clustering of the file descriptors, on the given list of values
+
+    def cluster_descriptors_by_values(self, bandwidth, cluster_values, selected_files):
+        result_array: [[FileDescriptor]] = []
+        data_to_cluster = numpy.array(cluster_values).reshape(-1, 1)
+        mean_shift = MeanShift(bandwidth=bandwidth)
+        mean_shift.fit(data_to_cluster)
+        arbitrary_cluster_labels = mean_shift.labels_
+        # cluster_labels is an array of integers, with each "cluster" having the same integer label
+        unique_labels = numpy.unique(arbitrary_cluster_labels)
+        # So if we gather the unique label values, that is gathering the clusters
+        for label in unique_labels:
+            # Flag the items in this cluster
+            cluster_membership: [bool] = arbitrary_cluster_labels == label
+            # Get the indices of the items in this cluster
+            member_indices: [int] = numpy.where(cluster_membership)[0].tolist()
+            # Get the descriptors in this cluster and add to the output array
+            this_cluster_descriptors: [FileDescriptor] = [selected_files[i] for i in member_indices]
+            result_array.append(this_cluster_descriptors)
+        return result_array
 
     # Combine the given files, output to the given output file
     # Use the combination algorithm given by the radio buttons on the main window

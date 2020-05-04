@@ -582,7 +582,7 @@ class MainWindow(QMainWindow):
     # see to be what gets processed.  Then re-check if the Commit button is still enabled.
 
     def commit_fields_continue(self) -> bool:
-        self.exposure_group_tolerance_changed()
+        self.exposure_group_bandwidth_changed()
         self.min_max_drop_changed()
         self.minimum_group_size_changed()
         self.pedestal_amount_changed()

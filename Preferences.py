@@ -241,7 +241,7 @@ class Preferences(QSettings):
     # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
 
     def get_exposure_group_bandwidth(self) -> float:
-        bandwidth: float = float(self.value(self.EXPOSURE_GROUP_BANDWIDTH, defaultValue=0.5))
+        bandwidth: float = float(self.value(self.EXPOSURE_GROUP_BANDWIDTH, defaultValue=1.0))
         assert 0.1 <= bandwidth <= 50.0
         return bandwidth
 
