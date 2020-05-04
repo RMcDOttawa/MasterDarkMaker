@@ -158,3 +158,16 @@ class Calibrator:
         # console.message(f"Selected calibration file {best_file_so_far.get_name()} "
         #                 f"at temperature {best_file_so_far.get_temperature()}", +1, temp=True)
         return best_file_so_far
+
+    # Get a small text tag about calibration to include in the FITs file comment
+
+    def fits_comment_tag(self) -> str:
+        calibration_type = self._data_model.get_precalibration_type()
+        if calibration_type == Constants.CALIBRATION_NONE:
+            return "(no calibration)"
+        elif calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY:
+            return "(auto-selected bias file calibration)"
+        elif calibration_type == Constants.CALIBRATION_PEDESTAL:
+            return f"(pedestal {self._data_model.get_precalibration_pedestal()} calibration)"
+        elif calibration_type == Constants.CALIBRATION_FIXED_FILE:
+            return "(fixed bias file calibration)"

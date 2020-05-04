@@ -96,11 +96,11 @@ class FileCombiner:
             if len(size_group) < minimum_group_size:
                 if group_by_size:
                     console.message(f"Ignoring one size group: {len(size_group)} "
-                                    f"files sized {size_group[0].get_size_key()}", +1)
+                                    f"files {size_group[0].get_size_key()}", +1)
             else:
                 if group_by_size:
                     console.message(f"Processing one size group: {len(size_group)} "
-                                    f"files sized {size_group[0].get_size_key()}", +1)
+                                    f"files {size_group[0].get_size_key()}", +1)
                 # Within this size group, process exposure groups, or all exposures if not grouping
                 groups_by_exposure = self.get_groups_by_exposure(size_group,
                                                                          data_model.get_group_by_exposure(),
@@ -167,7 +167,9 @@ class FileCombiner:
         self.describe_group(data_model, len(descriptor_list), sample_file, console)
 
         # Make up a file name for this group's output, into the given directory
-        file_name = SharedUtils.get_file_name_portion(combine_method, sample_file)
+        file_name = SharedUtils.get_file_name_portion(combine_method, sample_file,
+                                                      data_model.get_sigma_clip_threshold(),
+                                                      data_model.get_min_max_number_clipped_per_end())
         output_file = f"{output_directory}/{file_name}"
 
         # Confirm that these are all dark frames, and can be combined (same binning and dimensions)
@@ -389,6 +391,7 @@ class FileCombiner:
         combine_method = data_model.get_master_combine_method()
         # Get info about any precalibration that is to be done
         calibrator = Calibrator(data_model)
+        calibration_tag = calibrator.fits_comment_tag()
         assert len(input_files) > 0
         binning: int = input_files[0].get_binning()
         (mean_exposure, mean_temperature) = ImageMath.mean_exposure_and_temperature(input_files)
@@ -399,7 +402,7 @@ class FileCombiner:
                                                  FileDescriptor.FILE_TYPE_DARK,
                                                  "Dark Frame",
                                                  mean_exposure, mean_temperature, filter_name, binning,
-                                                 "Master Dark MEAN combined")
+                                                 f"Master Dark MEAN combined {calibration_tag}")
         elif combine_method == Constants.COMBINE_MEDIAN:
             median_data = ImageMath.combine_median(file_names, calibrator, console, self._session_controller)
             self.check_cancellation()
@@ -407,7 +410,7 @@ class FileCombiner:
                                                  FileDescriptor.FILE_TYPE_DARK,
                                                  "Dark Frame",
                                                  mean_exposure, mean_temperature, filter_name, binning,
-                                                 "Master Dark MEDIAN combined")
+                                                 f"Master Dark MEDIAN combined {calibration_tag}")
         elif combine_method == Constants.COMBINE_MINMAX:
             number_dropped_points = data_model.get_min_max_number_clipped_per_end()
             min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
@@ -419,7 +422,8 @@ class FileCombiner:
                                                  "Dark Frame",
                                                  mean_exposure, mean_temperature, filter_name, binning,
                                                  f"Master Dark Min/Max Clipped "
-                                                 f"(drop {number_dropped_points}) Mean combined")
+                                                 f"(drop {number_dropped_points}) Mean combined"
+                                                 f" {calibration_tag}")
         else:
             assert combine_method == Constants.COMBINE_SIGMA_CLIP
             sigma_threshold = data_model.get_sigma_clip_threshold()
@@ -432,7 +436,8 @@ class FileCombiner:
                                                  "Dark Frame",
                                                  mean_exposure, mean_temperature, filter_name, binning,
                                                  f"Master Dark Sigma Clipped "
-                                                 f"(threshold {sigma_threshold}) Mean combined")
+                                                 f"(threshold {sigma_threshold}) Mean combined"
+                                                 f" {calibration_tag}")
         console.pop_level()
 
     def describe_group(self, data_model: DataModel, number_files: int, sample_file: FileDescriptor, console: Console):
