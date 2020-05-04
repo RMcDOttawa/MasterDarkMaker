@@ -54,7 +54,7 @@ class Preferences(QSettings):
     GROUP_BY_TEMPERATURE = "group_by_temperature"
 
     # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
-    EXPOSURE_GROUP_TOLERANCE = "exposure_group_tolerance"
+    EXPOSURE_GROUP_BANDWIDTH = "exposure_group_bandwidth"
 
     # How much, as a percentage, can temperatures vary before being considered a different group?
     TEMPERATURE_GROUP_BANDWIDTH = "temperature_group_bandwidth"
@@ -240,14 +240,14 @@ class Preferences(QSettings):
 
     # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
 
-    def get_exposure_group_tolerance(self) -> float:
-        percentage: float = float(self.value(self.EXPOSURE_GROUP_TOLERANCE, defaultValue=0.05))
-        assert 0.0 <= percentage < 1.0
-        return percentage
+    def get_exposure_group_bandwidth(self) -> float:
+        bandwidth: float = float(self.value(self.EXPOSURE_GROUP_BANDWIDTH, defaultValue=0.5))
+        assert 0.1 <= bandwidth <= 50.0
+        return bandwidth
 
-    def set_exposure_group_tolerance(self, percentage: float):
-        assert 0.0 <= percentage < 1.0
-        self.setValue(self.EXPOSURE_GROUP_TOLERANCE, percentage)
+    def set_exposure_group_bandwidth(self, bandwidth: float):
+        assert 0.1 <= bandwidth < 50.0
+        self.setValue(self.EXPOSURE_GROUP_BANDWIDTH, bandwidth)
 
     # Bandwidth to use for clustering temperatures into groups
 

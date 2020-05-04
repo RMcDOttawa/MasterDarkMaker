@@ -74,7 +74,7 @@ class PreferencesWindow(QDialog):
         self.ui.groupByTemperatureCB.setChecked(preferences.get_group_by_temperature())
         self.ui.ignoreSmallGroupsCB.setChecked(preferences.get_ignore_groups_fewer_than())
 
-        self.ui.exposureGroupTolerance.setText(f"{100 * preferences.get_exposure_group_tolerance()}")
+        self.ui.exposureGroupBandwidth.setText(f"{preferences.get_exposure_group_bandwidth()}")
         self.ui.temperatureGroupBandwidth.setText(f"{preferences.get_temperature_group_bandwidth()}")
         self.ui.minimumGroupSize.setText(str(preferences.get_minimum_group_size()))
 
@@ -110,7 +110,7 @@ class PreferencesWindow(QDialog):
         self.ui.sigmaThreshold.editingFinished.connect(self.sigma_threshold_changed)
         self.ui.subFolderName.editingFinished.connect(self.sub_folder_name_changed)
         self.ui.fixedPedestalAmount.editingFinished.connect(self.pedestal_amount_changed)
-        self.ui.exposureGroupTolerance.editingFinished.connect(self.exposure_group_tolerance_changed)
+        self.ui.exposureGroupBandwidth.editingFinished.connect(self.exposure_group_bandwidth_changed)
         self.ui.temperatureGroupBandwidth.editingFinished.connect(self.temperature_group_bandwidth_changed)
         self.ui.minimumGroupSize.editingFinished.connect(self.minimum_group_size_changed)
 
@@ -223,14 +223,14 @@ class PreferencesWindow(QDialog):
             self._preferences.set_precalibration_pedestal(new_number)
         SharedUtils.background_validity_color(self.ui.fixedPedestalAmount, valid)
 
-    def exposure_group_tolerance_changed(self):
-        """User has entered value in exposure group tolerance field.  Validate and save"""
-        proposed_new_number: str = self.ui.exposureGroupTolerance.text()
-        new_number = Validators.valid_float_in_range(proposed_new_number, 0.0, 99.999)
+    def exposure_group_bandwidth_changed(self):
+        """User has entered value in exposure group bandwidth field.  Validate and save"""
+        proposed_new_number: str = self.ui.exposureGroupBandwidth.text()
+        new_number = Validators.valid_float_in_range(proposed_new_number, 0.1, 50.0)
         valid = new_number is not None
         if valid:
-            self._preferences.set_exposure_group_tolerance(new_number / 100.0)
-        SharedUtils.background_validity_color(self.ui.exposureGroupTolerance, valid)
+            self._preferences.set_exposure_group_bandwidth(new_number)
+        SharedUtils.background_validity_color(self.ui.exposureGroupBandwidth, valid)
 
     def temperature_group_bandwidth_changed(self):
         """User has entered value in temperature group bandwidth field.  Validate and save"""
@@ -292,7 +292,7 @@ class PreferencesWindow(QDialog):
             self._preferences.get_precalibration_type() == Constants.CALIBRATION_FIXED_FILE)
         self.ui.setAutoDirectory.setEnabled(
             self._preferences.get_precalibration_type() == Constants.CALIBRATION_AUTO_DIRECTORY)
-        self.ui.exposureGroupTolerance.setEnabled(self._preferences.get_group_by_exposure())
+        self.ui.exposureGroupBandwidth.setEnabled(self._preferences.get_group_by_exposure())
         self.ui.temperatureGroupBandwidth.setEnabled(self._preferences.get_group_by_temperature())
         self.ui.minimumGroupSize.setEnabled(self._preferences.get_ignore_groups_fewer_than())
 

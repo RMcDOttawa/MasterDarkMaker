@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.ui.groupByTemperatureCB.setChecked(data_model.get_group_by_temperature())
         self.ui.ignoreSmallGroupsCB.setChecked(data_model.get_ignore_groups_fewer_than())
 
-        self.ui.exposureGroupTolerance.setText(f"{100 * data_model.get_exposure_group_tolerance():.0f}")
+        self.ui.exposureGroupTolerance.setText(f"{data_model.get_exposure_group_bandwidth()}")
         self.ui.temperatureGroupBandwidth.setText(f"{data_model.get_temperature_group_bandwidth()}")
         self.ui.minimumGroupSize.setText(str(data_model.get_minimum_group_size()))
 

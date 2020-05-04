@@ -30,7 +30,7 @@ class DataModel:
         self._group_by_size: bool = preferences.get_group_by_size()
         self._group_by_exposure: bool = preferences.get_group_by_exposure()
         self._group_by_temperature: bool = preferences.get_group_by_temperature()
-        self._exposure_group_tolerance: float = preferences.get_exposure_group_tolerance()
+        self._exposure_group_bandwidth: float = preferences.get_exposure_group_bandwidth()
         self._temperature_group_bandwidth: float = preferences.get_temperature_group_bandwidth()
         self._ignore_file_type: bool = False
         self._ignore_groups_fewer_than: bool = preferences.get_ignore_groups_fewer_than()
@@ -171,14 +171,14 @@ class DataModel:
 
     # How much, as a percentage, can exposures vary before the files are considered to be in a different group?
 
-    def get_exposure_group_tolerance(self) -> float:
-        percentage: float = self._exposure_group_tolerance
-        assert 0.0 <= percentage < 1.0
-        return percentage
+    def get_exposure_group_bandwidth(self) -> float:
+        bandwidth: float = self._exposure_group_bandwidth
+        assert 0.1 <= bandwidth <= 50.0
+        return bandwidth
 
-    def set_exposure_group_tolerance(self, percentage: float):
-        assert 0.0 <= percentage < 1.0
-        self._exposure_group_tolerance = percentage
+    def set_exposure_group_bandwidth(self, bandwidth: float):
+        assert 0.1 <= bandwidth < 50.0
+        self._exposure_group_tolerance = bandwidth
 
     # How much, as a percentage, can temperatures vary before being considered a different group?
 
