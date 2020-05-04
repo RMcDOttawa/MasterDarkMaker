@@ -177,7 +177,7 @@ class DataModel:
         return bandwidth
 
     def set_exposure_group_bandwidth(self, bandwidth: float):
-        assert 0.1 <= bandwidth < 50.0
+        assert 0.1 <= bandwidth <= 50.0
         self._exposure_group_tolerance = bandwidth
 
     # How much, as a percentage, can temperatures vary before being considered a different group?

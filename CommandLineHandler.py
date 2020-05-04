@@ -41,8 +41,8 @@ class CommandLineHandler:
     #   -   If a pedestal value is specified, it is > 0
     #   -   If a min-max clip value is specified, it is > 0
     #   -   If a sigma threshold is specified, it is > 0
-    #   -   If -ge used, threshold is 0 to 100
-    #   -   If -gt used, threshold is 0 to 100
+    #   -   If -ge used, bandwidth is 0.1 to 50
+    #   -   If -gt used, bandwidth is 0.1 to 50
     #   -   If -mg used, group size is > 0
     #   Returns:  validity flag, output path if specified, array of file names
 
@@ -145,7 +145,7 @@ class CommandLineHandler:
             output_path = args.output
 
         # Grouping   gs   ge <threshold>   gt <threshold>  mg <minimum>
-        #   -   If -ge used, threshold is 0 to 100
+        #   -   If -ge used, bandwidth is 0.1 to 50
         #   -   If -gt used, bandwidth is 0.1 to 50
         #   -   If -mg used, group size is > 0
         if args.groupsize:
@@ -153,12 +153,12 @@ class CommandLineHandler:
             self._data_model.set_group_by_size(True)
         if args.groupexposure is not None:
             self._data_model.set_group_by_exposure(True)
-            tolerance = float(args.groupexposure)
-            if 0 <= tolerance <= 100:
-                print(f"   Group files by exposure with tolerance {tolerance}%")
-                self._data_model.set_exposure_group_tolerance(tolerance / 100.0)
+            bandwidth = float(args.groupexposure)
+            if 0.1 <= bandwidth <= 50.0:
+                print(f"   Group files by exposure with bandwidth {bandwidth}")
+                self._data_model.set_exposure_group_bandwidth(bandwidth)
             else:
-                print("-ge tolerance must be between 0 and 100")
+                print("-ge bandwidth must be between 0.1 and 50")
                 valid = False
         if args.grouptemperature is not None:
             self._data_model.set_group_by_temperature(True)
