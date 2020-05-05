@@ -300,7 +300,6 @@ class PreferencesWindow(QDialog):
         self.ui.autoRecursive.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
         self.ui.autoBiasOnly.setEnabled(calibration_type == Constants.CALIBRATION_AUTO_DIRECTORY)
 
-
     def close_button_clicked(self):
         """Close button has been clicked - close the preferences window"""
         # Lock-in any edits in progress in the text fields

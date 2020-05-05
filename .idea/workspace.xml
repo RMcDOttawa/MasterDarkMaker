@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AnalysisUIOptions">
-    <option name="SCOPE_TYPE" value="8" />
     <option name="CUSTOM_SCOPE_NAME" value="All Changed Files" />
   </component>
   <component name="BranchesTreeState">
@@ -15,15 +14,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a3dfb4e-c16a-4fc4-afec-4adefc5c59d9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/richard.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/richard.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/~$Testing Matrix.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Calibrator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Calibrator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CommandLineHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/CommandLineHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FileCombiner.py" beforeDir="false" afterPath="$PROJECT_DIR$/FileCombiner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FileDescriptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/FileDescriptor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ImageMath.py" beforeDir="false" afterPath="$PROJECT_DIR$/ImageMath.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SharedUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/SharedUtils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PreferencesWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/PreferencesWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Testing Matrix.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Testing Matrix.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/manual.docx" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/manual.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual.pdf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,13 +138,6 @@
       <workItem from="1587429938998" duration="86000" />
       <workItem from="1587509608857" duration="422000" />
       <workItem from="1587852037759" duration="3000" />
-    </task>
-    <task id="LOCAL-00005" summary="Update manual">
-      <created>1586801312007</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1586801312007</updated>
     </task>
     <task id="LOCAL-00006" summary="Added # selected rows feedback to make selecting groups from a large list easier.">
       <created>1586806166794</created>
@@ -484,7 +475,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588621935141</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="Set of minor improvements to information displays:&#10;- Put sigma and minmax parameters in console and in file names&#10;- Expanded console message about binning and file dimensions&#10;- Add precalibration information to FITS comment card">
+      <created>1588628482475</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1588628482476</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -530,7 +528,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Tested all exception handling, fixed some minor issues" />
     <MESSAGE value="Fixed bug in grouping by temperature" />
     <MESSAGE value="Reorganized main window into two tabbed panes to reduce window size (was getting too big for small-screen laptops)" />
     <MESSAGE value="&quot;Select only bias files&quot; option implemented for auto-bias selection" />
@@ -555,7 +552,8 @@
     <MESSAGE value="Exposure clustering: implemented data model and GUI editing of it." />
     <MESSAGE value="Exposure clustering: implemented processing on GUI side (not command line yet)." />
     <MESSAGE value="Exposure clustering: Finished command line side; all complete." />
-    <option name="LAST_COMMIT_MESSAGE" value="Exposure clustering: Finished command line side; all complete." />
+    <MESSAGE value="Set of minor improvements to information displays:&#10;- Put sigma and minmax parameters in console and in file names&#10;- Expanded console message about binning and file dimensions&#10;- Add precalibration information to FITS comment card" />
+    <option name="LAST_COMMIT_MESSAGE" value="Set of minor improvements to information displays:&#10;- Put sigma and minmax parameters in console and in file names&#10;- Expanded console message about binning and file dimensions&#10;- Add precalibration information to FITS comment card" />
   </component>
   <component name="WindowStateProjectService">
     <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1587771480041">
@@ -563,25 +561,25 @@
     </state>
     <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587732856854" />
     <state x="325" y="163" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587771480041" />
-    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1588622327855">
-      <screen x="0" y="23" width="1680" height="994" />
+    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1588682938374">
+      <screen x="0" y="23" width="1680" height="993" />
     </state>
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587240434912" />
-    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588611142194" />
+    <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588682938374" />
     <state x="585" y="377" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588622327855" />
-    <state x="299" y="47" key="CommitChangelistDialog2" timestamp="1588621934907">
+    <state x="299" y="47" key="CommitChangelistDialog2" timestamp="1588628482230">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.991/1680.0.1920.1080@0.23.1680.991" timestamp="1587139022923" />
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.992/1680.0.1920.1080@0.23.1680.992" timestamp="1587836538523" />
     <state x="397" y="76" key="CommitChangelistDialog2/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588599620504" />
-    <state x="299" y="47" key="CommitChangelistDialog2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588621934907" />
+    <state x="299" y="47" key="CommitChangelistDialog2/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588628482230" />
     <state x="198" y="123" width="1342" height="785" key="DiffContextDialog" timestamp="1588530452625">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state x="198" y="123" width="1342" height="784" key="DiffContextDialog/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1587511197679" />
     <state x="198" y="123" width="1342" height="785" key="DiffContextDialog/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588530452625" />
-    <state width="1500" height="187" key="GridCell.Tab.0.bottom" timestamp="1588628234705">
+    <state width="1500" height="187" key="GridCell.Tab.0.bottom" timestamp="1588682158346">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.bottom/0.23.1440.827@0.23.1440.827" timestamp="1587430025118" />
@@ -593,8 +591,8 @@
     <state width="1034" height="234" key="GridCell.Tab.0.bottom/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826932" />
     <state width="1500" height="372" key="GridCell.Tab.0.bottom/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588611455693" />
     <state width="1500" height="248" key="GridCell.Tab.0.bottom/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
-    <state width="1500" height="187" key="GridCell.Tab.0.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588628234705" />
-    <state width="1500" height="187" key="GridCell.Tab.0.center" timestamp="1588628234703">
+    <state width="1500" height="187" key="GridCell.Tab.0.bottom/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588682158346" />
+    <state width="1500" height="187" key="GridCell.Tab.0.center" timestamp="1588682158345">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.center/0.23.1440.827@0.23.1440.827" timestamp="1587430025117" />
@@ -606,8 +604,8 @@
     <state width="1034" height="234" key="GridCell.Tab.0.center/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826931" />
     <state width="1500" height="372" key="GridCell.Tab.0.center/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588611455692" />
     <state width="1500" height="248" key="GridCell.Tab.0.center/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
-    <state width="1500" height="187" key="GridCell.Tab.0.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588628234703" />
-    <state width="1500" height="187" key="GridCell.Tab.0.left" timestamp="1588628234702">
+    <state width="1500" height="187" key="GridCell.Tab.0.center/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588682158345" />
+    <state width="1500" height="187" key="GridCell.Tab.0.left" timestamp="1588682158344">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.left/0.23.1440.827@0.23.1440.827" timestamp="1587430025116" />
@@ -619,8 +617,8 @@
     <state width="1034" height="234" key="GridCell.Tab.0.left/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826930" />
     <state width="1500" height="372" key="GridCell.Tab.0.left/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588611455691" />
     <state width="1500" height="248" key="GridCell.Tab.0.left/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769586" />
-    <state width="1500" height="187" key="GridCell.Tab.0.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588628234702" />
-    <state width="1500" height="187" key="GridCell.Tab.0.right" timestamp="1588628234704">
+    <state width="1500" height="187" key="GridCell.Tab.0.left/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588682158344" />
+    <state width="1500" height="187" key="GridCell.Tab.0.right" timestamp="1588682158346">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
     <state width="1318" height="163" key="GridCell.Tab.0.right/0.23.1440.827@0.23.1440.827" timestamp="1587430025117" />
@@ -632,7 +630,7 @@
     <state width="1034" height="234" key="GridCell.Tab.0.right/0.23.1680.992/1680.0.1920.1080@1680.0.1920.1080" timestamp="1587218826931" />
     <state width="1500" height="372" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@0.23.1680.993" timestamp="1588611455692" />
     <state width="1500" height="248" key="GridCell.Tab.0.right/0.23.1680.993/1680.0.1920.1080@1680.0.1920.1080" timestamp="1588359769587" />
-    <state width="1500" height="187" key="GridCell.Tab.0.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588628234704" />
+    <state width="1500" height="187" key="GridCell.Tab.0.right/0.23.1680.994/1680.0.1920.1080@0.23.1680.994" timestamp="1588682158346" />
     <state width="1500" height="372" key="GridCell.Tab.1.bottom" timestamp="1588612221205">
       <screen x="0" y="23" width="1680" height="994" />
     </state>
@@ -757,7 +755,7 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/MasterDarkMaker$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1588628234687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/MasterDarkMaker$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1588677397836" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/MasterDarkMaker$CmdLine.coverage" NAME="CmdLine Coverage Results" MODIFIED="1587815946609" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
