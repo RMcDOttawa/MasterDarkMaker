@@ -301,7 +301,7 @@ class CommandLineHandler:
 
     @classmethod
     def get_file_name_portion(cls, combine_method, sample_input_file,
-                                              sigma_threshold, min_max_clipped):
+                              sigma_threshold, min_max_clipped):
         # Get other components of name
         now = datetime.now()
         date_time_string = now.strftime("%Y%m%d-%H%M")

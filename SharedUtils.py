@@ -154,7 +154,7 @@ class SharedUtils:
 
     @classmethod
     def create_output_path(cls, sample_input_file: FileDescriptor, combine_method: int,
-                                              sigma_threshold, min_max_clipped):
+                           sigma_threshold, min_max_clipped):
         """Create an output file name in the case where one wasn't specified"""
         # Get directory of sample input file
         directory_prefix = os.path.dirname(sample_input_file.get_absolute_path())
@@ -165,7 +165,7 @@ class SharedUtils:
 
     @classmethod
     def get_file_name_portion(cls, combine_method, sample_input_file,
-                                              sigma_threshold, min_max_clipped):
+                              sigma_threshold, min_max_clipped):
         # Get other components of name
         now = datetime.now()
         date_time_string = now.strftime("%Y%m%d-%H%M")

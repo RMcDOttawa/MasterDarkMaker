@@ -39,9 +39,9 @@ class DataModel:
     def get_master_combine_method(self) -> int:
         result = self._master_combine_method
         assert (result == Constants.COMBINE_SIGMA_CLIP) \
-               or (result == Constants.COMBINE_MINMAX) \
-               or (result == Constants.COMBINE_MEDIAN) \
-               or (result == Constants.COMBINE_MEAN)
+            or (result == Constants.COMBINE_MINMAX) \
+            or (result == Constants.COMBINE_MEDIAN) \
+            or (result == Constants.COMBINE_MEAN)
         return result
 
     def set_master_combine_method(self, value: int):
@@ -98,9 +98,9 @@ class DataModel:
     def get_precalibration_type(self) -> int:
         result = self._precalibration_type
         assert (result == Constants.CALIBRATION_NONE) \
-               or (result == Constants.CALIBRATION_FIXED_FILE) \
-               or (result == Constants.CALIBRATION_AUTO_DIRECTORY) \
-               or (result == Constants.CALIBRATION_PEDESTAL)
+            or (result == Constants.CALIBRATION_FIXED_FILE) \
+            or (result == Constants.CALIBRATION_AUTO_DIRECTORY) \
+            or (result == Constants.CALIBRATION_PEDESTAL)
         return result
 
     def set_precalibration_type(self, value: int):
@@ -178,7 +178,7 @@ class DataModel:
 
     def set_exposure_group_bandwidth(self, bandwidth: float):
         assert 0.1 <= bandwidth <= 50.0
-        self._exposure_group_tolerance = bandwidth
+        self._exposure_group_bandwidth = bandwidth
 
     # How much, as a percentage, can temperatures vary before being considered a different group?
 

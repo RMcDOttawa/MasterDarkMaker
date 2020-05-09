@@ -51,13 +51,13 @@ class CombineThreadWorker(QObject):
                     or self._data_model.get_group_by_size() \
                     or self._data_model.get_group_by_temperature():
                 file_combiner.process_groups(self._data_model, self._descriptors,
-                                                             self._output_path,
-                                                             console)
+                                             self._output_path,
+                                             console)
             else:
                 # Not grouped, producing a single output file. Get output file location
                 file_combiner.original_non_grouped_processing(self._descriptors, self._data_model,
-                                                                              self._output_path,
-                                                                              console)
+                                                              self._output_path,
+                                                              console)
         except FileNotFoundError as exception:
             self.error_dialog("File not found", f"File \"{exception.filename}\" not found or not readable")
         except MasterMakerExceptions.NoGroupOutputDirectory as exception:

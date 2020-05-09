@@ -40,7 +40,7 @@ class FileCombiner:
         if FileCombiner.all_compatible_sizes(selected_files):
             self.check_cancellation()
             if data_model.get_ignore_file_type() or FileCombiner.all_of_type(selected_files,
-                                                                              FileDescriptor.FILE_TYPE_DARK):
+                                                                             FileDescriptor.FILE_TYPE_DARK):
                 # Get (most common) filter name in the set
                 # Since these are darks, the filter is meaningless, but we need the value
                 # for the shared "create file" routine
@@ -103,8 +103,8 @@ class FileCombiner:
                                     f"files {size_group[0].get_size_key()}", +1)
                 # Within this size group, process exposure groups, or all exposures if not grouping
                 groups_by_exposure = self.get_groups_by_exposure(size_group,
-                                                                         data_model.get_group_by_exposure(),
-                                                                         exposure_bandwidth)
+                                                                 data_model.get_group_by_exposure(),
+                                                                 exposure_bandwidth)
                 for exposure_group in groups_by_exposure:
                     self.check_cancellation()
                     (mean_exposure, _) = ImageMath.mean_exposure_and_temperature(exposure_group)
@@ -120,8 +120,8 @@ class FileCombiner:
                         # Within this exposure group, process temperature groups, or all temperatures if not grouping
                         groups_by_temperature = \
                             self.get_groups_by_temperature(exposure_group,
-                                                                   data_model.get_group_by_temperature(),
-                                                                   temperature_bandwidth)
+                                                           data_model.get_group_by_temperature(),
+                                                           temperature_bandwidth)
                         for temperature_group in groups_by_temperature:
                             self.check_cancellation()
                             console.push_level()
@@ -242,7 +242,8 @@ class FileCombiner:
 
     # Determine if all the files in the list have the same filter name
     
-    def all_same_filter(self, selected_files: [FileDescriptor]) -> bool:
+    @staticmethod
+    def all_same_filter(selected_files: [FileDescriptor]) -> bool:
         if len(selected_files) == 0:
             return True
         filter_name = selected_files[0].get_filter_name()
@@ -288,7 +289,8 @@ class FileCombiner:
     # Given list of file descriptors, return a list of lists, where each outer list is all the
     # file descriptors with the same size (dimensions and binning)
 
-    def get_groups_by_size(self, selected_files: [FileDescriptor], is_grouped: bool) -> [[FileDescriptor]]:
+    @staticmethod
+    def get_groups_by_size(selected_files: [FileDescriptor], is_grouped: bool) -> [[FileDescriptor]]:
         if is_grouped:
             descriptors_sorted = sorted(selected_files, key=FileDescriptor.get_size_key)
             descriptors_grouped = groupby(descriptors_sorted, FileDescriptor.get_size_key)
@@ -358,7 +360,8 @@ class FileCombiner:
 
     # Do the actual clustering of the file descriptors, on the given list of values
 
-    def cluster_descriptors_by_values(self, bandwidth, cluster_values, selected_files):
+    @staticmethod
+    def cluster_descriptors_by_values(bandwidth, cluster_values, selected_files):
         result_array: [[FileDescriptor]] = []
         data_to_cluster = numpy.array(cluster_values).reshape(-1, 1)
         mean_shift = MeanShift(bandwidth=bandwidth)
@@ -414,7 +417,8 @@ class FileCombiner:
         elif combine_method == Constants.COMBINE_MINMAX:
             number_dropped_points = data_model.get_min_max_number_clipped_per_end()
             min_max_clipped_mean = ImageMath.combine_min_max_clip(file_names, number_dropped_points,
-                                                                   calibrator, console, self._session_controller)
+                                                                  calibrator, console,
+                                                                  self._session_controller)
             self.check_cancellation()
             assert min_max_clipped_mean is not None
             RmFitsUtil.create_combined_fits_file(substituted_file_name, min_max_clipped_mean,
@@ -428,7 +432,7 @@ class FileCombiner:
             assert combine_method == Constants.COMBINE_SIGMA_CLIP
             sigma_threshold = data_model.get_sigma_clip_threshold()
             sigma_clipped_mean = ImageMath.combine_sigma_clip(file_names, sigma_threshold,
-                                                               calibrator, console, self._session_controller)
+                                                              calibrator, console, self._session_controller)
             self.check_cancellation()
             assert sigma_clipped_mean is not None
             RmFitsUtil.create_combined_fits_file(substituted_file_name, sigma_clipped_mean,
@@ -440,7 +444,11 @@ class FileCombiner:
                                                  f" {calibration_tag}")
         console.pop_level()
 
-    def describe_group(self, data_model: DataModel, number_files: int, sample_file: FileDescriptor, console: Console):
+    @staticmethod
+    def describe_group(data_model: DataModel,
+                       number_files: int,
+                       sample_file: FileDescriptor,
+                       console: Console):
         binning = sample_file.get_binning()
         exposure = sample_file.get_exposure()
         temperature = sample_file.get_temperature()

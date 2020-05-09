@@ -63,7 +63,7 @@ class Calibrator:
         return result
 
     def calibrate_with_file(self, file_data: [ndarray], calibration_file_path: str, console: Console,
-                                session_controller: SessionController) -> [ndarray]:
+                            session_controller: SessionController) -> [ndarray]:
         console.message(f"Calibrate with file: {calibration_file_path}", 0)
         result = file_data.copy()
         calibration_image = RmFitsUtil.fits_data_from_path(calibration_file_path)
@@ -100,7 +100,7 @@ class Calibrator:
     #       NoSuitableAutoBias
 
     def get_best_calibration_file(self, directory_path: str, sample_file: FileDescriptor,
-                                                          session_controller: SessionController) -> Optional[str]:
+                                  session_controller: SessionController) -> Optional[str]:
         # Get all calibration files in the given directory
         all_descriptors = self.all_descriptors_from_directory(directory_path,
                                                               self._data_model.get_auto_directory_recursive())

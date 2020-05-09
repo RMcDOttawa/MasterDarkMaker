@@ -474,7 +474,7 @@ class ImageMath:
         # eliminated *all* the data.  We will find the offending columns and re-calculate those with
         # fewer dropped extremes.  This should exactly reproduce the results of the cell-by-cell methods
         if ma.is_masked(masked_means):
-            console.message("Means array still contains masked values; reducing drops for those columns.", 0)
+            console.message("Some columns lost all their values; reducing drops for those columns.", 0)
             #  Get the mask, and get a 2D matrix showing which columns were entirely masked
             the_mask = masked_array.mask
             eliminated_columns_map = ndarray.all(the_mask, axis=0)
@@ -587,7 +587,7 @@ class ImageMath:
         # eliminated *all* the data.  We will find the offending columns and re-calculate those using
         # simple min-max clipping.
         if ma.is_masked(masked_means):
-            console.message("Means array still contains masked values; min-max clipping those columns.", 0)
+            console.message("Some columns lost all their values; min-max clipping those columns.", 0)
             #  Get the mask, and get a 2D matrix showing which columns were entirely masked
             eliminated_columns_map = ndarray.all(exceeds_threshold, axis=0)
             masked_coordinates = numpy.where(eliminated_columns_map)

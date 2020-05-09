@@ -75,9 +75,9 @@ class Preferences(QSettings):
     def get_master_combine_method(self) -> int:
         result = int(self.value(self.MASTER_COMBINE_METHOD, defaultValue=Constants.COMBINE_SIGMA_CLIP))
         assert (result == Constants.COMBINE_SIGMA_CLIP) \
-               or (result == Constants.COMBINE_MINMAX) \
-               or (result == Constants.COMBINE_MEDIAN) \
-               or (result == Constants.COMBINE_MEAN)
+            or (result == Constants.COMBINE_MINMAX) \
+            or (result == Constants.COMBINE_MEDIAN) \
+            or (result == Constants.COMBINE_MEAN)
         return result
 
     def set_master_combine_method(self, value: int):
@@ -166,9 +166,9 @@ class Preferences(QSettings):
     def get_precalibration_type(self) -> int:
         result = int(self.value(self.IMAGE_PRE_CALIBRATION, defaultValue=Constants.CALIBRATION_NONE))
         assert (result == Constants.CALIBRATION_NONE) \
-               or (result == Constants.CALIBRATION_FIXED_FILE) \
-               or (result == Constants.CALIBRATION_AUTO_DIRECTORY) \
-               or (result == Constants.CALIBRATION_PEDESTAL)
+            or (result == Constants.CALIBRATION_FIXED_FILE) \
+            or (result == Constants.CALIBRATION_AUTO_DIRECTORY) \
+            or (result == Constants.CALIBRATION_PEDESTAL)
         return result
 
     def set_precalibration_type(self, value: int):

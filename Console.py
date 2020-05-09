@@ -16,12 +16,11 @@ class Console:
         self._message_level = 0
         self._message_level_stack: [int] = []
 
-    #
     #   Put a message on the console.
     #   Change the indentation level by the given increment, which can only be
     #	+1, -1, or 0 (i.e. indent, outdent, or no-dent)
     #   If temp=True, reset it immediately after
-    #
+
     def message(self, message: str, level_change: int, temp: bool = False):
         assert -1 <= level_change <= 1
         self._message_level += level_change
