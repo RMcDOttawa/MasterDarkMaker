@@ -2,6 +2,8 @@ This program combines Dark Frames into a master dark.  If run without parameters
 window opens.  If run given a list of file names as args, then those are immediately processed
 without the UI interaction.
 
+	Video tutorial: https://vimeo.com/420810067/aef2422c50
+
 Files with same dimensions can be manually selected for combination, or you can point the program
 to a large set of files and have it automatically group them by dimensions, exposure time, and temperature
 and produce a master dark for each of the grouped sets.

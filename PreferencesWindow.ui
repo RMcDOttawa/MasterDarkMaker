@@ -286,6 +286,9 @@
           <height>21</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>Minimum group size to be processed.</string>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -300,6 +303,9 @@
       </item>
       <item row="3" column="0">
        <widget class="QCheckBox" name="ignoreSmallGroupsCB">
+        <property name="toolTip">
+         <string>Ignore groups with fewer than a given number of members.</string>
+        </property>
         <property name="text">
          <string>Ignore groups with fewer than:</string>
         </property>
@@ -537,7 +543,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="dispositionGroup"/>
   <buttongroup name="combineMethodGroup"/>
+  <buttongroup name="dispositionGroup"/>
  </buttongroups>
 </ui>

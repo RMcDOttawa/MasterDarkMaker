@@ -689,6 +689,9 @@
            </item>
            <item row="4" column="0" colspan="3">
             <widget class="QCheckBox" name="ignoreFileType">
+             <property name="toolTip">
+              <string>Allow any FITS file to be selected, not just files we think are Dark frames.</string>
+             </property>
              <property name="text">
               <string>Ignore FITS file type, allow combine</string>
              </property>
@@ -722,6 +725,9 @@
                <width>31</width>
                <height>21</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Minimum group size to be processed.</string>
              </property>
             </widget>
            </item>
@@ -780,6 +786,9 @@
            </item>
            <item row="3" column="0">
             <widget class="QCheckBox" name="ignoreSmallGroupsCB">
+             <property name="toolTip">
+              <string>Only process groups having at least this many members</string>
+             </property>
              <property name="text">
               <string>Ignore groups with fewer than:</string>
              </property>
